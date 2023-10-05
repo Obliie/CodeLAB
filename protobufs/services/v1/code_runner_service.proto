@@ -4,6 +4,7 @@ package protobufs.services.v1;
 
 // Code Runner service
 service CodeRunnerService {
+    // Gets the current state of a running container
     rpc GetRunnerState(GetRunnerStateRequest) returns (GetRunnerStateResponse) {}
 }
 
