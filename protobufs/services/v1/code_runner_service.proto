@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package protobufs.services.v1;
+
+// Code Runner service
+service CodeRunnerService {
+    rpc GetRunnerState(GetRunnerStateRequest) returns (GetRunnerStateResponse) {}
+}
+
+message GetRunnerStateRequest {
+
+}
+
+message GetRunnerStateResponse {
+
+}

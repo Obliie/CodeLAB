@@ -51,7 +51,7 @@ pre-commit install
 1. Move into the frontend development directory
 
 ```sh
-cd app-web
+cd app
 ```
 
 2. Install NPM packages

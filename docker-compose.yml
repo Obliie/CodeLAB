@@ -1,0 +1,63 @@
+version: '3.8'
+name: codelab
+services:
+  ###
+  # Service Containers
+  ###
+  code-runner:
+    build:
+      context: ./
+      dockerfile: ./services/code-runner/Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      proto-builder:
+        condition: service_completed_successfully
+    volumes:
+      - ./services/common/src/main:/service_common
+      - ./services/code-runner/src/main:/service
+      - ./protobufs/build/python:/protobufs
+    command: watchmedo auto-restart --recursive --pattern="*.py" --directory="/service/" --directory="/service_common/" --directory="/protobufs/" python3 /service/service.py
+    profiles:
+      - backend
+    networks:
+      - codelabmesh
+
+  ###
+  # Build Containers
+  ###
+  proto-builder:
+    build:
+      context: ./
+      dockerfile: ./containers/proto-builder/Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - ./protobufs:/protobufs
+    working_dir: /protobufs
+    command: generate --template /etc/buf/buf.gen.yaml
+    profiles: ['build', 'backend']
+
+  ###
+  # Test Containers
+  ###
+  integration:
+    build:
+      context: ./
+      dockerfile: ./containers/integration-test/Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - ./services/common/src/test:/tests/common
+      - ./services/code-runner/src/test:/tests/code-runner
+      - ./protobufs/build/python:/protobufs
+    command: pytest /tests
+    profiles:
+      - test
+    networks:
+      - codelabmesh
+
+networks:
+  codelabmesh:
+    driver: bridge
+    name: codelabmesh
