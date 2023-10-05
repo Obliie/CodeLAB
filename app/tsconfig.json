@@ -15,5 +15,6 @@
     "strict": true,
     "target": "ESNext"
   },
-  "extends": "expo/tsconfig.base"
+
+  "exclude": ["node_modules", "babel.config.js", "metro.config.js", "jest.config.js"]
 }
