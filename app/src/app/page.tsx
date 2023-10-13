@@ -1,4 +1,8 @@
 import MediaCard from '@/components/MediaCard';
+import { ProblemService } from '@/protobufs/services/v1/problem_service_connect';
+import { GetProblemRequest } from '@/protobufs/services/v1/problem_service_pb';
+import { createPromiseClient } from '@connectrpc/connect';
+import { createGrpcWebTransport } from '@connectrpc/connect-web';
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import Box from '@mui/material/Box';
@@ -8,13 +12,31 @@ import ListItem from '@mui/material/ListItem';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Unstable_Grid2';
 
+async function GetProblem(): Promise<string> {
+    // Make the Problem client
+    const client = createPromiseClient(
+        ProblemService,
+        createGrpcWebTransport({
+            baseUrl: 'http://0.0.0.0:8080/',
+        }),
+    );
+
+    const problem = await client.getProblemById(
+        new GetProblemRequest({
+            problemId: 1,
+        }),
+    );
+
+    return problem.problem?.title ?? '';
+}
+
 export default function HomePage() {
     return (
         <Box sx={{ display: 'flex' }}>
             <div>
                 <Alert severity="info" sx={{ mt: 2, mb: 5 }}>
                     <AlertTitle>Hello 👋</AlertTitle>
-                    This app uses the Next.js App Router and Material UI v5.
+                    {GetProblem()}
                 </Alert>
                 <Grid container rowSpacing={3} columnSpacing={3}>
                     <Grid xs={6}>

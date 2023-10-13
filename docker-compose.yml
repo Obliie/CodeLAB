@@ -1,63 +1,130 @@
 version: '3.8'
 name: codelab
 services:
-  ###
-  # Service Containers
-  ###
-  code-runner:
-    build:
-      context: ./
-      dockerfile: ./services/code-runner/Dockerfile
-    env_file:
-      - .env
-    depends_on:
-      proto-builder:
-        condition: service_completed_successfully
-    volumes:
-      - ./services/common/src/main:/service_common
-      - ./services/code-runner/src/main:/service
-      - ./protobufs/build/python:/protobufs
-    command: watchmedo auto-restart --recursive --pattern="*.py" --directory="/service/" --directory="/service_common/" --directory="/protobufs/" python3 /service/service.py
-    profiles:
-      - backend
-    networks:
-      - codelabmesh
+    ###
+    # Service Containers
+    ###
+    code-runner:
+        build:
+            context: ./
+            dockerfile: ./services/code-runner/Dockerfile
+        env_file:
+            - .env
+        depends_on:
+            proto-builder:
+                condition: service_completed_successfully
+        volumes:
+            - ./services/common/src/main:/service_common
+            - ./services/code-runner/src/main:/service
+            - ./protobufs/build/python:/protobufs
+        command: watchmedo auto-restart --recursive --pattern="*.py" --directory="/service/" --directory="/service_common/" --directory="/protobufs/" python3 /service/service.py
+        profiles:
+            - backend
+        networks:
+            - codelabmesh
 
-  ###
-  # Build Containers
-  ###
-  proto-builder:
-    build:
-      context: ./
-      dockerfile: ./containers/proto-builder/Dockerfile
-    env_file:
-      - .env
-    volumes:
-      - ./protobufs:/protobufs
-    working_dir: /protobufs
-    command: generate --template /etc/buf/buf.gen.yaml
-    profiles: ['build', 'backend']
+    problem:
+        build:
+            context: ./
+            dockerfile: ./services/problem/Dockerfile
+        env_file:
+            - .env
+        depends_on:
+            proto-builder:
+                condition: service_completed_successfully
+        volumes:
+            - ./services/common/src/main:/service_common
+            - ./services/problem/src/main:/service
+            - ./protobufs/build/python:/protobufs
+        command: watchmedo auto-restart --recursive --pattern="*.py" --directory="/service/" --directory="/service_common/" --directory="/protobufs/" python3 /service/service.py
+        profiles:
+            - backend
+        networks:
+            - codelabmesh
 
-  ###
-  # Test Containers
-  ###
-  integration:
-    build:
-      context: ./
-      dockerfile: ./containers/integration-test/Dockerfile
-    env_file:
-      - .env
-    volumes:
-      - ./services/common/src/test:/tests/common
-      - ./services/code-runner/src/test:/tests/code-runner
-      - ./protobufs/build/python:/protobufs
-    command: pytest /tests
-    profiles:
-      - test
-    networks:
-      - codelabmesh
+    ###
+    # Build Containers
+    ###
+    proto-builder:
+        build:
+            context: ./
+            dockerfile: ./containers/proto-builder/Dockerfile
+        env_file:
+            - .env
+        volumes:
+            - ./protobufs:/protobufs
+        working_dir: /protobufs
+        command: generate --template /etc/buf/buf.gen.yaml
+        profiles: ['build', 'backend']
+
+    ###
+    # Test Containers
+    ###
+    integration:
+        build:
+            context: ./
+            dockerfile: ./containers/integration-test/Dockerfile
+        env_file:
+            - .env
+        volumes:
+            - ./services/common/src/test:/tests/common
+            - ./services/code-runner/src/test:/tests/code-runner
+            - ./services/problem/src/test:/tests/problem
+            - ./protobufs/build/python:/protobufs
+        command: pytest /tests
+        profiles:
+            - test
+        networks:
+            - codelabmesh
+
+    ###
+    # Envoy and API stats
+    ###
+    api-gateway:
+        build:
+            context: ./
+            dockerfile: ./containers/api-gateway/Dockerfile
+            args:
+                PROBLEM_SERVICE_PORT: ${PROBLEM_SERVICE_PORT}
+        env_file:
+            - .env
+        depends_on:
+            problem:
+                condition: service_started
+            statsd-exporter:
+                condition: service_started
+        command: /usr/local/bin/envoy -c /etc/envoy/envoy.json -l trace --log-path /tmp/envoy-info.log
+        profiles:
+            - backend
+        ports:
+            - ${HOST}:${ENVOY_EDGE_GATEWAY_PORT}:8080
+            - ${HOST}:${ENVOY_EDGE_GATEWAY_ADMIN_PORT}:9090
+        networks:
+            - codelabmesh
+
+    statsd-exporter:
+        image: prom/statsd-exporter:latest
+        profiles:
+            - backend
+        networks:
+            - codelabmesh
+
+    prometheus:
+        build:
+            context: ./
+            dockerfile: ./containers/prometheus/Dockerfile
+        depends_on:
+            statsd-exporter:
+                condition: service_started
+        command: '--config.file=/etc/prometheus/prometheus.yaml'
+        profiles:
+            - backend
+        ports:
+            - ${HOST}:${PROMETHEUS_PORT}:9090
+        networks:
+            - codelabmesh
 
 networks:
-  codelabmesh:
-    driver: bridge
-    name: codelabmesh
+    codelabmesh:
+        driver: bridge
+        name: codelabmesh

@@ -1,12 +1,14 @@
 version: v1
 managed:
-  enabled: true
+    enabled: true
 plugins:
-  - plugin: buf.build/grpc/python:v1.56.2
-    out: build/python
-  - plugin: buf.build/protocolbuffers/python
-    out: build/python
-  - plugin: buf.build/bufbuild/connect-es:v0.12.0
-    out: build/ts
-  - plugin: buf.build/bufbuild/es
-    out: build/ts
+    - plugin: buf.build/grpc/python
+      out: build/python
+    - plugin: buf.build/protocolbuffers/python
+      out: build/python
+    - plugin: buf.build/bufbuild/connect-es
+      out: build/ts
+      opt: target=ts
+    - plugin: buf.build/bufbuild/es
+      out: build/ts
+      opt: target=ts

@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package protobufs.services.v1;
+
+// Problem service
+service ProblemService {
+    rpc GetProblemById(GetProblemRequest) returns (GetProblemResponse) {}
+}
+
+message GetProblemRequest {
+    int32 problemId = 1;
+}
+
+message GetProblemResponse {
+    Problem problem = 1;
+}
+
+message Problem {
+    string title = 1;
+    string description = 2;
+    repeated TestData testData = 3;
+}
+
+message TestData {
+    string input = 1;
+    string expectedOutput = 2;
+}
