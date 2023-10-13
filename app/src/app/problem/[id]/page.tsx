@@ -1,9 +1,8 @@
-import * as React from 'react';
-import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
+import * as React from 'react';
 
-export default function TasksPage() {
+export default function ProblemPage() {
     return (
         <Container>
             <Box
@@ -13,9 +12,7 @@ export default function TasksPage() {
                     justifyContent: 'center',
                     alignItems: 'center',
                 }}>
-                <Typography variant="body1" gutterBottom>
-                    Tasks Page
-                </Typography>
+                IM A PROBLEM
             </Box>
         </Container>
     );
