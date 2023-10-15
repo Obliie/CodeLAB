@@ -1,24 +1,16 @@
-import { ProblemService } from '@/protobufs/services/v1/problem_service_connect';
-import { GetProblemRequest, Problem } from '@/protobufs/services/v1/problem_service_pb';
-import { createPromiseClient } from '@connectrpc/connect';
+import { useMemo } from 'react';
 import { createGrpcWebTransport } from '@connectrpc/connect-web';
+import { createPromiseClient, PromiseClient } from '@connectrpc/connect';
+import { ServiceType } from '@bufbuild/protobuf';
 
 const transport = createGrpcWebTransport({
     baseUrl: 'http://0.0.0.0:8080/',
 });
 
-export async function getProblems(): Promise<Problem[]> {
-    const client = createPromiseClient(ProblemService, transport);
-
-    const problem = await client.getProblemById(
-        new GetProblemRequest({
-            problemId: 1,
-        }),
-    );
-
-    if (!problem.problem) {
-        throw new Error();
-    }
-
-    return [problem.problem];
+/**
+ * Get a promise client for the given service.
+ */
+export function useClient<T extends ServiceType>(service: T): PromiseClient<T> {
+    // We memoize the client, so that we only create one instance per service.
+    return useMemo(() => createPromiseClient(service, transport), [service]);
 }

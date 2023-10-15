@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package protobufs.common.v1;
+
+message Problem {
+    string id = 1;
+    string title = 2;
+    string description = 3;
+    repeated TestData test_data = 4;
+    repeated ProgrammingLanguage supported_languages = 5;
+
+    message TestData {
+        repeated TestInput inputs = 1;
+        optional string expected_stdout = 2;
+        repeated TestFile expected_files = 3;
+    }
+
+    message TestInput {
+        optional int32 arg_position = 1;
+        oneof input_data {
+            string input_value = 2;
+            TestFile input_file = 3;
+        }
+    }
+
+    message TestFile {
+        string path = 2;
+        bytes data = 3;
+    }
+}
+
+message ProblemSummary {
+    string id = 1;
+    string title = 2;
+    string summary = 3;
+}
+
+enum ProgrammingLanguage {
+    PROGRAMMING_LANGUAGE_UNSPECIFIED = 0;
+    PROGRAMMING_LANGUAGE_PYTHON = 1;
+}

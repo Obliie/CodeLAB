@@ -1,4 +1,9 @@
-import { getProblems } from '@/lib/connect';
+import { useClient } from '@/lib/connect';
+import { handleGrpcError } from '@/lib/error';
+import { ProblemService } from '@/protobufs/services/v1/problem_service_connect';
+import { GetProblemSummariesRequest, GetProblemSummariesResponse } from '@/protobufs/services/v1/problem_service_pb';
+import { createPromiseClient } from '@connectrpc/connect';
+import { createGrpcWebTransport } from '@connectrpc/connect-web';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Accordion from '@mui/material/Accordion';
 import AccordionActions from '@mui/material/AccordionActions';
@@ -12,22 +17,26 @@ import Typography from '@mui/material/Typography';
 import Link from 'next/link';
 import * as React from 'react';
 
-async function Problems() {
-    const problems = await getProblems();
+async function ProblemSummaries() {
+    const problems = (await useClient(ProblemService)
+        .getProblemSummaries({})
+        .catch(err => handleGrpcError(err))) as GetProblemSummariesResponse;
 
     return (
         <Box width="100%" paddingTop="10px">
-            {problems.map((problem, index) => (
-                <Accordion key={index}>
+            {problems.problemSummaries.map(problem => (
+                <Accordion key={problem.id}>
                     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         <Typography>{problem.title}</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                        <Typography>{problem.description}</Typography>
+                        <Typography>{problem.summary}</Typography>
                     </AccordionDetails>
                     <AccordionActions>
-                        <Link href={`/problem/${index}`}>
-                            <Button variant="contained">View {index}</Button>
+                        <Link href={`/problem/${problem.id}`}>
+                            <Button variant="contained" sx={{ margin: '10px' }}>
+                                View
+                            </Button>
                         </Link>
                     </AccordionActions>
                 </Accordion>
@@ -47,7 +56,7 @@ export default function ProblemsPage() {
                     alignItems: 'center',
                 }}>
                 <React.Suspense fallback={<Skeleton width="100%" />}>
-                    <Problems />
+                    <ProblemSummaries />
                 </React.Suspense>
             </Box>
         </Container>

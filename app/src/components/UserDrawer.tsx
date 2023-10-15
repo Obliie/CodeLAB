@@ -14,7 +14,7 @@ import * as React from 'react';
 
 const LINKS = [
     { text: 'Home', href: '/', icon: HomeIcon },
-    { text: 'Problems', href: '/problem', icon: ViewHeadlineIcon },
+    { text: 'Problems', href: '/problem/list', icon: ViewHeadlineIcon },
 ];
 
 const PLACEHOLDER_LINKS = [

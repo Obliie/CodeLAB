@@ -5,28 +5,65 @@ import os
 
 import grpc
 from protobufs.services.v1 import problem_service_pb2, problem_service_pb2_grpc
+from protobufs.common.v1 import problem_pb2
 
 from service_logging import init_logging, log_and_flush
 
 
 class ProblemServicer(problem_service_pb2_grpc.ProblemService):
-    def GetProblemById(
+    def GetProblemSummaries(
+        self, request: problem_service_pb2.GetProblemSummariesRequest, context: grpc.ServicerContext
+    ) -> problem_service_pb2.GetProblemSummariesResponse:
+        problem22 = problem_pb2.ProblemSummary()
+        problem22.id = "11"
+        problem22.title = "Programming Lab Environment"
+        problem22.summary = "This is a summary of the task..."
+
+        problem = problem_pb2.ProblemSummary()
+        problem.id = "12"
+        problem.title = "Hi I'm here for testing :)"
+        problem.summary = "blah blah"
+
+        problem2 = problem_pb2.ProblemSummary()
+        problem2.id = "13"
+        problem2.title = "Hi I'm here for testing also :)"
+        problem2.summary = "blah blah NYASH"
+
+        resp = problem_service_pb2.GetProblemSummariesResponse()
+        resp.problem_summaries.append(problem22)
+        resp.problem_summaries.append(problem)
+        resp.problem_summaries.append(problem2)
+
+        return resp
+
+    def GetProblem(
         self, request: problem_service_pb2.GetProblemRequest, context: grpc.ServicerContext
     ) -> problem_service_pb2.GetProblemResponse:
-        problem = problem_service_pb2.Problem()
-        problem.title = "Hi I'm here for testing :)"
-        problem.description = "blah blah"
+        problem = problem_pb2.Problem()
+        problem.id = "11"
+        problem.title = "Programming Lab Environment"
+        problem.description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Varius duis at consectetur lorem donec. In ante metus dictum at tempor commodo ullamcorper a. Nulla facilisi etiam dignissim diam quis enim lobortis. Sapien eget mi proin sed libero. In pellentesque massa placerat duis ultricies lacus. Semper viverra nam libero justo laoreet sit amet cursus. Fames ac turpis egestas sed tempus. Vitae semper quis lectus nulla at volutpat diam ut venenatis. Urna nunc id cursus metus aliquam. Aliquet eget sit amet tellus cras adipiscing enim. Sit amet nisl suscipit adipiscing bibendum est ultricies. Odio facilisis mauris sit amet massa vitae tortor condimentum. Dictumst quisque sagittis purus sit amet volutpat consequat mauris. Diam maecenas ultricies mi eget mauris pharetra et ultrices neque. \n\n Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Varius duis at consectetur lorem donec. In ante metus dictum at tempor commodo ullamcorper a. Nulla facilisi etiam dignissim diam quis enim lobortis. Sapien eget mi proin sed libero. In pellentesque massa placerat duis ultricies lacus. Semper viverra nam libero justo laoreet sit amet cursus. Fames ac turpis egestas sed tempus. Vitae semper quis lectus nulla at volutpat diam ut venenatis. Urna nunc id cursus metus aliquam. Aliquet eget sit amet tellus cras adipiscing enim. Sit amet nisl suscipit adipiscing bibendum est ultricies. Odio facilisis mauris sit amet massa vitae tortor condimentum. Dictumst quisque sagittis purus sit amet volutpat consequat mauris. Diam maecenas ultricies mi eget mauris pharetra et ultrices neque."
 
-        testData1 = problem_service_pb2.TestData()
-        testData1.input = "01"
-        testData1.expectedOutput = "out1"
+        testData1 = problem_pb2.Problem.TestData()
+        testInput = problem_pb2.Problem.TestInput()
+        testInput.arg_position = 1
+        testInput.input_value = "python"
+        testData1.inputs.append(testInput)
+        testInput4 = problem_pb2.Problem.TestInput()
+        testInput4.arg_position = 2
+        testInput4.input_value = "-d 39"
+        testData1.inputs.append(testInput4)
+        testData1.expected_stdout = "Hello python!"
 
-        testData2 = problem_service_pb2.TestData()
-        testData2.input = "02"
-        testData2.expectedOutput = "out2"
+        testData2 = problem_pb2.Problem.TestData()
+        testInput2 = problem_pb2.Problem.TestInput()
+        testInput2.arg_position = 1
+        testInput2.input_value = "c++"
+        testData2.inputs.append(testInput2)
+        testData2.expected_stdout = "Hello c++!"
 
-        problem.testData.append(testData1)
-        problem.testData.append(testData2)
+        problem.test_data.append(testData1)
+        problem.test_data.append(testData2)
 
         resp = problem_service_pb2.GetProblemResponse()
         resp.problem.CopyFrom(problem)

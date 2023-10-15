@@ -2,26 +2,88 @@ syntax = "proto3";
 
 package protobufs.services.v1;
 
-// Problem service
+import "common/v1/problem.proto";
+
+// A service to handle the persistence of "problems" and their submitted solutions with any evaluated scores.
 service ProblemService {
-    rpc GetProblemById(GetProblemRequest) returns (GetProblemResponse) {}
+    // Gets the title and summary of all available problems.
+    rpc GetProblemSummaries(GetProblemSummariesRequest) returns (GetProblemSummariesResponse) { }
+    // Gets a stored problem.
+    rpc GetProblem(GetProblemRequest) returns (GetProblemResponse) { }
+    // Creates a new problem.
+    rpc CreateProblem(CreateProblemRequest) returns (CreateProblemResponse) { }
+    // Updates an existing problem.
+    rpc UpdateProblem(UpdateProblemRequest) returns (UpdateProblemResponse) { }
+    // Deletes an existing problem.
+    rpc DeleteProblem(DeleteProblemRequest) returns (DeleteProblemResponse) { }
+    // Adds test data to an existing problem.
+    rpc AddTestData(AddTestDataRequest) returns (AddTestDataResponse) { }
+    // Removes test data from an existing problem.
+    rpc RemoveTestData(RemoveTestDataRequest) returns (RemoveTestDataResponse) { }
+    // Updates test data in an existing problem.
+    rpc UpdateTestData(UpdateTestDataRequest) returns (UpdateTestDataResponse) { }
+}
+
+message GetProblemSummariesRequest {
+    int32 limit = 1;
+}
+
+message GetProblemSummariesResponse {
+    repeated common.v1.ProblemSummary problem_summaries = 1;
 }
 
 message GetProblemRequest {
-    int32 problemId = 1;
+    string problem_id = 1;
 }
 
 message GetProblemResponse {
-    Problem problem = 1;
+    common.v1.Problem problem = 1;
 }
 
-message Problem {
-    string title = 1;
-    string description = 2;
-    repeated TestData testData = 3;
+message CreateProblemRequest {
+    // todo
 }
 
-message TestData {
-    string input = 1;
-    string expectedOutput = 2;
+message CreateProblemResponse {
+    // todo
+}
+
+message UpdateProblemRequest {
+    // todo
+}
+
+message UpdateProblemResponse {
+    // todo
+}
+
+message DeleteProblemRequest {
+    // todo
+}
+
+message DeleteProblemResponse {
+    // todo
+}
+
+message AddTestDataRequest {
+    // todo
+}
+
+message AddTestDataResponse {
+    // todo
+}
+
+message RemoveTestDataRequest {
+    // todo
+}
+
+message RemoveTestDataResponse {
+    // todo
+}
+
+message UpdateTestDataRequest {
+    // todo
+}
+
+message UpdateTestDataResponse {
+    // todo
 }

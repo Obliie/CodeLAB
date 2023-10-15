@@ -8,7 +8,5 @@ plugins:
       out: build/python
     - plugin: buf.build/bufbuild/connect-es
       out: build/ts
-      opt: target=ts
     - plugin: buf.build/bufbuild/es
       out: build/ts
-      opt: target=ts
