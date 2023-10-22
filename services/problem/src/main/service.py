@@ -7,10 +7,28 @@ import grpc
 from protobufs.services.v1 import problem_service_pb2, problem_service_pb2_grpc
 from protobufs.common.v1 import problem_pb2
 
+from config import Config
 from service_logging import init_logging, log_and_flush
+from pymongo import MongoClient
+
+DATABASE_USERNAME_FILE = "/run/secrets/mongo-username"
+DATABASE_PASSWORD_FILE = "/run/secrets/mongo-password"
 
 
 class ProblemServicer(problem_service_pb2_grpc.ProblemService):
+    DATABASE_HOST = Config.CONFIG["Services"]["Problem"]["Database"]["Host"]
+    DATABASE_PORT = Config.CONFIG["Services"]["Problem"]["Database"]["Port"]
+    DATABASE_NAME = Config.CONFIG["Services"]["Problem"]["Database"]["Name"]
+
+    def __init__(self):
+        with open(DATABASE_USERNAME_FILE) as database_username_file, open(
+            DATABASE_PASSWORD_FILE
+        ) as database_password_file:
+            self.client = MongoClient(
+                f"mongodb://{database_username_file.read()}:{database_password_file.read()}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}"
+            )
+            print(f"db connected to {self.client.get_database().name}")
+
     def GetProblemSummaries(
         self, request: problem_service_pb2.GetProblemSummariesRequest, context: grpc.ServicerContext
     ) -> problem_service_pb2.GetProblemSummariesResponse:

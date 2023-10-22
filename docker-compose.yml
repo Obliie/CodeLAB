@@ -41,6 +41,33 @@ services:
             - backend
         networks:
             - codelabmesh
+        configs:
+            - service-config
+        secrets:
+            - mongo-username
+            - mongo-password
+
+    ###
+    # Databases
+    ###
+    problem-db:
+        image: mongo:7.0.2
+        ports:
+            - ${PROBLEM_DB_PORT}:27017
+        environment:
+            MONGO_INITDB_ROOT_USERNAME_FILE: /run/secrets/mongo-root-username
+            MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/mongo-root-password
+            MONGO_INITDB_DATABASE: admin
+            MONGO_USERNAME_FILE: /run/secrets/mongo-username
+            MONGO_PASSWORD_FILE: /run/secrets/mongo-password
+            MONGO_DATABASE: problem
+        networks:
+            - codelabmesh
+        secrets:
+            - mongo-root-username
+            - mongo-root-password
+            - mongo-username
+            - mongo-password
 
     ###
     # Build Containers
@@ -128,3 +155,17 @@ networks:
     codelabmesh:
         driver: bridge
         name: codelabmesh
+
+configs:
+    service-config:
+        file: ./config.yaml
+
+secrets:
+    mongo-root-username:
+        file: ./secrets/mongo_root_username
+    mongo-root-password:
+        file: ./secrets/mongo_root_password
+    mongo-username:
+        file: ./secrets/mongo_username
+    mongo-password:
+        file: ./secrets/mongo_password

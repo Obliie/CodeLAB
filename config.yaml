@@ -1,0 +1,6 @@
+Services:
+    Problem:
+        Database:
+            Host: problem-db
+            Port: 27001
+            Name: problem
