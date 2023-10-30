@@ -9,5 +9,6 @@
     "python.formatting.blackArgs": ["--line-length", "120"],
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter"
-    }
+    },
+    "python.analysis.extraPaths": ["./services/code-runner/src/main"]
 }

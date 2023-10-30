@@ -15,6 +15,8 @@ import Stack from '@mui/material/Stack';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 
+async function RunCode() {}
+
 async function Problem({ id }: { id: string }) {
     const problem = (await useClient(ProblemService)
         .getProblem({
@@ -32,7 +34,10 @@ async function Problem({ id }: { id: string }) {
                     <CodeEditor />
                 </CardContent>
                 <CardActions sx={{ display: 'flex', flexDirection: 'row-reverse' }}>
-                    <Button sx={{ margin: '0px 10px', marginBottom: '10px' }} variant="outlined">
+                    <Button
+                        sx={{ margin: '0px 10px', marginBottom: '10px' }}
+                        variant="outlined"
+                        onClick={() => RunCode()}>
                         Submit
                     </Button>
                 </CardActions>

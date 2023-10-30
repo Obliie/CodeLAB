@@ -2,10 +2,15 @@ syntax = "proto3";
 
 package protobufs.services.v1;
 
+import "common/v1/solution.proto";
+import "common/v1/language.proto";
+
 // Code Runner service
 service CodeRunnerService {
     // Gets the current state of a running container
-    rpc GetRunnerState(GetRunnerStateRequest) returns (GetRunnerStateResponse) {}
+    rpc GetRunnerState(GetRunnerStateRequest) returns (GetRunnerStateResponse) { }
+
+    rpc RunCode(RunCodeRequest) returns (stream RunCodeResponse) { }
 }
 
 message GetRunnerStateRequest {
@@ -14,4 +19,22 @@ message GetRunnerStateRequest {
 
 message GetRunnerStateResponse {
 
+}
+
+message RunCodeRequest {
+    repeated common.v1.SolutionFile files = 1;
+    common.v1.ProgrammingLanguage language = 2;
+    bool has_dependencies = 3;
+}
+
+message RunCodeResponse {
+    RunStage stage = 1;
+    string stdout = 2;
+    string stderr = 3;
+}
+
+enum RunStage {
+    RUN_STAGE_UNSPECIFIED = 0;
+    RUN_STAGE_COMPILE = 1;
+    RUN_STAGE_EXECUTE = 2;
 }

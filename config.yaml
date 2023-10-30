@@ -1,6 +1,17 @@
-Services:
-    Problem:
-        Database:
-            Host: problem-db
-            Port: 27001
-            Name: problem
+services:
+    problem:
+        database:
+            host: problem-db
+            port: 27001
+            name: problem
+    code-runner:
+        container-files: /tmp/code-runner
+        languages:
+            python3.11:
+                display-name: 'Python 3.11'
+                docker-image: 'python:3.11.4-slim'
+                run-command: python3.11 ${FILE} ${ARGS}
+            amazoncorretto21:
+                display-name: 'Java 21'
+                docker-image: 'amazoncorretto:21.0.1'
+                run-command: java -jar ${FILE} ${ARGS}

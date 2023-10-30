@@ -1,5 +1,4 @@
 """Integration tests for the problem service."""
-import logging
 import os
 
 import grpc
@@ -10,6 +9,6 @@ def test_get_problem() -> None:
     with grpc.insecure_channel(f"problem:{ os.environ['PROBLEM_SERVICE_PORT' ]}") as channel:
         stub = problem_service_pb2_grpc.ProblemServiceStub(channel)
 
-        response = stub.GetProblemById(problem_service_pb2.GetProblemRequest(problemId=2))
+        response = stub.GetProblem(problem_service_pb2.GetProblemRequest(problem_id="2"))
 
-        assert response.problem.title == "Hi I'm here for testing"
+        assert response.problem.title == "Programming Lab Environment"

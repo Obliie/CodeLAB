@@ -14,12 +14,15 @@ services:
             proto-builder:
                 condition: service_completed_successfully
         volumes:
-            - ./services/common/src/main:/service_common
-            - ./services/code-runner/src/main:/service
-            - ./protobufs/build/python:/protobufs
+            - ./services/common/src/main:/service_common:ro
+            - ./services/code-runner/src/main:/service:ro
+            - ./protobufs/build/python:/protobufs:ro
+            - /var/run/docker.sock:/var/run/docker.sock
         command: watchmedo auto-restart --recursive --pattern="*.py" --directory="/service/" --directory="/service_common/" --directory="/protobufs/" python3 /service/service.py
         profiles:
             - backend
+        configs:
+            - service-config
         networks:
             - codelabmesh
 
@@ -33,9 +36,9 @@ services:
             proto-builder:
                 condition: service_completed_successfully
         volumes:
-            - ./services/common/src/main:/service_common
-            - ./services/problem/src/main:/service
-            - ./protobufs/build/python:/protobufs
+            - ./services/common/src/main:/service_common:ro
+            - ./services/problem/src/main:/service:ro
+            - ./protobufs/build/python:/protobufs:ro
         command: watchmedo auto-restart --recursive --pattern="*.py" --directory="/service/" --directory="/service_common/" --directory="/protobufs/" python3 /service/service.py
         profiles:
             - backend
@@ -61,6 +64,8 @@ services:
             MONGO_USERNAME_FILE: /run/secrets/mongo-username
             MONGO_PASSWORD_FILE: /run/secrets/mongo-password
             MONGO_DATABASE: problem
+        profiles:
+            - backend
         networks:
             - codelabmesh
         secrets:
@@ -94,15 +99,33 @@ services:
         env_file:
             - .env
         volumes:
-            - ./services/common/src/test:/tests/common
-            - ./services/code-runner/src/test:/tests/code-runner
-            - ./services/problem/src/test:/tests/problem
-            - ./protobufs/build/python:/protobufs
-        command: pytest /tests
+            - ./services/code-runner/src/test/integration:/tests/code-runner:ro
+            - ./services/problem/src/test/integration:/tests/problem:ro
+            - ./protobufs/build/python:/protobufs:ro
+        command: pytest -o log_cli=true -o cache_dir=/test-cache /tests
         profiles:
             - test
         networks:
             - codelabmesh
+
+    code-runner-unit-test:
+        build:
+            context: ./
+            dockerfile: ./containers/unit-test/Dockerfile
+        env_file:
+            - .env
+        volumes:
+            - ./services/common/src/main:/service_common:ro
+            - ./services/code-runner/src/main:/service:ro
+            - ./services/code-runner/src/test/unit:/tests:ro
+            - ./services/code-runner/src/test/.pytest_cache:/test-cache
+            - ./protobufs/build/python:/protobufs:ro
+            - /var/run/docker.sock:/var/run/docker.sock
+        command: pytest -o log_cli=true -o cache_dir=/test-cache /tests
+        profiles:
+            - unittest
+        configs:
+            - service-config
 
     ###
     # Envoy and API stats
@@ -113,10 +136,13 @@ services:
             dockerfile: ./containers/api-gateway/Dockerfile
             args:
                 PROBLEM_SERVICE_PORT: ${PROBLEM_SERVICE_PORT}
+                SUBMISSION_SERVICE_PORT: ${SUBMISSION_SERVICE_PORT}
         env_file:
             - .env
         depends_on:
             problem:
+                condition: service_started
+            code-runner:
                 condition: service_started
             statsd-exporter:
                 condition: service_started

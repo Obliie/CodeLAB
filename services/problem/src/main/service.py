@@ -16,9 +16,9 @@ DATABASE_PASSWORD_FILE = "/run/secrets/mongo-password"
 
 
 class ProblemServicer(problem_service_pb2_grpc.ProblemService):
-    DATABASE_HOST = Config.CONFIG["Services"]["Problem"]["Database"]["Host"]
-    DATABASE_PORT = Config.CONFIG["Services"]["Problem"]["Database"]["Port"]
-    DATABASE_NAME = Config.CONFIG["Services"]["Problem"]["Database"]["Name"]
+    DATABASE_HOST = Config.CONFIG["services"]["problem"]["database"]["host"]
+    DATABASE_PORT = Config.CONFIG["services"]["problem"]["database"]["port"]
+    DATABASE_NAME = Config.CONFIG["services"]["problem"]["database"]["name"]
 
     def __init__(self):
         with open(DATABASE_USERNAME_FILE) as database_username_file, open(

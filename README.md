@@ -14,23 +14,23 @@
 
 # Contents
 
-- [Development](#development)
-  - [Prerequisites](#prerequisites)
-  - [Setup](#setup)
-    - [Frontend](#frontend)
-    - [Backend](#backend)
-      - [Mockserver](#Mockserver)
-  - [Testing](#testing)
-  - [Build](#build)
+-   [Development](#development)
+    -   [Prerequisites](#prerequisites)
+    -   [Setup](#setup)
+        -   [Frontend](#frontend)
+        -   [Backend](#backend)
+            -   [Mockserver](#Mockserver)
+    -   [Testing](#testing)
+    -   [Build](#build)
 
 # Development
 
 ## Prerequisites
 
-- npm
-- docker
-- python
-- pip
+-   npm
+-   docker
+-   python
+-   pip
 
 ## Setup
 

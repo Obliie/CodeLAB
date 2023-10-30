@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package protobufs.common.v1;
+
+message SolutionFile {
+    SolutionFileType type = 1;
+    bool main_file = 2;
+    string path = 3;
+    bytes data = 4;
+}
+
+enum SolutionFileType {
+    FILE_TYPE_UNSPECIFIED = 0;
+    FILE_TYPE_SINGLE = 1;
+    FILE_TYPE_ARCHIVE = 2;
+}

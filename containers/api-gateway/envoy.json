@@ -58,6 +58,18 @@
                                   "grpc_timeout_header_max": "0s"
                                 }
                               }
+                            },
+                            {
+                              "match": {
+                                "prefix": "/protobufs.services.v1.CodeRunnerService"
+                              },
+                              "route": {
+                                "cluster": "submission",
+                                "timeout": "0s",
+                                "max_stream_duration": {
+                                  "grpc_timeout_header_max": "0s"
+                                }
+                              }
                             }
                           ]
                         }
@@ -114,6 +126,32 @@
                         "socket_address": {
                           "address": "problem",
                           "port_value": PROBLEM_SERVICE_PORT
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "submission",
+          "connect_timeout": "0.25s",
+          "type": "LOGICAL_DNS",
+          "http2_protocol_options": { },
+          "lb_policy": "ROUND_ROBIN",
+          "load_assignment": {
+            "cluster_name": "submission",
+            "endpoints": [
+              {
+                "lb_endpoints": [
+                  {
+                    "endpoint": {
+                      "address": {
+                        "socket_address": {
+                          "address": "code-runner",
+                          "port_value": SUBMISSION_SERVICE_PORT
                         }
                       }
                     }
