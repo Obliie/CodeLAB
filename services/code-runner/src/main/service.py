@@ -39,7 +39,7 @@ class CodeRunnerServicer(code_runner_service_pb2_grpc.CodeRunnerService):
         resp.stdout = out
         resp.stderr = ""
 
-        yield resp
+        return resp
 
 
 def serve() -> None:

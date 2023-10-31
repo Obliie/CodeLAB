@@ -1,9 +1,7 @@
 import { useClient } from '@/lib/connect';
 import { handleGrpcError } from '@/lib/error';
 import { ProblemService } from '@/protobufs/services/v1/problem_service_connect';
-import { GetProblemSummariesRequest, GetProblemSummariesResponse } from '@/protobufs/services/v1/problem_service_pb';
-import { createPromiseClient } from '@connectrpc/connect';
-import { createGrpcWebTransport } from '@connectrpc/connect-web';
+import { GetProblemSummariesResponse } from '@/protobufs/services/v1/problem_service_pb';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Accordion from '@mui/material/Accordion';
 import AccordionActions from '@mui/material/AccordionActions';
@@ -22,9 +20,9 @@ async function ProblemSummaries() {
         .getProblemSummaries({})
         .catch(err => handleGrpcError(err))) as GetProblemSummariesResponse;
 
-    return (
+    return problems ? (
         <Box width="100%" paddingTop="10px">
-            {problems.problemSummaries.map(problem => (
+            { problems.problemSummaries.map(problem => (
                 <Accordion key={problem.id}>
                     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         <Typography>{problem.title}</Typography>
@@ -42,6 +40,8 @@ async function ProblemSummaries() {
                 </Accordion>
             ))}
         </Box>
+    ) : (
+        <Typography>No problems found</Typography>
     );
 }
 

@@ -20,10 +20,11 @@ print('Hello from integration testing')
             """
         )
 
-        for response in stub.RunCode(code_runner_service_pb2.RunCodeRequest(
+        response = stub.RunCode(code_runner_service_pb2.RunCodeRequest(
             files=[solution_file],
             language=language_pb2.PROGRAMMING_LANGUAGE_PYTHON,
             has_dependencies=False
-        )):
-            assert response.stdout is not None
-            assert response.stdout is not ""
+        ))
+        
+        assert response.stdout is not None
+        assert response.stdout is not ""
