@@ -27,7 +27,7 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
             self.client = MongoClient(
                 f"mongodb://{database_username_file.read()}:{database_password_file.read()}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}"
             )
-            print(f"db connected to {self.client.get_database().name}")
+            log_and_flush(logging.INFO, f"db connected to {self.client.get_database().name}")
 
     def GetProblemSummaries(
         self, request: problem_service_pb2.GetProblemSummariesRequest, context: grpc.ServicerContext

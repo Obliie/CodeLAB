@@ -6,11 +6,10 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { useRouter } from 'next/router';
 import { useState } from 'react';
 
-export default function CodeOutput({ dataFetcher, code }: { dataFetcher: Function, code: string }) {
-    const [data, setData] = useState("");
+export default function CodeOutput({ codeSubmitter, code }: { codeSubmitter: Function; code: string }) {
+    const [data, setData] = useState('');
 
     return (
         <Stack direction="column" spacing={2} width="100%">
@@ -29,8 +28,8 @@ export default function CodeOutput({ dataFetcher, code }: { dataFetcher: Functio
                         sx={{ margin: '0px 10px', marginBottom: '10px' }}
                         variant="outlined"
                         onClick={async () => {
-                            setData("Waiting for response...");
-                            const response: RunCodeResponse = await dataFetcher({code});
+                            setData('Waiting for response...');
+                            const response: RunCodeResponse = await codeSubmitter({ code });
                             setData(response.stdout);
                         }}>
                         Submit

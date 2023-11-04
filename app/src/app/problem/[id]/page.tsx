@@ -1,51 +1,16 @@
-import CodeEditor from '@/components/CodeEditor';
+import { CodeRunRequester } from '@/actions/CodeRunRequester';
+import CodeSubmitter from '@/components/CodeSubmitter';
 import ProblemTestData from '@/components/ProblemTestData';
 import { useClient } from '@/lib/connect';
 import { handleGrpcError } from '@/lib/error';
-import { CodeRunnerService } from '@/protobufs/services/v1/code_runner_service_connect';
-import AppBar from '@mui/material/AppBar';
+import { ProblemService } from '@/protobufs/services/v1/problem_service_connect';
+import { GetProblemResponse } from '@/protobufs/services/v1/problem_service_pb';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Container from '@mui/material/Container';
 import Stack from '@mui/material/Stack';
-import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { ProgrammingLanguage } from '@/protobufs/common/v1/language_pb';
-import { SolutionFile, SolutionFileType } from '@/protobufs/common/v1/solution_pb';
-import { useState } from 'react';
-import CodeOutput from '@/components/CodeOutput';
-import { createPromiseClient } from '@connectrpc/connect';
-import { createGrpcWebTransport } from '@connectrpc/connect-web';
-import { ProblemService } from '@/protobufs/services/v1/problem_service_connect';
-import { GetProblemResponse } from '@/protobufs/services/v1/problem_service_pb';
-import CodeSubmitter from '@/components/CodeSubmitter';
-
-
-async function CodeRunRequester({ code }: {code: string}) {
-    "use server"
-    let mainFile: SolutionFile = new SolutionFile();
-    mainFile.type = SolutionFileType.FILE_TYPE_SINGLE;
-    mainFile.mainFile = true;
-    mainFile.path = "main.py";
-
-    const encoder = new TextEncoder(); 
-    mainFile.data=encoder.encode(code);
-    
-    var client = createPromiseClient(CodeRunnerService, createGrpcWebTransport({
-        baseUrl: 'http://0.0.0.0:8080/',
-    }));
-
-    var responses = await client.runCode({
-        files: [mainFile],
-        language: ProgrammingLanguage.PYTHON,
-        hasDependencies: false
-    });
-
-    return responses;
-}
 
 async function Problem({ id }: { id: string }) {
     const problem = (await useClient(ProblemService)
@@ -56,7 +21,7 @@ async function Problem({ id }: { id: string }) {
 
     return problem.problem ? (
         <Stack direction="row" spacing={2} width="100%">
-            <CodeSubmitter dataFetcher={CodeRunRequester}/>
+            <CodeSubmitter codeSubmitter={CodeRunRequester} />
             <Stack direction="column" spacing={2} width="100%">
                 <Card sx={{ width: '100%' }}>
                     <CardContent>

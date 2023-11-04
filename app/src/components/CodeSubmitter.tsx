@@ -1,15 +1,14 @@
-"use client"
+'use client';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import { useState } from 'react';
+import CodeEditor from './CodeEditor';
+import CodeOutput from './CodeOutput';
 
-import Card from "@mui/material/Card"
-import Stack from "@mui/material/Stack"
-import CodeOutput from "./CodeOutput"
-import CardContent from "@mui/material/CardContent"
-import CodeEditor from "./CodeEditor"
-import Typography from "@mui/material/Typography"
-import { useState } from "react"
-
-export default function CodeSubmitter({ dataFetcher }: { dataFetcher: Function }) {
-    const [code, setCode] = useState("");
+export default function CodeSubmitter({ codeSubmitter }: { codeSubmitter: Function }) {
+    const [code, setCode] = useState('');
 
     return (
         <Stack direction="column" spacing={2} width="100%">
@@ -18,12 +17,12 @@ export default function CodeSubmitter({ dataFetcher }: { dataFetcher: Function }
                     <Typography gutterBottom variant="h5" component="div">
                         Solution
                     </Typography>
-                    <CodeEditor setCode={setCode}/>
+                    <CodeEditor setCode={setCode} />
                 </CardContent>
             </Card>
             <Card sx={{ width: '100%' }}>
-                <CodeOutput dataFetcher={dataFetcher} code={code}/>
+                <CodeOutput codeSubmitter={codeSubmitter} code={code} />
             </Card>
         </Stack>
-    )
+    );
 }

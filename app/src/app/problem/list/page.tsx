@@ -22,7 +22,7 @@ async function ProblemSummaries() {
 
     return problems ? (
         <Box width="100%" paddingTop="10px">
-            { problems.problemSummaries.map(problem => (
+            {problems.problemSummaries.map(problem => (
                 <Accordion key={problem.id}>
                     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         <Typography>{problem.title}</Typography>

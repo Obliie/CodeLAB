@@ -17,14 +17,14 @@ def test_run_code() -> None:
             path="main.py",
             data=b"""# Integration test file
 print('Hello from integration testing')
-            """
+            """,
         )
 
-        response = stub.RunCode(code_runner_service_pb2.RunCodeRequest(
-            files=[solution_file],
-            language=language_pb2.PROGRAMMING_LANGUAGE_PYTHON,
-            has_dependencies=False
-        ))
-        
+        response = stub.RunCode(
+            code_runner_service_pb2.RunCodeRequest(
+                files=[solution_file], language=language_pb2.PROGRAMMING_LANGUAGE_PYTHON, has_dependencies=False
+            )
+        )
+
         assert response.stdout is not None
         assert response.stdout is not ""

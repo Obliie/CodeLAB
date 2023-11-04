@@ -4,7 +4,7 @@ from protobufs.common.v1 import language_pb2, solution_pb2
 from container_controller import ContainerController
 from docker.models.containers import Container
 
-from service_logging import log_and_flush, init_logging
+from service_logging import log_and_flush
 
 class BaseTestRunner:
     def __init__(self, container_controller: ContainerController, solution_files: List[solution_pb2.SolutionFile]):
@@ -12,7 +12,6 @@ class BaseTestRunner:
         self.solution_files = solution_files
 
     def __enter__(self):
-        init_logging()
         self.container_id: str = self.container_controller.create(language_pb2.PROGRAMMING_LANGUAGE_PYTHON)
         return self
 
