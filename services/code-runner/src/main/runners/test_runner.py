@@ -6,6 +6,7 @@ from docker.models.containers import Container
 
 from service_logging import log_and_flush
 
+
 class BaseTestRunner:
     def __init__(self, container_controller: ContainerController, solution_files: List[solution_pb2.SolutionFile]):
         self.container_controller = container_controller

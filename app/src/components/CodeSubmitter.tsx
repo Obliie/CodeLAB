@@ -12,7 +12,7 @@ export default function CodeSubmitter({ codeSubmitter }: { codeSubmitter: Functi
 
     return (
         <Stack direction="column" spacing={2} width="100%">
-            <Card sx={{ width: '100%' }}>
+            <Card sx={{ width: '100%', height: '60vh' }}>
                 <CardContent>
                     <Typography gutterBottom variant="h5" component="div">
                         Solution
@@ -20,9 +20,7 @@ export default function CodeSubmitter({ codeSubmitter }: { codeSubmitter: Functi
                     <CodeEditor setCode={setCode} />
                 </CardContent>
             </Card>
-            <Card sx={{ width: '100%' }}>
-                <CodeOutput codeSubmitter={codeSubmitter} code={code} />
-            </Card>
+            <CodeOutput codeSubmitter={codeSubmitter} code={code} />
         </Stack>
     );
 }

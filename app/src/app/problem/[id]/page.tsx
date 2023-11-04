@@ -20,10 +20,10 @@ async function Problem({ id }: { id: string }) {
         .catch(err => handleGrpcError(err))) as GetProblemResponse;
 
     return problem.problem ? (
-        <Stack direction="row" spacing={2} width="100%">
+        <Stack direction="row" spacing={2} width="70vw">
             <CodeSubmitter codeSubmitter={CodeRunRequester} />
             <Stack direction="column" spacing={2} width="100%">
-                <Card sx={{ width: '100%' }}>
+                <Card sx={{ width: '100%', height: '30vh' }}>
                     <CardContent>
                         <Typography gutterBottom variant="h5" component="div">
                             {problem.problem?.title}
@@ -33,7 +33,7 @@ async function Problem({ id }: { id: string }) {
                         </Typography>
                     </CardContent>
                 </Card>
-                <Card sx={{ width: '100%' }}>
+                <Card sx={{ width: '100%', height: '50vh' }}>
                     <CardContent>
                         <Typography gutterBottom variant="h5" component="div">
                             Test Data

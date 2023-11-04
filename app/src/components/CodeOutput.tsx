@@ -12,30 +12,28 @@ export default function CodeOutput({ codeSubmitter, code }: { codeSubmitter: Fun
     const [data, setData] = useState('');
 
     return (
-        <Stack direction="column" spacing={2} width="100%">
-            <Card sx={{ width: '100%' }}>
-                <CardContent>
-                    <Typography gutterBottom variant="h5" component="div">
-                        Output
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                        {data ? data : 'Submit to see output'}
-                    </Typography>
-                </CardContent>
+        <Card sx={{ width: '100%', height: '20vh', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <CardContent>
+                <Typography gutterBottom variant="h5" component="div">
+                    Output
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                    {data ? data : 'Submit to see output'}
+                </Typography>
+            </CardContent>
 
-                <CardActions sx={{ display: 'flex', flexDirection: 'row-reverse' }}>
-                    <Button
-                        sx={{ margin: '0px 10px', marginBottom: '10px' }}
-                        variant="outlined"
-                        onClick={async () => {
-                            setData('Waiting for response...');
-                            const response: RunCodeResponse = await codeSubmitter({ code });
-                            setData(response.stdout);
-                        }}>
-                        Submit
-                    </Button>
-                </CardActions>
-            </Card>
-        </Stack>
+            <CardActions sx={{ display: 'flex', flexDirection: 'row-reverse' }}>
+                <Button
+                    sx={{ margin: '0px 10px', marginBottom: '10px' }}
+                    variant="outlined"
+                    onClick={async () => {
+                        setData('Waiting for response...');
+                        const response: RunCodeResponse = await codeSubmitter({ code });
+                        setData(response.stdout);
+                    }}>
+                    Submit
+                </Button>
+            </CardActions>
+        </Card>
     );
 }

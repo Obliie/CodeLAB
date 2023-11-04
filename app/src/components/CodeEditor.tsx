@@ -4,7 +4,7 @@ import { Editor } from '@monaco-editor/react';
 export default function CodeEditor({ setCode }: { setCode: Function }) {
     return (
         <Editor
-            height="90vh"
+            height="70vh"
             defaultLanguage="python"
             defaultValue="# Your code here..."
             theme="vs-dark"
