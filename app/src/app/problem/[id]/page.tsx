@@ -23,7 +23,7 @@ async function Problem({ id }: { id: string }) {
         <Stack direction="row" spacing={2} width="70vw">
             <CodeSubmitter codeSubmitter={CodeRunRequester} />
             <Stack direction="column" spacing={2} width="100%">
-                <Card sx={{ width: '100%', height: '30vh' }}>
+                <Card sx={{ width: '35vw', height: '40vh', overflow: 'auto' }}>
                     <CardContent>
                         <Typography gutterBottom variant="h5" component="div">
                             {problem.problem?.title}
@@ -33,8 +33,8 @@ async function Problem({ id }: { id: string }) {
                         </Typography>
                     </CardContent>
                 </Card>
-                <Card sx={{ width: '100%', height: '50vh' }}>
-                    <CardContent>
+                <Card sx={{ width: '35vw', height: '40vh' }}>
+                    <CardContent sx={{ height: '90%' }}>
                         <Typography gutterBottom variant="h5" component="div">
                             Test Data
                         </Typography>

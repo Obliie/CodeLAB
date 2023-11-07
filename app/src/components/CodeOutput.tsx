@@ -12,7 +12,14 @@ export default function CodeOutput({ codeSubmitter, code }: { codeSubmitter: Fun
     const [data, setData] = useState('');
 
     return (
-        <Card sx={{ width: '100%', height: '20vh', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <Card
+            sx={{
+                width: '35vw',
+                height: '20vh',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+            }}>
             <CardContent>
                 <Typography gutterBottom variant="h5" component="div">
                     Output

@@ -14,7 +14,7 @@ export default function ProblemTestData({ testData }: { testData: Problem_TestDa
     };
 
     return (
-        <Box sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex', height: 224 }}>
+        <Box sx={{ flexGrow: 1, display: 'flex', height: '100%', width: '100%' }}>
             <Tabs
                 orientation="vertical"
                 variant="scrollable"
@@ -48,10 +48,17 @@ function TestDataTab({ testData, value, index }: { testData: Problem_TestData; v
             id={`vertical-tabpanel-${index}`}
             aria-labelledby={`vertical-tab-${index}`}>
             {value === index && (
-                <Box sx={{ p: 3 }}>
+                <Box sx={{ p: 3, width: '100%' }}>
                     <TestInputs inputs={testData.inputs} />
-                    <Typography>{`Expected Ouput: ${testData.expectedStdout}`}</Typography>
-                    <Typography>{`Expected Files: ${testData.expectedFiles.length}`}</Typography>
+                    <Box sx={{marginBottom: '16px'}}>
+                        <Typography variant="h6">Expected Output</Typography>
+                        <Typography>{testData.expectedStdout}</Typography>
+                    </Box>
+                    {testData.expectedFiles.length > 0 ?                     
+                    <Box>
+                        <Typography variant="h6">Expected Files</Typography>
+                        <Typography>{testData.expectedFiles.length}</Typography>
+                    </Box> : <></>}
                 </Box>
             )}
         </div>
@@ -69,9 +76,9 @@ function TestInputs({ inputs }: { inputs: Problem_TestInput[] }) {
     });
 
     return (
-        <div>
-            <Typography>{`Total Arguments: ${inputs.length}`}</Typography>
-            <Typography>{`Arguments: ${text}`}</Typography>
-        </div>
+        <Box sx={{marginBottom: '16px'}}>
+            <Typography variant="h6">Arguments</Typography>
+            <Typography>{text}</Typography>
+        </Box>
     );
 }
