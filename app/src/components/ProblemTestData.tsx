@@ -50,15 +50,18 @@ function TestDataTab({ testData, value, index }: { testData: Problem_TestData; v
             {value === index && (
                 <Box sx={{ p: 3, width: '100%' }}>
                     <TestInputs inputs={testData.inputs} />
-                    <Box sx={{marginBottom: '16px'}}>
+                    <Box sx={{ marginBottom: '16px' }}>
                         <Typography variant="h6">Expected Output</Typography>
                         <Typography>{testData.expectedStdout}</Typography>
                     </Box>
-                    {testData.expectedFiles.length > 0 ?                     
-                    <Box>
-                        <Typography variant="h6">Expected Files</Typography>
-                        <Typography>{testData.expectedFiles.length}</Typography>
-                    </Box> : <></>}
+                    {testData.expectedFiles.length > 0 ? (
+                        <Box>
+                            <Typography variant="h6">Expected Files</Typography>
+                            <Typography>{testData.expectedFiles.length}</Typography>
+                        </Box>
+                    ) : (
+                        <></>
+                    )}
                 </Box>
             )}
         </div>
@@ -76,7 +79,7 @@ function TestInputs({ inputs }: { inputs: Problem_TestInput[] }) {
     });
 
     return (
-        <Box sx={{marginBottom: '16px'}}>
+        <Box sx={{ marginBottom: '16px' }}>
             <Typography variant="h6">Arguments</Typography>
             <Typography>{text}</Typography>
         </Box>

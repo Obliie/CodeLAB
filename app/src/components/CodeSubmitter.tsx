@@ -7,7 +7,7 @@ import { useState } from 'react';
 import CodeEditor from './CodeEditor';
 import CodeOutput from './CodeOutput';
 
-export default function CodeSubmitter({ codeSubmitter }: { codeSubmitter: Function }) {
+export default function CodeSubmitter() {
     const [code, setCode] = useState('');
 
     return (
@@ -20,7 +20,7 @@ export default function CodeSubmitter({ codeSubmitter }: { codeSubmitter: Functi
                     <CodeEditor setCode={setCode} />
                 </CardContent>
             </Card>
-            <CodeOutput codeSubmitter={codeSubmitter} code={code} />
+            <CodeOutput code={code} />
         </Stack>
     );
 }

@@ -1,4 +1,3 @@
-import { CodeRunRequester } from '@/actions/CodeRunRequester';
 import CodeSubmitter from '@/components/CodeSubmitter';
 import ProblemTestData from '@/components/ProblemTestData';
 import { useClient } from '@/lib/connect';
@@ -21,7 +20,7 @@ async function Problem({ id }: { id: string }) {
 
     return problem.problem ? (
         <Stack direction="row" spacing={2} width="70vw">
-            <CodeSubmitter codeSubmitter={CodeRunRequester} />
+            <CodeSubmitter />
             <Stack direction="column" spacing={2} width="100%">
                 <Card sx={{ width: '35vw', height: '40vh', overflow: 'auto' }}>
                     <CardContent>

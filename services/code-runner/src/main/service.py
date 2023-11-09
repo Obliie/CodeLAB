@@ -30,16 +30,25 @@ class CodeRunnerServicer(code_runner_service_pb2_grpc.CodeRunnerService):
     ) -> code_runner_service_pb2.RunCodeResponse:
         resp = code_runner_service_pb2.RunCodeResponse()
 
+        resp.stage = code_runner_service_pb2.RunStage.RUN_STAGE_COMPILE
+        resp.stdout = "RunCode received submission"
+        resp.stderr = ""
+        yield resp
+
         out = "FAIL RUN"
         with BaseTestRunner(self.container_controller, request.files) as runner:
             out = runner.run_tests()
 
-        # yield
-        resp.stage = code_runner_service_pb2.RunStage.RUN_STAGE_EXECUTE
-        resp.stdout = out
-        resp.stderr = ""
+            resp.stage = code_runner_service_pb2.RunStage.RUN_STAGE_EXECUTE
+            resp.stdout = out
+            resp.stderr = ""
 
-        return resp
+            yield resp
+
+        resp.stage = code_runner_service_pb2.RunStage.RUN_STAGE_EXECUTE
+        resp.stdout = "RunCode execution complete"
+        resp.stderr = ""
+        yield resp
 
 
 def serve() -> None:
