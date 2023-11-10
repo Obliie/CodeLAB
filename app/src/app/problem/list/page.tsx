@@ -1,4 +1,4 @@
-import { useClient } from '@/lib/connect';
+import { useClient, useServerClient } from '@/lib/connect';
 import { handleGrpcError } from '@/lib/error';
 import { ProblemService } from '@/protobufs/services/v1/problem_service_connect';
 import { GetProblemSummariesResponse } from '@/protobufs/services/v1/problem_service_pb';
@@ -16,7 +16,7 @@ import Link from 'next/link';
 import * as React from 'react';
 
 async function ProblemSummaries() {
-    const problems = (await useClient(ProblemService)
+    const problems = (await useServerClient(ProblemService)
         .getProblemSummaries({})
         .catch(err => handleGrpcError(err))) as GetProblemSummariesResponse;
 

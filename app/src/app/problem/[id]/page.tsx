@@ -1,6 +1,6 @@
 import CodeSubmitter from '@/components/CodeSubmitter';
 import ProblemTestData from '@/components/ProblemTestData';
-import { useClient } from '@/lib/connect';
+import { useClient, useServerClient } from '@/lib/connect';
 import { handleGrpcError } from '@/lib/error';
 import { ProblemService } from '@/protobufs/services/v1/problem_service_connect';
 import { GetProblemResponse } from '@/protobufs/services/v1/problem_service_pb';
@@ -12,7 +12,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 async function Problem({ id }: { id: string }) {
-    const problem = (await useClient(ProblemService)
+    const problem = (await useServerClient(ProblemService)
         .getProblem({
             problemId: id,
         })
@@ -37,7 +37,7 @@ async function Problem({ id }: { id: string }) {
                         <Typography gutterBottom variant="h5" component="div">
                             Test Data
                         </Typography>
-                        <ProblemTestData testData={problem.problem.testData} />
+                        <ProblemTestData testData={problem.problem.tests} />
                     </CardContent>
                 </Card>
             </Stack>

@@ -9,11 +9,11 @@ const nextConfig = {
     },
     async rewrites() {
         return [
-          {
-            source: '/api/:path*',
-            destination: 'http://codelab.obliie.dev:8080/:path*' // Proxy to Backend
-          }
-        ]
+            {
+                source: '/api/:path*',
+                destination: 'http://codelab.obliie.dev:8080/:path*', // Proxy to Backend
+            },
+        ];
     },
 };
 

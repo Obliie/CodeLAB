@@ -212,7 +212,6 @@ services:
             codelabweb:
                 aliases:
                     - codelab.obliie.dev
-            
 
     statsd-exporter:
         image: prom/statsd-exporter:latest

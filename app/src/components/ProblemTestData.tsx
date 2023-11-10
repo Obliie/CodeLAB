@@ -49,7 +49,10 @@ function TestDataTab({ testData, value, index }: { testData: Problem_TestData; v
             aria-labelledby={`vertical-tab-${index}`}>
             {value === index && (
                 <Box sx={{ p: 3, width: '100%' }}>
-                    <TestInputs inputs={testData.inputs} />
+                    <Box sx={{ marginBottom: '16px' }}>
+                        <Typography variant="h6">Arguments</Typography>
+                        <Typography>app.py {testData.arguments}</Typography>
+                    </Box>
                     <Box sx={{ marginBottom: '16px' }}>
                         <Typography variant="h6">Expected Output</Typography>
                         <Typography>{testData.expectedStdout}</Typography>
@@ -65,23 +68,5 @@ function TestDataTab({ testData, value, index }: { testData: Problem_TestData; v
                 </Box>
             )}
         </div>
-    );
-}
-
-function TestInputs({ inputs }: { inputs: Problem_TestInput[] }) {
-    var text = 'app.py ';
-    inputs.map(input => {
-        if (input instanceof Problem_TestFile) {
-            text += ` ${input.path}`;
-        } else {
-            text += ` ${input.inputValue}`;
-        }
-    });
-
-    return (
-        <Box sx={{ marginBottom: '16px' }}>
-            <Typography variant="h6">Arguments</Typography>
-            <Typography>{text}</Typography>
-        </Box>
     );
 }
