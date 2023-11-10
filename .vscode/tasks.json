@@ -5,9 +5,18 @@
     },
     "tasks": [
         {
-            "label": "CodeLAB: Start backend",
+            "label": "CodeLAB: Start backend (WATCH)",
             "type": "shell",
-            "command": "docker compose --profile backend up",
+            "command": "docker compose --profile backend watch",
+            "presentation": {
+                "group": "backend",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "CodeLAB: Start backend (REBUILD)",
+            "type": "shell",
+            "command": "docker compose --profile backend up --force-recreate --build",
             "presentation": {
                 "group": "backend",
                 "panel": "shared"
