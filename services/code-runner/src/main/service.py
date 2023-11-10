@@ -7,9 +7,9 @@ import yaml
 import grpc
 from protobufs.services.v1 import code_runner_service_pb2, code_runner_service_pb2_grpc
 
-from config import Config
+from common.config import Config
 from container_controller import ContainerController
-from service_logging import init_logging, log_and_flush
+from common.service_logging import init_logging, log_and_flush
 
 from runners.test_runner import BaseTestRunner
 
@@ -19,14 +19,18 @@ class CodeRunnerServicer(code_runner_service_pb2_grpc.CodeRunnerService):
         self.container_controller = container_controller
 
     def GetRunnerState(
-        self, request: code_runner_service_pb2.GetRunnerStateRequest, context: grpc.ServicerContext
+        self,
+        request: code_runner_service_pb2.GetRunnerStateRequest,
+        context: grpc.ServicerContext,
     ) -> code_runner_service_pb2.GetRunnerStateResponse:
         resp = code_runner_service_pb2.GetRunnerStateResponse()
 
         return resp
 
     def RunCode(
-        self, request: code_runner_service_pb2.RunCodeRequest, context: grpc.ServicerContext
+        self,
+        request: code_runner_service_pb2.RunCodeRequest,
+        context: grpc.ServicerContext,
     ) -> code_runner_service_pb2.RunCodeResponse:
         resp = code_runner_service_pb2.RunCodeResponse()
 

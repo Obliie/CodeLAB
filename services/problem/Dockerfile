@@ -1,6 +1,8 @@
 FROM python:3.11.4-slim
 
-ENV PYTHONPATH "${PYTHONPATH}:/service_common:/protobufs"
+COPY services/problem/src/main /service/
+COPY services/common/src/main /service/common/
+COPY protobufs/build/python/protobufs /service/protobufs/
 
 COPY services/problem/requirements.txt requirements.txt
 COPY services/common/common_requirements.txt common_requirements.txt

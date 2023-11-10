@@ -7,8 +7,8 @@ import grpc
 from protobufs.services.v1 import problem_service_pb2, problem_service_pb2_grpc
 from protobufs.common.v1 import problem_pb2
 
-from config import Config
-from service_logging import init_logging, log_and_flush
+from common.config import Config
+from common.service_logging import init_logging, log_and_flush
 from pymongo import MongoClient
 
 DATABASE_USERNAME_FILE = "/run/secrets/mongo-username"
@@ -40,7 +40,7 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
         problem = problem_pb2.ProblemSummary()
         problem.id = "12"
         problem.title = "Hi I'm here for testing :)"
-        problem.summary = "blah blah"
+        problem.summary = "blah blah bbb"
 
         problem2 = problem_pb2.ProblemSummary()
         problem2.id = "13"

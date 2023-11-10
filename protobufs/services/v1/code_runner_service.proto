@@ -2,8 +2,8 @@ syntax = "proto3";
 
 package protobufs.services.v1;
 
-import "common/v1/solution.proto";
-import "common/v1/language.proto";
+import "protobufs/common/v1/solution.proto";
+import "protobufs/common/v1/language.proto";
 
 // Code Runner service
 service CodeRunnerService {

@@ -13,12 +13,24 @@ services:
         depends_on:
             proto-builder:
                 condition: service_completed_successfully
+        develop:
+            watch:
+                - action: sync+restart
+                  path: ./services/code-runner/src/main
+                  target: /service
+                - action: rebuild
+                  path: ./services/code-runner/requirements.txt
+                - action: sync+restart
+                  path: ./services/common/src/main
+                  target: /service/common
+                - action: rebuild
+                  path: ./services/common/common-requirements.txt
+                - action: sync+restart
+                  path: ./protobufs/build/python/protobufs
+                  target: /service/protobufs
         volumes:
-            - ./services/common/src/main:/service_common:ro
-            - ./services/code-runner/src/main:/service:ro
-            - ./protobufs/build/python:/protobufs:ro
             - /var/run/docker.sock:/var/run/docker.sock
-        command: watchmedo auto-restart --recursive --pattern="*.py" --directory="/service/" --directory="/service_common/" --directory="/protobufs/" python3 /service/service.py
+        command: python3 /service/service.py
         profiles:
             - backend
         configs:
@@ -35,11 +47,22 @@ services:
         depends_on:
             proto-builder:
                 condition: service_completed_successfully
-        volumes:
-            - ./services/common/src/main:/service_common:ro
-            - ./services/problem/src/main:/service:ro
-            - ./protobufs/build/python:/protobufs:ro
-        command: watchmedo auto-restart --recursive --pattern="*.py" --directory="/service/" --directory="/service_common/" --directory="/protobufs/" python3 /service/service.py
+        develop:
+            watch:
+                - action: sync+restart
+                  path: ./services/problem/src/main
+                  target: /service
+                - action: rebuild
+                  path: ./services/problem/requirements.txt
+                - action: sync+restart
+                  path: ./services/common/src/main
+                  target: /service/common
+                - action: rebuild
+                  path: ./services/common/common-requirements.txt
+                - action: sync+restart
+                  path: ./protobufs/build/python/protobufs
+                  target: /service/protobufs
+        command: python3 /service/service.py
         profiles:
             - backend
         networks:
@@ -83,9 +106,13 @@ services:
             dockerfile: ./containers/proto-builder/Dockerfile
         env_file:
             - .env
+        develop:
+            watch:
+                - action: rebuild
+                  path: ./containers/proto-builder/buf.gen.yaml
         volumes:
-            - ./protobufs:/protobufs
-        working_dir: /protobufs
+            - ./protobufs:/build/protobufs
+        working_dir: /build
         command: generate --template /etc/buf/buf.gen.yaml
         profiles: ['build', 'backend']
 

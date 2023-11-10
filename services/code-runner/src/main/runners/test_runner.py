@@ -4,7 +4,7 @@ from protobufs.common.v1 import language_pb2, solution_pb2
 from container_controller import ContainerController
 from docker.models.containers import Container
 
-from service_logging import log_and_flush
+from common.service_logging import log_and_flush
 
 
 class BaseTestRunner:

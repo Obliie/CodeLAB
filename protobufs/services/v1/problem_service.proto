@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package protobufs.services.v1;
 
-import "common/v1/problem.proto";
+import "protobufs/common/v1/problem.proto";
 
 // A service to handle the persistence of "problems" and their submitted solutions with any evaluated scores.
 service ProblemService {

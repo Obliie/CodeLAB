@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package protobufs.common.v1;
 
-import "common/v1/language.proto";
+import "protobufs/common/v1/language.proto";
 
 message Problem {
     string id = 1;
