@@ -4,7 +4,7 @@ import { createGrpcWebTransport } from '@connectrpc/connect-web';
 import { useMemo } from 'react';
 
 export const transport = createGrpcWebTransport({
-    baseUrl: 'http://127.0.0.1:8080/',
+    baseUrl: typeof window === 'undefined' ? 'http://api-gateway:8080' : 'http://127.0.0.1:8080',
 });
 
 /**

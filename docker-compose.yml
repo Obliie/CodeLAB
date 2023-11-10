@@ -23,7 +23,7 @@ services:
         profiles:
             - frontend
         networks:
-            - codelabmesh
+            - codelabweb
 
     ###
     # Service Containers
@@ -208,7 +208,11 @@ services:
             - ${HOST}:${ENVOY_EDGE_GATEWAY_PORT}:8080
             - ${HOST}:${ENVOY_EDGE_GATEWAY_ADMIN_PORT}:9090
         networks:
-            - codelabmesh
+            codelabmesh:
+            codelabweb:
+                aliases:
+                    - codelab.obliie.dev
+            
 
     statsd-exporter:
         image: prom/statsd-exporter:latest
@@ -236,6 +240,9 @@ networks:
     codelabmesh:
         driver: bridge
         name: codelabmesh
+    codelabweb:
+        driver: bridge
+        name: codelabweb
 
 configs:
     service-config:
