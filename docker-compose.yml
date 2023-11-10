@@ -1,6 +1,30 @@
 version: '3.8'
 name: codelab
 services:
+    frontend:
+        build:
+            context: ./
+            dockerfile: ./app/Dockerfile
+        ports:
+            - ${HOST}:${FRONTEND_PORT}:3000
+        env_file:
+            - .env
+        depends_on:
+            proto-builder:
+                condition: service_completed_successfully
+        develop:
+            watch:
+                - action: sync
+                  path: ./app
+                  target: /app
+                - action: rebuild
+                  path: ./app/package.json
+        command: npm run dev -- -H 0.0.0.0
+        profiles:
+            - frontend
+        networks:
+            - codelabmesh
+
     ###
     # Service Containers
     ###
@@ -114,7 +138,7 @@ services:
             - ./protobufs:/build/protobufs
         working_dir: /build
         command: generate --template /etc/buf/buf.gen.yaml
-        profiles: ['build', 'backend']
+        profiles: ['build', 'backend', 'frontend']
 
     ###
     # Test Containers
@@ -164,6 +188,10 @@ services:
             args:
                 PROBLEM_SERVICE_PORT: ${PROBLEM_SERVICE_PORT}
                 SUBMISSION_SERVICE_PORT: ${SUBMISSION_SERVICE_PORT}
+        develop:
+            watch:
+                - action: rebuild
+                  path: ./containers/api-gateway/envoy.json
         env_file:
             - .env
         depends_on:
