@@ -37,7 +37,7 @@ async function Problem({ id }: { id: string }) {
                         <Typography gutterBottom variant="h5" component="div">
                             Test Data
                         </Typography>
-                        <ProblemTestData testData={problem.problem.tests} />
+                        {problem.problem.tests ? (<ProblemTestData testData={problem.problem.tests} />) : (<></>)}
                     </CardContent>
                 </Card>
             </Stack>

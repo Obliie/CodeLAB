@@ -1,3 +1,4 @@
+import ProblemDialog from '@/components/ProblemDialog';
 import { useClient, useServerClient } from '@/lib/connect';
 import { handleGrpcError } from '@/lib/error';
 import { ProblemService } from '@/protobufs/services/v1/problem_service_connect';
@@ -14,6 +15,8 @@ import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
 import Link from 'next/link';
 import * as React from 'react';
+
+export const dynamic = 'force-dynamic'
 
 async function ProblemSummaries() {
     const problems = (await useServerClient(ProblemService)
@@ -48,6 +51,7 @@ async function ProblemSummaries() {
 export default function ProblemsPage() {
     return (
         <Container>
+            <ProblemDialog problem={undefined}/>
             <Box
                 sx={{
                     display: 'flex',

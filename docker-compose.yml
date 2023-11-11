@@ -108,6 +108,7 @@ services:
     ###
     problem-db:
         image: mongo:7.0.2
+        # TODO This exposes the database, only use for development, remove for prod
         ports:
             - ${PROBLEM_DB_PORT}:${PROBLEM_DB_PORT}
         environment:
