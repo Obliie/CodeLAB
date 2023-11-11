@@ -1,6 +1,9 @@
 version: '3.8'
 name: codelab
 services:
+    ###
+    # Frontend web
+    ###
     frontend:
         build:
             context: ./
@@ -39,22 +42,22 @@ services:
                 condition: service_completed_successfully
         develop:
             watch:
-                - action: sync+restart
+                - action: sync
                   path: ./services/code-runner/src/main
                   target: /service
                 - action: rebuild
                   path: ./services/code-runner/requirements.txt
-                - action: sync+restart
+                - action: sync
                   path: ./services/common/src/main
                   target: /service/common
                 - action: rebuild
                   path: ./services/common/common-requirements.txt
-                - action: sync+restart
+                - action: sync
                   path: ./protobufs/build/python/protobufs
                   target: /service/protobufs
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
-        command: python3 /service/service.py
+        command: watchmedo auto-restart --recursive --pattern="*.py" --directory="/service/" python3 /service/service.py
         profiles:
             - backend
         configs:
@@ -71,31 +74,34 @@ services:
         depends_on:
             proto-builder:
                 condition: service_completed_successfully
+            problem-db:
+                condition: service_started
         develop:
             watch:
-                - action: sync+restart
+                - action: sync
                   path: ./services/problem/src/main
                   target: /service
                 - action: rebuild
                   path: ./services/problem/requirements.txt
-                - action: sync+restart
+                - action: sync
                   path: ./services/common/src/main
                   target: /service/common
                 - action: rebuild
                   path: ./services/common/common-requirements.txt
-                - action: sync+restart
+                - action: sync
                   path: ./protobufs/build/python/protobufs
                   target: /service/protobufs
-        command: python3 /service/service.py
+        command: watchmedo auto-restart --recursive --pattern="*.py" --directory="/service/" python3 /service/service.py
         profiles:
             - backend
+            - problem
         networks:
             - codelabmesh
         configs:
             - service-config
         secrets:
-            - mongo-username
-            - mongo-password
+            - mongo-root-username
+            - mongo-root-password
 
     ###
     # Databases
@@ -103,7 +109,7 @@ services:
     problem-db:
         image: mongo:7.0.2
         ports:
-            - ${PROBLEM_DB_PORT}:27017
+            - ${PROBLEM_DB_PORT}:${PROBLEM_DB_PORT}
         environment:
             MONGO_INITDB_ROOT_USERNAME_FILE: /run/secrets/mongo-root-username
             MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/mongo-root-password
@@ -111,8 +117,10 @@ services:
             MONGO_USERNAME_FILE: /run/secrets/mongo-username
             MONGO_PASSWORD_FILE: /run/secrets/mongo-password
             MONGO_DATABASE: problem
+        command: mongod --port ${PROBLEM_DB_PORT}
         profiles:
             - backend
+            - problem
         networks:
             - codelabmesh
         secrets:
@@ -138,7 +146,7 @@ services:
             - ./protobufs:/build/protobufs
         working_dir: /build
         command: generate --template /etc/buf/buf.gen.yaml
-        profiles: ['build', 'backend', 'frontend']
+        profiles: ['build', 'backend', 'frontend', 'problem']
 
     ###
     # Test Containers
@@ -153,7 +161,7 @@ services:
             - ./services/code-runner/src/test/integration:/tests/code-runner:ro
             - ./services/problem/src/test/integration:/tests/problem:ro
             - ./protobufs/build/python:/protobufs:ro
-        command: pytest -o log_cli=true -o cache_dir=/test-cache /tests
+        command: pytest -o log_cli=true -o cache_dir=/test-cache -k ${TEST_FILTER} /tests
         profiles:
             - test
         networks:
@@ -172,7 +180,7 @@ services:
             - ./services/code-runner/src/test/.pytest_cache:/test-cache
             - ./protobufs/build/python:/protobufs:ro
             - /var/run/docker.sock:/var/run/docker.sock
-        command: pytest -o log_cli=true -o cache_dir=/test-cache /tests
+        command: pytest -o log_cli=true -o cache_dir=/test-cache -k ${TEST_FILTER} /tests
         profiles:
             - unittest
         configs:

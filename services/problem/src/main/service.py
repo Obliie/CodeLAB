@@ -2,8 +2,11 @@
 from concurrent import futures
 import logging
 import os
+from typing import Any, Dict
 
 import grpc
+from google.protobuf import json_format
+from bson.objectid import ObjectId
 from protobufs.services.v1 import problem_service_pb2, problem_service_pb2_grpc
 from protobufs.common.v1 import problem_pb2
 
@@ -11,8 +14,18 @@ from common.config import Config
 from common.service_logging import init_logging, log_and_flush
 from pymongo import MongoClient
 
-DATABASE_USERNAME_FILE = "/run/secrets/mongo-username"
-DATABASE_PASSWORD_FILE = "/run/secrets/mongo-password"
+DATABASE_USERNAME_FILE = "/run/secrets/mongo-root-username"
+DATABASE_PASSWORD_FILE = "/run/secrets/mongo-root-password"
+
+PROTOBUF_PROBLEM_ID_FIELD = "id"
+
+PROBLEMS_COLLECTION_NAME = "problems"
+PROBLEM_ID_FIELD = "_id"
+PROBLEM_TITLE_FIELD = "title"
+PROBLEM_DESCRIPTION_FIELD = "description"
+PROBLEM_TESTS_FIELD = "tests"
+
+PROBLEM_SUMMARY_LENGTH = 250
 
 
 class ProblemServicer(problem_service_pb2_grpc.ProblemService):
@@ -25,63 +38,176 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
             DATABASE_PASSWORD_FILE
         ) as database_password_file:
             self.client = MongoClient(
-                f"mongodb://{database_username_file.read()}:{database_password_file.read()}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}"
+                f"mongodb://{database_username_file.read()}:{database_password_file.read()}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}?authSource=admin"
             )
-            log_and_flush(logging.INFO, f"db connected to {self.client.get_database().name}")
+            log_and_flush(logging.INFO, f"MongoDB client created...")
+
+    def _problem_document_to_problem_summary(
+        self, problem: Dict[Any, Any]
+    ) -> problem_pb2.ProblemSummary:
+        summary = problem_pb2.ProblemSummary()
+        summary.id = str(problem[PROBLEM_ID_FIELD])
+        summary.title = problem[PROBLEM_TITLE_FIELD]
+        summary.summary = (
+            (f"{problem[PROBLEM_DESCRIPTION_FIELD][:PROBLEM_SUMMARY_LENGTH]}...")
+            if len(problem[PROBLEM_DESCRIPTION_FIELD]) > PROBLEM_SUMMARY_LENGTH
+            else problem[PROBLEM_DESCRIPTION_FIELD]
+        )
+
+        return summary
+
+    def _query_id(self, problem_id: str) -> ObjectId:
+        return ObjectId(problem_id)
 
     def GetProblemSummaries(
-        self, request: problem_service_pb2.GetProblemSummariesRequest, context: grpc.ServicerContext
+        self,
+        request: problem_service_pb2.GetProblemSummariesRequest,
+        context: grpc.ServicerContext,
     ) -> problem_service_pb2.GetProblemSummariesResponse:
-        problem22 = problem_pb2.ProblemSummary()
-        problem22.id = "11"
-        problem22.title = "Programming Lab Environment"
-        problem22.summary = "This is a summary of the task..."
-
-        problem = problem_pb2.ProblemSummary()
-        problem.id = "12"
-        problem.title = "Hi I'm here for testing :)"
-        problem.summary = "blah blah bbb"
-
-        problem2 = problem_pb2.ProblemSummary()
-        problem2.id = "13"
-        problem2.title = "Hi I'm here for testing also :)"
-        problem2.summary = "blah blah NYASH"
+        problems = (
+            self.client[self.DATABASE_NAME]
+            .get_collection(PROBLEMS_COLLECTION_NAME)
+            .find({})
+            .limit(request.limit)
+        )
 
         resp = problem_service_pb2.GetProblemSummariesResponse()
-        resp.problem_summaries.append(problem22)
-        resp.problem_summaries.append(problem)
-        resp.problem_summaries.append(problem2)
+        for problem in problems:
+            summary = self._problem_document_to_problem_summary(problem)
+            resp.problem_summaries.append(summary)
 
         return resp
+
+    def _problem_document_to_problem(
+        self, problem_document: Dict[Any, Any]
+    ) -> problem_pb2.Problem:
+        problem_document[PROTOBUF_PROBLEM_ID_FIELD] = str(
+            problem_document.pop(PROBLEM_ID_FIELD)
+        )
+
+        problem = problem_pb2.Problem()
+        json_format.ParseDict(problem_document, problem)
+
+        return problem
 
     def GetProblem(
-        self, request: problem_service_pb2.GetProblemRequest, context: grpc.ServicerContext
+        self,
+        request: problem_service_pb2.GetProblemRequest,
+        context: grpc.ServicerContext,
     ) -> problem_service_pb2.GetProblemResponse:
-        problem = problem_pb2.Problem()
-        problem.id = "11"
-        problem.title = "Programming Lab Environment"
-        problem.description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Varius duis at consectetur lorem donec. In ante metus dictum at tempor commodo ullamcorper a. Nulla facilisi etiam dignissim diam quis enim lobortis. Sapien eget mi proin sed libero. In pellentesque massa placerat duis ultricies lacus. Semper viverra nam libero justo laoreet sit amet cursus. Fames ac turpis egestas sed tempus. Vitae semper quis lectus nulla at volutpat diam ut venenatis. Urna nunc id cursus metus aliquam. Aliquet eget sit amet tellus cras adipiscing enim. Sit amet nisl suscipit adipiscing bibendum est ultricies. Odio facilisis mauris sit amet massa vitae tortor condimentum. Dictumst quisque sagittis purus sit amet volutpat consequat mauris. Diam maecenas ultricies mi eget mauris pharetra et ultrices neque. \n\n Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Varius duis at consectetur lorem donec. In ante metus dictum at tempor commodo ullamcorper a. Nulla facilisi etiam dignissim diam quis enim lobortis. Sapien eget mi proin sed libero. In pellentesque massa placerat duis ultricies lacus. Semper viverra nam libero justo laoreet sit amet cursus. Fames ac turpis egestas sed tempus. Vitae semper quis lectus nulla at volutpat diam ut venenatis. Urna nunc id cursus metus aliquam. Aliquet eget sit amet tellus cras adipiscing enim. Sit amet nisl suscipit adipiscing bibendum est ultricies. Odio facilisis mauris sit amet massa vitae tortor condimentum. Dictumst quisque sagittis purus sit amet volutpat consequat mauris. Diam maecenas ultricies mi eget mauris pharetra et ultrices neque."
-
-        testData1 = problem_pb2.Problem.TestData()
-        testData1.arguments = "-L python"
-        testData1.expected_stdout = "Hello python!"
-
-        testData2 = problem_pb2.Problem.TestData()
-        testData2.arguments = "-L c++"
-        testData2.expected_stdout = "Hello c++!"
-
-        problem.tests.append(testData1)
-        problem.tests.append(testData2)
+        problem_document = (
+            self.client[self.DATABASE_NAME]
+            .get_collection(PROBLEMS_COLLECTION_NAME)
+            .find_one({PROBLEM_ID_FIELD: self._query_id(request.problem_id)})
+        )
 
         resp = problem_service_pb2.GetProblemResponse()
-        resp.problem.CopyFrom(problem)
+        resp.problem.CopyFrom(self._problem_document_to_problem(problem_document))
 
         return resp
+
+    def CreateProblem(
+        self,
+        request: problem_service_pb2.CreateProblemRequest,
+        context: grpc.ServicerContext,
+    ) -> problem_service_pb2.CreateProblemResponse:
+        result = (
+            self.client[self.DATABASE_NAME]
+            .get_collection(PROBLEMS_COLLECTION_NAME)
+            .insert_one(json_format.MessageToDict(request.problem))
+        )
+        request.problem.id = str(result.inserted_id)
+
+        resp = problem_service_pb2.CreateProblemResponse()
+        resp.problem.CopyFrom(request.problem)
+        resp.success = result.acknowledged
+
+        return resp
+
+    def UpdateProblem(
+        self,
+        request: problem_service_pb2.UpdateProblemRequest,
+        context: grpc.ServicerContext,
+    ) -> problem_service_pb2.UpdateProblemResponse:
+        problem_dict = json_format.MessageToDict(request.problem)
+
+        result = (
+            self.client[self.DATABASE_NAME]
+            .get_collection(PROBLEMS_COLLECTION_NAME)
+            .update_one(
+                {
+                    PROBLEM_ID_FIELD: self._query_id(
+                        problem_dict.pop(PROTOBUF_PROBLEM_ID_FIELD)
+                    )
+                },
+                {"$set": problem_dict},
+            )
+        )
+
+        resp = problem_service_pb2.UpdateProblemResponse()
+        resp.success = result.acknowledged
+
+        return resp
+
+    def DeleteProblem(
+        self,
+        request: problem_service_pb2.DeleteProblemRequest,
+        context: grpc.ServicerContext,
+    ) -> problem_service_pb2.DeleteProblemResponse:
+        result = (
+            self.client[self.DATABASE_NAME]
+            .get_collection(PROBLEMS_COLLECTION_NAME)
+            .delete_one(
+                {PROBLEM_ID_FIELD: self._query_id(request.problem_id)},
+            )
+        )
+
+        resp = problem_service_pb2.DeleteProblemResponse()
+        resp.success = result.acknowledged
+
+        return resp
+
+    def AddTestData(
+        self,
+        request: problem_service_pb2.AddTestDataRequest,
+        context: grpc.ServicerContext,
+    ) -> problem_service_pb2.AddTestDataResponse:
+        tests = json_format.MessageToDict(request)[PROBLEM_TESTS_FIELD]
+
+        result = (
+            self.client[self.DATABASE_NAME]
+            .get_collection(PROBLEMS_COLLECTION_NAME)
+            .update_one(
+                {PROBLEM_ID_FIELD: self._query_id(request.problem_id)},
+                {"$push": {PROBLEM_TESTS_FIELD: {"$each": tests}}},
+            )
+        )
+
+        resp = problem_service_pb2.AddTestDataResponse()
+        resp.success = result.acknowledged
+
+        return resp
+
+    def RemoveTestData(
+        self,
+        request: problem_service_pb2.RemoveTestDataRequest,
+        context: grpc.ServicerContext,
+    ) -> problem_service_pb2.RemoveTestDataResponse:
+        raise NotImplementedError()
+
+    def UpdateTestData(
+        self,
+        request: problem_service_pb2.UpdateTestDataRequest,
+        context: grpc.ServicerContext,
+    ) -> problem_service_pb2.UpdateTestDataResponse:
+        raise NotImplementedError()
 
 
 def serve() -> None:
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    problem_service_pb2_grpc.add_ProblemServiceServicer_to_server(ProblemServicer(), server)
+    problem_service_pb2_grpc.add_ProblemServiceServicer_to_server(
+        ProblemServicer(), server
+    )
     server.add_insecure_port(f"[::]:{ os.environ['PROBLEM_SERVICE_PORT'] }")
     log_and_flush(logging.INFO, "Starting Probelm service...")
     server.start()

@@ -41,49 +41,52 @@ message GetProblemResponse {
 }
 
 message CreateProblemRequest {
-    // todo
+    common.v1.Problem problem = 1;
 }
 
 message CreateProblemResponse {
-    // todo
+    common.v1.Problem problem = 1;
+    bool success = 2;
 }
 
 message UpdateProblemRequest {
-    // todo
+    common.v1.Problem problem = 1;
 }
 
 message UpdateProblemResponse {
-    // todo
+    bool success = 1;
 }
 
 message DeleteProblemRequest {
-    // todo
+    string problem_id = 1;
 }
 
 message DeleteProblemResponse {
-    // todo
+    bool success = 1;
 }
 
 message AddTestDataRequest {
-    // todo
+    string problem_id = 1;
+    repeated common.v1.Problem.TestData tests = 2;
 }
 
 message AddTestDataResponse {
-    // todo
+    bool success = 1;
 }
 
 message RemoveTestDataRequest {
-    // todo
+    string problem_id = 1;
+    repeated common.v1.Problem.TestData tests = 2;
 }
 
 message RemoveTestDataResponse {
-    // todo
+    bool success = 1;
 }
 
 message UpdateTestDataRequest {
-    // todo
+    common.v1.Problem.TestData test = 1;
 }
 
 message UpdateTestDataResponse {
-    // todo
+    bool success = 1;
 }
