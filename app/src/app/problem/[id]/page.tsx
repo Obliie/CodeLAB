@@ -1,5 +1,6 @@
 import CodeSubmitter from '@/components/CodeSubmitter';
 import ProblemTestData from '@/components/ProblemTestData';
+import TestDataDialog from '@/components/TestDataDialog';
 import { useClient, useServerClient } from '@/lib/connect';
 import { handleGrpcError } from '@/lib/error';
 import { ProblemService } from '@/protobufs/services/v1/problem_service_connect';
@@ -37,7 +38,9 @@ async function Problem({ id }: { id: string }) {
                         <Typography gutterBottom variant="h5" component="div">
                             Test Data
                         </Typography>
+                        
                         {problem.problem.tests ? (<ProblemTestData testData={problem.problem.tests} />) : (<></>)}
+                        <TestDataDialog testData={undefined} problem_id={id} />
                     </CardContent>
                 </Card>
             </Stack>

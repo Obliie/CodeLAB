@@ -1,10 +1,11 @@
 'use client';
-import { Problem_TestData, Problem_TestFile, Problem_TestInput } from '@/protobufs/common/v1/problem_pb';
+import { Problem_TestData, Problem_TestFile } from '@/protobufs/common/v1/problem_pb';
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Typography from '@mui/material/Typography';
 import React from 'react';
+import TestDataDialog from './TestDataDialog';
 
 export default function ProblemTestData({ testData }: { testData: Problem_TestData[] }) {
     const [value, setValue] = React.useState(0);
