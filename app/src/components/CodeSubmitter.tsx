@@ -6,8 +6,9 @@ import Typography from '@mui/material/Typography';
 import { useState } from 'react';
 import CodeEditor from './CodeEditor';
 import CodeOutput from './CodeOutput';
+import { Problem } from '@/protobufs/common/v1/problem_pb';
 
-export default function CodeSubmitter() {
+export default function CodeSubmitter({ problem }: { problem: Problem}) {
     const [code, setCode] = useState('');
 
     return (
@@ -20,7 +21,8 @@ export default function CodeSubmitter() {
                     <CodeEditor setCode={setCode} />
                 </CardContent>
             </Card>
-            <CodeOutput code={code} />
+
+            <CodeOutput code={code} problem={problem}/>
         </Stack>
     );
 }

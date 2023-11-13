@@ -1,6 +1,9 @@
+import { DeleteProblemRequest } from '@/actions/DeleteProblemRequest';
+import ProblemActions from '@/components/ProblemActions';
 import ProblemDialog from '@/components/ProblemDialog';
 import { useClient, useServerClient } from '@/lib/connect';
 import { handleGrpcError } from '@/lib/error';
+import { RunCodeRequest } from '@/protobufs/services/v1/code_runner_service_pb';
 import { ProblemService } from '@/protobufs/services/v1/problem_service_connect';
 import { GetProblemSummariesResponse } from '@/protobufs/services/v1/problem_service_pb';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -14,6 +17,7 @@ import Container from '@mui/material/Container';
 import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import * as React from 'react';
 
 export const dynamic = 'force-dynamic'
@@ -34,11 +38,7 @@ async function ProblemSummaries() {
                         <Typography>{problem.summary}</Typography>
                     </AccordionDetails>
                     <AccordionActions>
-                        <Link href={`/problem/${problem.id}`}>
-                            <Button variant="contained" sx={{ margin: '10px' }}>
-                                View
-                            </Button>
-                        </Link>
+                        <ProblemActions problemId={problem.id} deleteAction={DeleteProblemRequest}/>
                     </AccordionActions>
                 </Accordion>
             ))}

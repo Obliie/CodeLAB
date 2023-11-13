@@ -60,6 +60,7 @@ services:
         command: watchmedo auto-restart --recursive --pattern="*.py" --directory="/service/" python3 /service/service.py
         profiles:
             - backend
+            - code-runner
         configs:
             - service-config
         networks:
@@ -147,7 +148,7 @@ services:
             - ./protobufs:/build/protobufs
         working_dir: /build
         command: generate --template /etc/buf/buf.gen.yaml
-        profiles: ['build', 'backend', 'frontend', 'problem']
+        profiles: ['build', 'backend', 'frontend', 'problem', 'code-runner']
 
     ###
     # Test Containers

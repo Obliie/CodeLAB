@@ -10,6 +10,7 @@ from protobufs.services.v1 import code_runner_service_pb2, code_runner_service_p
 from common.config import Config
 from container_controller import ContainerController
 from common.service_logging import init_logging, log_and_flush
+from runners.series_test_runner import SeriesTestRunner
 
 from runners.test_runner import BaseTestRunner
 
@@ -39,8 +40,8 @@ class CodeRunnerServicer(code_runner_service_pb2_grpc.CodeRunnerService):
         resp.stderr = ""
         yield resp
 
-        out = "FAIL RUN"
         with BaseTestRunner(self.container_controller, request.files) as runner:
+            runner.setup()
             out = runner.run_tests()
 
             resp.stage = code_runner_service_pb2.RunStage.RUN_STAGE_EXECUTE
@@ -51,6 +52,36 @@ class CodeRunnerServicer(code_runner_service_pb2_grpc.CodeRunnerService):
 
         resp.stage = code_runner_service_pb2.RunStage.RUN_STAGE_EXECUTE
         resp.stdout = "RunCode execution complete"
+        resp.stderr = ""
+        yield resp
+
+    def RunCodeTests(
+        self,
+        request: code_runner_service_pb2.RunCodeTestsRequest,
+        context: grpc.ServicerContext,
+    ) -> code_runner_service_pb2.RunCodeTestsResponse:
+        resp = code_runner_service_pb2.RunCodeTestsResponse()
+
+        resp.stage = code_runner_service_pb2.RunStage.RUN_STAGE_COMPILE
+        resp.stdout = "RunCode received submission"
+        resp.stderr = ""
+        yield resp
+
+        with SeriesTestRunner(self.container_controller, request.files, request.tests) as runner:
+            runner.setup()
+            test_no = 1
+            log_and_flush(logging.INFO, f"Got {len(request.tests)} to run")
+            for result, success, run_time in runner.run_tests():
+                log_and_flush(logging.INFO, f"running {test_no}")
+                resp.stage = code_runner_service_pb2.RunStage.RUN_STAGE_EXECUTE
+                resp.stdout = result
+                resp.stderr = f"Test {test_no} {'success' if success else 'failed'}. Ran for {run_time}s"
+
+                test_no = test_no + 1
+                yield resp
+
+        resp.stage = code_runner_service_pb2.RunStage.RUN_STAGE_EXECUTE
+        resp.stdout = "RunCode execution complete. Container down."
         resp.stderr = ""
         yield resp
 

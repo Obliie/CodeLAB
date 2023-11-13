@@ -19,13 +19,16 @@ class BaseTestRunner:
     def __exit__(self, exc_type, exc_value, traceback):
         self.container_controller.remove(self.container_id)
         return self
-
-    def run_tests(self) -> str:
+    
+    def setup(self) -> None:
         container: Container = self.container_controller._get_container(self.container_id)
 
         for file in self.solution_files:
             if file.main_file:
                 self.container_controller._copy_bytes_to_container(container, file.data, "/tmp/code-runner")
+    
+    def run_tests(self) -> str:
+        container: Container = self.container_controller._get_container(self.container_id)
 
         exit_code, output = container.exec_run("python3 /tmp/code-runner/main.py")
 

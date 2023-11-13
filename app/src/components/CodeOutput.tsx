@@ -1,5 +1,6 @@
 import { transport, useClient } from '@/lib/connect';
 import { ProgrammingLanguage } from '@/protobufs/common/v1/language_pb';
+import { Problem } from '@/protobufs/common/v1/problem_pb';
 import { SolutionFile, SolutionFileType } from '@/protobufs/common/v1/solution_pb';
 import { CodeRunnerService } from '@/protobufs/services/v1/code_runner_service_connect';
 import { RunCodeResponse } from '@/protobufs/services/v1/code_runner_service_pb';
@@ -17,6 +18,7 @@ async function onCodeSubmit(
     data: string[],
     setData: Function,
     codeRunnerService: PromiseClient<typeof CodeRunnerService>,
+    problem: Problem,
 ) {
     const mainFile: SolutionFile = new SolutionFile();
     mainFile.type = SolutionFileType.FILE_TYPE_SINGLE;
@@ -27,16 +29,19 @@ async function onCodeSubmit(
     mainFile.data = encoder.encode(code);
 
     setData([]);
-    for await (const response of codeRunnerService.runCode({
+    for await (const response of codeRunnerService.runCodeTests({
         files: [mainFile],
-        language: ProgrammingLanguage.PYTHON,
-        hasDependencies: false,
+        tests: problem.tests
     })) {
-        setData((oldData: string[]) => [...oldData, response.stdout]);
+        if (response.stderr) {
+            setData((oldData: string[]) => [...oldData, `${response.stderr}. Output: ${response.stdout}`]);
+        } else {
+            setData((oldData: string[]) => [...oldData, `${response.stdout}`]);
+        }
     }
 }
 
-export default function CodeOutput({ code }: { code: string }) {
+export default function CodeOutput({ code, problem }: { code: string, problem: Problem }) {
     const [data, setData] = useState<string[]>([]);
     const codeRunnerService: PromiseClient<typeof CodeRunnerService> = useClient(CodeRunnerService);
 
@@ -66,7 +71,7 @@ export default function CodeOutput({ code }: { code: string }) {
                 <Button
                     sx={{ margin: '0px 10px', marginBottom: '10px' }}
                     variant="outlined"
-                    onClick={() => onCodeSubmit(code, data, setData, codeRunnerService)}>
+                    onClick={() => onCodeSubmit(code, data, setData, codeRunnerService, problem)}>
                     Submit
                 </Button>
             </CardActions>

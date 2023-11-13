@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package protobufs.services.v1;
 
+import "protobufs/common/v1/problem.proto";
 import "protobufs/common/v1/solution.proto";
 import "protobufs/common/v1/language.proto";
 
@@ -11,6 +12,8 @@ service CodeRunnerService {
     rpc GetRunnerState(GetRunnerStateRequest) returns (GetRunnerStateResponse) { }
 
     rpc RunCode(RunCodeRequest) returns (stream RunCodeResponse) { }
+
+    rpc RunCodeTests(RunCodeTestsRequest) returns (stream RunCodeTestsResponse) { }
 }
 
 message GetRunnerStateRequest {
@@ -28,6 +31,17 @@ message RunCodeRequest {
 }
 
 message RunCodeResponse {
+    RunStage stage = 1;
+    string stdout = 2;
+    string stderr = 3;
+}
+
+message RunCodeTestsRequest {
+    repeated common.v1.Problem.TestData tests = 1;
+    repeated common.v1.SolutionFile files = 2;
+}
+
+message RunCodeTestsResponse {
     RunStage stage = 1;
     string stdout = 2;
     string stderr = 3;

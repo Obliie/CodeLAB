@@ -15,7 +15,7 @@ export default function ProblemTestData({ testData }: { testData: Problem_TestDa
     };
 
     return (
-        <Box sx={{ flexGrow: 1, display: 'flex', height: '100%', width: '100%' }}>
+        <Box sx={{ flexGrow: 1, display: 'flex', height: '92%', width: '100%', marginBottom: '16px' }}>
             <Tabs
                 orientation="vertical"
                 variant="scrollable"
