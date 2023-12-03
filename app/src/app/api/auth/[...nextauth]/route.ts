@@ -15,19 +15,28 @@ const handler = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user, account, profile, isNewUser }) {
-      if (user) {
-        token.id = user.id;
-      }
-      
-      return token;
+    async jwt({ token, user }) {
+        if (user?.id) {
+            token.id = user.id
+        }
+        if (user?.name) {
+            token.name = user.name;
+        }
+        return token
     },
-    async session({ session, user, token }) {
-      //user.id = token.id;
-      return session;
+    async session({ session, token }) {
+        if (typeof token.id == "string") {
+            session.user.id = token.id;
+            session.user.name = token.name;
+        }
+
+        return session;
     },
   },
-  debug: true
+  debug: true,
+  session: {
+    strategy: 'jwt'
+  }
 })
 
 export { handler as GET, handler as POST };

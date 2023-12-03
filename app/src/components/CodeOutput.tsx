@@ -13,9 +13,11 @@ import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
+import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 
 async function onCodeSubmit(
+    userId: string | undefined,
     code: string,
     data: string[],
     setData: Function,
@@ -32,7 +34,8 @@ async function onCodeSubmit(
     setData([]);
     const submissionResponse = await submissionService.submitCode({
         files: [mainFile],
-        problemId: problem.id
+        problemId: problem.id,
+        userId: userId ?? "none"
     }) as SubmitCodeResponse;
     setData([`SUBMISSION SENT WITH ID: ${submissionResponse.submissionId}`])
     /*
@@ -51,6 +54,7 @@ async function onCodeSubmit(
 export default function CodeOutput({ code, problem }: { code: string, problem: Problem }) {
     const [data, setData] = useState<string[]>([]);
     const submissionService: PromiseClient<typeof SubmissionService> = useClient(SubmissionService);
+    const { data: session } = useSession();
 
     return (
         <Card
@@ -78,7 +82,7 @@ export default function CodeOutput({ code, problem }: { code: string, problem: P
                 <Button
                     sx={{ margin: '0px 10px', marginBottom: '10px' }}
                     variant="outlined"
-                    onClick={() => onCodeSubmit(code, data, setData, submissionService, problem)}>
+                    onClick={() => onCodeSubmit(session?.user.id, code, data, setData, submissionService, problem)}>
                     Submit
                 </Button>
             </CardActions>

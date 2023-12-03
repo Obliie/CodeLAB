@@ -19,7 +19,8 @@ service SubmissionService {
 
 message SubmitCodeRequest {
     string problem_id = 1;
-    repeated common.v1.SolutionFile files = 2;
+    string user_id = 2;
+    repeated common.v1.SolutionFile files = 3;
 }
 
 message SubmitCodeResponse {

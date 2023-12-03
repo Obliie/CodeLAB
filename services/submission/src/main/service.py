@@ -98,7 +98,7 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
 
             problem_response = stub.GetProblem(problem_service_pb2.GetProblemRequest(problem_id=request.problem_id))
         
-        submission_id = self._create_submission(user_id=0, problem_id=problem_response.problem.id, submission_files=request.files)
+        submission_id = self._create_submission(user_id=request.user_id, problem_id=problem_response.problem.id, submission_files=request.files)
         log_and_flush(logging.INFO, f"Created submission {str(submission_id)}")
 
         thread = Thread(target=self._save_code_runner_responses, args=(submission_id, problem_response.problem.tests, request.files))
