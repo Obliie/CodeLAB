@@ -1,0 +1,55 @@
+{
+  "problemId": "{{ faker.random.uuid }}",
+  "tests": [
+    {
+      "id": "{{ faker.random.uuid }}",
+      "arguments": "Plastic Montana",
+      "inputFiles": [
+        {
+          "path": "HDD orchestrate",
+          "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+        },
+        {
+          "path": "Virtual",
+          "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+        }
+      ],
+      "expectedStdout": "6th generation",
+      "expectedFiles": [
+        {
+          "path": "pixel Consultant Tasty",
+          "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+        },
+        {
+          "path": "quantifying Switchable Communications",
+          "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+        }
+      ]
+    },
+    {
+      "id": "{{ faker.random.uuid }}",
+      "arguments": "protocol Ergonomic Cotton Table",
+      "inputFiles": [
+        {
+          "path": "Home Rubber Central",
+          "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+        },
+        {
+          "path": "Soft",
+          "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+        }
+      ],
+      "expectedStdout": "eyeballs Direct Games, Sports & Grocery",
+      "expectedFiles": [
+        {
+          "path": "Louisiana Principal",
+          "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+        },
+        {
+          "path": "Ergonomic",
+          "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+        }
+      ]
+    }
+  ]
+}

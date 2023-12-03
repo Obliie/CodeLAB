@@ -1,0 +1,13 @@
+{
+  "details": {
+    "methodFqn": "protobufs.services.v1.CodeRunnerService.GetRunnerState"
+  },
+  "requests": [
+    {
+      "location": "GetRunnerState-request.json"
+    }
+  ],
+  "operationType": "unary",
+  "invokerName": "grpc",
+  "importStreamId": "423011e9-7005-4a1b-8245-8538de6f13d7"
+}

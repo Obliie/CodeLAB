@@ -4,6 +4,8 @@ import { Problem } from '@/protobufs/common/v1/problem_pb';
 import { SolutionFile, SolutionFileType } from '@/protobufs/common/v1/solution_pb';
 import { CodeRunnerService } from '@/protobufs/services/v1/code_runner_service_connect';
 import { RunCodeResponse } from '@/protobufs/services/v1/code_runner_service_pb';
+import { SubmissionService } from '@/protobufs/services/v1/submission_service_connect';
+import { SubmitCodeResponse } from '@/protobufs/services/v1/submission_service_pb';
 import { PromiseClient, createPromiseClient } from '@connectrpc/connect';
 import { createGrpcWebTransport } from '@connectrpc/connect-web';
 import Button from '@mui/material/Button';
@@ -17,19 +19,24 @@ async function onCodeSubmit(
     code: string,
     data: string[],
     setData: Function,
-    codeRunnerService: PromiseClient<typeof CodeRunnerService>,
+    submissionService: PromiseClient<typeof SubmissionService>,
     problem: Problem,
 ) {
     const mainFile: SolutionFile = new SolutionFile();
-    mainFile.type = SolutionFileType.FILE_TYPE_SINGLE;
-    mainFile.mainFile = true;
+    mainFile.entry = true;
     mainFile.path = 'main.py';
 
     const encoder = new TextEncoder();
     mainFile.data = encoder.encode(code);
 
     setData([]);
-    for await (const response of codeRunnerService.runCodeTests({
+    const submissionResponse = await submissionService.submitCode({
+        files: [mainFile],
+        problemId: problem.id
+    }) as SubmitCodeResponse;
+    setData([`SUBMISSION SENT WITH ID: ${submissionResponse.submissionId}`])
+    /*
+    for await (const response of submissionService.submitCode({
         files: [mainFile],
         tests: problem.tests
     })) {
@@ -38,12 +45,12 @@ async function onCodeSubmit(
         } else {
             setData((oldData: string[]) => [...oldData, `${response.stdout}`]);
         }
-    }
+    }*/
 }
 
 export default function CodeOutput({ code, problem }: { code: string, problem: Problem }) {
     const [data, setData] = useState<string[]>([]);
-    const codeRunnerService: PromiseClient<typeof CodeRunnerService> = useClient(CodeRunnerService);
+    const submissionService: PromiseClient<typeof SubmissionService> = useClient(SubmissionService);
 
     return (
         <Card
@@ -71,7 +78,7 @@ export default function CodeOutput({ code, problem }: { code: string, problem: P
                 <Button
                     sx={{ margin: '0px 10px', marginBottom: '10px' }}
                     variant="outlined"
-                    onClick={() => onCodeSubmit(code, data, setData, codeRunnerService, problem)}>
+                    onClick={() => onCodeSubmit(code, data, setData, submissionService, problem)}>
                     Submit
                 </Button>
             </CardActions>

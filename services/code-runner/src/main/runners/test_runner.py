@@ -24,7 +24,7 @@ class BaseTestRunner:
         container: Container = self.container_controller._get_container(self.container_id)
 
         for file in self.solution_files:
-            if file.main_file:
+            if file.entry:
                 self.container_controller._copy_bytes_to_container(container, file.data, "/tmp/code-runner")
     
     def run_tests(self) -> str:

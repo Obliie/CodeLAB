@@ -2,6 +2,8 @@ import HomeIcon from '@mui/icons-material/Home';
 import LogoutIcon from '@mui/icons-material/Logout';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ViewHeadlineIcon from '@mui/icons-material/ViewHeadline';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import GroupsIcon from '@mui/icons-material/Groups';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
@@ -15,6 +17,8 @@ import * as React from 'react';
 const LINKS = [
     { text: 'Home', href: '/', icon: HomeIcon },
     { text: 'Problems', href: '/problem/list', icon: ViewHeadlineIcon },
+    { text: 'Submissions', href: '/submissions/list', icon: LibraryBooksIcon },
+    { text: 'Groups', href: '/groups/list', icon: GroupsIcon }
 ];
 
 const PLACEHOLDER_LINKS = [

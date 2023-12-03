@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package protobufs.services.v1;
+
+import "protobufs/common/v1/solution.proto";
+import "protobufs/common/v1/status.proto";
+
+// A service to handle receiving code submissions
+service SubmissionService {
+    // Submit code for evaluation.
+    rpc SubmitCode(SubmitCodeRequest) returns (SubmitCodeResponse) { }
+    // Gets submission data.
+    rpc GetSubmission(GetSubmissionRequest) returns (GetSubmissionResponse) { }
+    // Get all submissions made by a user.
+    rpc GetUserSubmissions(GetUserSubmissionsRequest) returns (GetUserSubmissionsResponse) { }
+    // Get all submissions for a problem.
+    rpc GetProblemSubmissions(GetProblemSubmissionsRequest) returns (GetProblemSubmissionsResponse) { }
+}
+
+message SubmitCodeRequest {
+    string problem_id = 1;
+    repeated common.v1.SolutionFile files = 2;
+}
+
+message SubmitCodeResponse {
+    string submission_id = 1;
+}
+
+message GetSubmissionRequest {
+    string submission_id = 1;
+}
+
+message GetSubmissionResponse {
+    string problem_id = 1;
+    string user_id = 2;
+    string submission_no = 3;
+    repeated SubmissionTestResult test_results = 4;
+}
+
+message GetUserSubmissionsRequest {
+    string user_id = 1;
+}
+
+message GetUserSubmissionsResponse {
+    repeated string submission_id = 1;
+}
+
+message GetProblemSubmissionsRequest {
+    string problem_id = 1;
+}
+
+message GetProblemSubmissionsResponse {
+    repeated string submission_id = 1;
+}
+
+message SubmissionStatusEvent {
+    common.v1.SubmissionStatus state = 1;
+    optional string output = 2;
+}
+
+message SubmissionTestResult {
+    string test_id = 1;
+    bool passed = 2;
+    string output = 3;
+}

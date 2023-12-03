@@ -5,11 +5,11 @@ import { useMemo } from 'react';
 
 // TODO Use URLs once TLS issue is resolved.
 export const transport = createGrpcWebTransport({
-    baseUrl: 'http://127.0.0.1:8080',
+    baseUrl: 'https://127.0.0.1:443/',
 });
 
 export const serverTransport = createGrpcWebTransport({
-    baseUrl: 'http://api-gateway:8080',
+    baseUrl: 'https://api-gateway:443/',
 });
 
 /**

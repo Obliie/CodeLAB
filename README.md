@@ -14,14 +14,16 @@
 
 # Contents
 
+-   [Architechture](#architechture)
 -   [Development](#development)
     -   [Prerequisites](#prerequisites)
     -   [Setup](#setup)
-        -   [Frontend](#frontend)
-        -   [Backend](#backend)
-            -   [Mockserver](#Mockserver)
+    -   [Running](#running)
     -   [Testing](#testing)
+        - [Test Filtering](#test-filtering)
     -   [Build](#build)
+
+# Architechture
 
 # Development
 
@@ -46,27 +48,7 @@ pip install pre-commit
 pre-commit install
 ```
 
-### Frontend
-
-1. Move into the frontend development directory
-
-```sh
-cd app
-```
-
-2. Install NPM packages
-
-```sh
-npm install
-```
-
-3. Start the Expo Metro bundler
-
-```sh
-npm run web
-```
-
-### Backend
+## Running
 
 1. Copy the env.example file and adjust values appropriately
 
@@ -74,10 +56,10 @@ npm run web
 cp .env.example .env
 ```
 
-2. Start the backend microservice containers
+2. Start the backend microservice containers and frontend
 
 ```sh
-docker compose --profile backend up
+docker compose --profile backend --profile frontend up
 ```
 
 ## Testing
@@ -85,8 +67,18 @@ docker compose --profile backend up
 Run service integration tests:
 
 ```sh
+docker compose --profile integration up
+```
+
+Run service unit tests:
+
+```sh
 docker compose --profile test up
 ```
+
+### Test filtering
+
+Optionally provide the environment variable `TEST_FILTER` to the run command to filter by test name.
 
 ## Build
 

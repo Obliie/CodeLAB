@@ -28,6 +28,7 @@ class CodeRunnerServicer(code_runner_service_pb2_grpc.CodeRunnerService):
 
         return resp
 
+    # TODO UPDATE WITH response similar to RunCodeTests response message
     def RunCode(
         self,
         request: code_runner_service_pb2.RunCodeRequest,
@@ -67,20 +68,21 @@ class CodeRunnerServicer(code_runner_service_pb2_grpc.CodeRunnerService):
         resp.stderr = ""
         yield resp
 
+        log_and_flush(logging.INFO, f"Got {len(request.tests)} to run :)")
         with SeriesTestRunner(self.container_controller, request.files, request.tests) as runner:
             runner.setup()
-            test_no = 1
             log_and_flush(logging.INFO, f"Got {len(request.tests)} to run")
-            for result, success, run_time in runner.run_tests():
-                log_and_flush(logging.INFO, f"running {test_no}")
+            for test_id, result, success, run_time in runner.run_tests():
+                log_and_flush(logging.INFO, f"Run for test {test_id} complete")
+                resp.test_id = test_id
                 resp.stage = code_runner_service_pb2.RunStage.RUN_STAGE_EXECUTE
                 resp.stdout = result
-                resp.stderr = f"Test {test_no} {'success' if success else 'failed'}. Ran for {run_time}s"
+                resp.stderr = ""
+                resp.success = success
 
-                test_no = test_no + 1
                 yield resp
 
-        resp.stage = code_runner_service_pb2.RunStage.RUN_STAGE_EXECUTE
+        resp.stage = code_runner_service_pb2.RunStage.RUN_STAGE_COMPLETE
         resp.stdout = "RunCode execution complete. Container down."
         resp.stderr = ""
         yield resp

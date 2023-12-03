@@ -8,8 +8,6 @@ services:
         build:
             context: ./
             dockerfile: ./app/Dockerfile
-        ports:
-            - ${HOST}:${FRONTEND_PORT}:3000
         env_file:
             - .env
         depends_on:
@@ -61,6 +59,7 @@ services:
         profiles:
             - backend
             - code-runner
+            - submission
         configs:
             - service-config
         networks:
@@ -96,40 +95,154 @@ services:
         profiles:
             - backend
             - problem
+            - submission
         networks:
             - codelabmesh
         configs:
             - service-config
         secrets:
-            - mongo-root-username
-            - mongo-root-password
+            - problemdb-root-username
+            - problemdb-root-password
+
+    submission:
+        build:
+            context: ./
+            dockerfile: ./services/submission/Dockerfile
+        env_file:
+            - .env
+        depends_on:
+            proto-builder:
+                condition: service_completed_successfully
+            submission-db:
+                condition: service_started
+            problem:
+                condition: service_started
+            code-runner:
+                condition: service_started
+#            status-queue:
+#                condition: service_started
+        develop:
+            watch:
+                - action: sync
+                  path: ./services/submission/src/main
+                  target: /service
+                - action: rebuild
+                  path: ./services/submission/requirements.txt
+                - action: sync
+                  path: ./services/common/src/main
+                  target: /service/common
+                - action: rebuild
+                  path: ./services/common/common-requirements.txt
+                - action: sync
+                  path: ./protobufs/build/python/protobufs
+                  target: /service/protobufs
+        command: watchmedo auto-restart --recursive --pattern="*.py" --directory="/service/" python3 /service/service.py
+        profiles:
+            - backend
+            - submission
+        networks:
+            - codelabmesh
+        configs:
+            - service-config
+        secrets:
+            - submissiondb-root-username
+            - submissiondb-root-password
+
+    status:
+        build:
+            context: ./
+            dockerfile: ./services/status/Dockerfile
+        env_file:
+            - .env
+        depends_on:
+            proto-builder:
+                condition: service_completed_successfully
+            status-queue:
+                condition: service_started
+        develop:
+            watch:
+                - action: sync
+                  path: ./services/status/src/main
+                  target: /service
+                - action: rebuild
+                  path: ./services/status/requirements.txt
+                - action: sync
+                  path: ./services/common/src/main
+                  target: /service/common
+                - action: rebuild
+                  path: ./services/common/common-requirements.txt
+                - action: sync
+                  path: ./protobufs/build/python/protobufs
+                  target: /service/protobufs
+        command: watchmedo auto-restart --recursive --pattern="*.py" --directory="/service/" python3 /service/service.py
+        profiles:
+            - backend
+            - status
+        networks:
+            - codelabmesh
+        configs:
+            - service-config
+
+    status-queue:
+        build:
+            context: ./
+            dockerfile: ./containers/status-queue/Dockerfile
+        environment:
+            STATUS_QUEUE_PORT: ${STATUS_QUEUE_PORT}
+            STATUS_QUEUE_MANAGEMENT_PLUGIN_PORT: ${STATUS_QUEUE_MANAGEMENT_PLUGIN_PORT}
+        env_file:
+            - .env
+        profiles:
+            - backend
+            - status
+        networks:
+            - codelabmesh
 
     ###
     # Databases
     ###
     problem-db:
         image: mongo:7.0.2
-        # TODO This exposes the database, only use for development, remove for prod
-        ports:
-            - ${PROBLEM_DB_PORT}:${PROBLEM_DB_PORT}
         environment:
-            MONGO_INITDB_ROOT_USERNAME_FILE: /run/secrets/mongo-root-username
-            MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/mongo-root-password
+            MONGO_INITDB_ROOT_USERNAME_FILE: /run/secrets/problemdb-root-username
+            MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/problemdb-root-password
             MONGO_INITDB_DATABASE: admin
-            MONGO_USERNAME_FILE: /run/secrets/mongo-username
-            MONGO_PASSWORD_FILE: /run/secrets/mongo-password
+            MONGO_USERNAME_FILE: /run/secrets/problemdb-username
+            MONGO_PASSWORD_FILE: /run/secrets/problemdb-password
             MONGO_DATABASE: problem
         command: mongod --port ${PROBLEM_DB_PORT}
         profiles:
             - backend
             - problem
+            - submission
         networks:
             - codelabmesh
         secrets:
-            - mongo-root-username
-            - mongo-root-password
-            - mongo-username
-            - mongo-password
+            - problemdb-root-username
+            - problemdb-root-password
+            - problemdb-username
+            - problemdb-password
+
+    submission-db:
+        image: mongo:7.0.2
+        environment:
+            MONGO_INITDB_ROOT_USERNAME_FILE: /run/secrets/submissiondb-root-username
+            MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/submissiondb-root-password
+            MONGO_INITDB_DATABASE: admin
+            MONGO_USERNAME_FILE: /run/secrets/submissiondb-username
+            MONGO_PASSWORD_FILE: /run/secrets/submissiondb-password
+            MONGO_DATABASE: submission
+        command: mongod --port ${SUBMISSION_DB_PORT}
+        profiles:
+            - backend
+            - submission
+        networks:
+            - codelabmesh
+        secrets:
+            - submissiondb-root-username
+            - submissiondb-root-password
+            - submissiondb-username
+            - submissiondb-password
 
     ###
     # Build Containers
@@ -148,7 +261,14 @@ services:
             - ./protobufs:/build/protobufs
         working_dir: /build
         command: generate --template /etc/buf/buf.gen.yaml
-        profiles: ['build', 'backend', 'frontend', 'problem', 'code-runner']
+        profiles:
+            - build
+            - backend
+            - frontend
+            - problem
+            - code-runner
+            - submission
+            - status
 
     ###
     # Test Containers
@@ -162,10 +282,12 @@ services:
         volumes:
             - ./services/code-runner/src/test/integration:/tests/code-runner:ro
             - ./services/problem/src/test/integration:/tests/problem:ro
+            - ./services/submission/src/test/integration:/tests/submission:ro
+            - ./services/status/src/test/integration:/tests/status:ro
             - ./protobufs/build/python:/protobufs:ro
         command: pytest -o log_cli=true -o cache_dir=/test-cache -k ${TEST_FILTER} /tests
         profiles:
-            - test
+            - integration
         networks:
             - codelabmesh
 
@@ -184,7 +306,7 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock
         command: pytest -o log_cli=true -o cache_dir=/test-cache -k ${TEST_FILTER} /tests
         profiles:
-            - unittest
+            - test
         configs:
             - service-config
 
@@ -196,8 +318,10 @@ services:
             context: ./
             dockerfile: ./containers/api-gateway/Dockerfile
             args:
+                FRONTEND_PORT: ${FRONTEND_PORT}
                 PROBLEM_SERVICE_PORT: ${PROBLEM_SERVICE_PORT}
                 SUBMISSION_SERVICE_PORT: ${SUBMISSION_SERVICE_PORT}
+                STATUS_SERVICE_PORT: ${STATUS_SERVICE_PORT}
         develop:
             watch:
                 - action: rebuild
@@ -211,17 +335,22 @@ services:
                 condition: service_started
             statsd-exporter:
                 condition: service_started
-        command: /usr/local/bin/envoy -c /etc/envoy/envoy.json -l trace --log-path /tmp/envoy-info.log
+        command: /usr/local/bin/envoy -c /etc/envoy/envoy.json -l debug --log-path /tmp/envoy-info.log
         profiles:
             - backend
+            - gateway
         ports:
-            - ${HOST}:${ENVOY_EDGE_GATEWAY_PORT}:8080
-            - ${HOST}:${ENVOY_EDGE_GATEWAY_ADMIN_PORT}:9090
+            - ${HOST}:${ENVOY_EDGE_GATEWAY_PORT}:443
         networks:
             codelabmesh:
             codelabweb:
                 aliases:
                     - codelab.obliie.dev
+        secrets:
+            - source: api-gateway-cert
+              target: /etc/envoy/certs/cert.pem
+            - source: api-gateway-key
+              target: /etc/envoy/certs/key.pem
 
     statsd-exporter:
         image: prom/statsd-exporter:latest
@@ -258,11 +387,23 @@ configs:
         file: ./config.yaml
 
 secrets:
-    mongo-root-username:
-        file: ./secrets/mongo_root_username
-    mongo-root-password:
-        file: ./secrets/mongo_root_password
-    mongo-username:
-        file: ./secrets/mongo_username
-    mongo-password:
-        file: ./secrets/mongo_password
+    api-gateway-cert:
+        file: ./secrets/api_gateway_cert.pem
+    api-gateway-key:
+        file: ./secrets/api_gateway_key.pem
+    problemdb-root-username:
+        file: ./secrets/problemdb_root_username
+    problemdb-root-password:
+        file: ./secrets/problemdb_root_password
+    problemdb-username:
+        file: ./secrets/problemdb_username
+    problemdb-password:
+        file: ./secrets/problemdb_password
+    submissiondb-root-username:
+        file: ./secrets/submissiondb_root_username
+    submissiondb-root-password:
+        file: ./secrets/submissiondb_root_password
+    submissiondb-username:
+        file: ./secrets/submissiondb_username
+    submissiondb-password:
+        file: ./secrets/submissiondb_password

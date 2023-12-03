@@ -1,0 +1,55 @@
+{
+  "problemId": "{{ faker.random.uuid }}",
+  "tests": [
+    {
+      "id": "{{ faker.random.uuid }}",
+      "arguments": "payment",
+      "inputFiles": [
+        {
+          "path": "Tasty Soft Pants Direct Configurable",
+          "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+        },
+        {
+          "path": "Metal",
+          "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+        }
+      ],
+      "expectedStdout": "Frozen",
+      "expectedFiles": [
+        {
+          "path": "programming Configuration",
+          "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+        },
+        {
+          "path": "PCI real-time",
+          "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+        }
+      ]
+    },
+    {
+      "id": "{{ faker.random.uuid }}",
+      "arguments": "transmitting Intelligent Rubber Ball program",
+      "inputFiles": [
+        {
+          "path": "Berkshire expedite",
+          "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+        },
+        {
+          "path": "Union navigating",
+          "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+        }
+      ],
+      "expectedStdout": "well-modulated",
+      "expectedFiles": [
+        {
+          "path": "Frozen",
+          "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+        },
+        {
+          "path": "Books, Shoes & Jewelery",
+          "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+        }
+      ]
+    }
+  ]
+}

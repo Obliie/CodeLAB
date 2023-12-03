@@ -1,0 +1,25 @@
+services:
+    frontend:
+        ports:
+            - ${HOST}:${FRONTEND_PORT}:${FRONTEND_PORT}
+
+    user-db:
+        ports:
+            - ${HOST}:${USER_DB_PORT}:${USER_DB_PORT}
+
+    problem-db:
+        ports:
+            - ${HOST}:${PROBLEM_DB_PORT}:${PROBLEM_DB_PORT}
+
+    submission-db:
+        ports:
+            - ${HOST}:${SUBMISSION_DB_PORT}:${SUBMISSION_DB_PORT}
+
+    status-queue:
+        ports:
+            - ${HOST}:${STATUS_QUEUE_PORT}:${STATUS_QUEUE_PORT}
+            - ${HOST}:${STATUS_QUEUE_MANAGEMENT_PLUGIN_PORT}:${STATUS_QUEUE_MANAGEMENT_PLUGIN_PORT}
+
+    api-gateway:
+        ports:
+            - ${HOST}:${ENVOY_EDGE_GATEWAY_ADMIN_PORT}:9090

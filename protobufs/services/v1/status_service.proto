@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package protobufs.services.v1;
+
+// A service to handle status subscriptions across the application.
+service StatusService {
+    // Posts a status event to an event group.
+    rpc PostStatusEvent(PostStatusEventRequest) returns (PostStatusEventResponse) { }
+
+    // Subscribe to status events from an event group.
+    rpc SubscribeStatusEvents(SubscribeStatusEventsRequest) returns (stream SubscribeStatusEventsResponse) { }
+}
+
+message PostStatusEventRequest {
+    string event_group = 1;
+    bytes data = 2;
+}
+
+message PostStatusEventResponse {
+
+}
+
+message SubscribeStatusEventsRequest {
+    string event_group = 1;
+    bool request_all = 2;
+}
+
+message SubscribeStatusEventsResponse {
+    bytes event = 1;
+}

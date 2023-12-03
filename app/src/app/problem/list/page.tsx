@@ -48,7 +48,7 @@ async function ProblemSummaries() {
     );
 }
 
-export default function ProblemsPage() {
+export default function ProblemsListPage() {
     return (
         <Container>
             <ProblemDialog problem={undefined}/>

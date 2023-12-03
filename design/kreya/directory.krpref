@@ -1,0 +1,15 @@
+{
+  "settings": [
+    {
+      "options": {
+        "grpc": {
+          "endpoint": "https://127.0.0.1:443/",
+          "disableServerCertificateValidation": true
+        },
+        "rest": {
+          "pathParams": []
+        }
+      }
+    }
+  ]
+}

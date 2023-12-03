@@ -1,0 +1,19 @@
+{
+  "id": "c6e58525-85a4-4c9f-94ce-7e562727bb6a",
+  "importStreams": [
+    {
+      "id": "423011e9-7005-4a1b-8245-8538de6f13d7",
+      "name": "CodeLAB Protobufs",
+      "importerName": "ProtoFile",
+      "createMissingOperations": true,
+      "options": {
+        "files": [
+          "../.."
+        ],
+        "importPaths": []
+      }
+    }
+  ],
+  "authConfigs": [],
+  "certificates": []
+}

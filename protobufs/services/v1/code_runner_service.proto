@@ -10,9 +10,9 @@ import "protobufs/common/v1/language.proto";
 service CodeRunnerService {
     // Gets the current state of a running container
     rpc GetRunnerState(GetRunnerStateRequest) returns (GetRunnerStateResponse) { }
-
+    // Runs a command in a container loaded with a set of solution files
     rpc RunCode(RunCodeRequest) returns (stream RunCodeResponse) { }
-
+    // Runs a series of tests against a set of solution files.
     rpc RunCodeTests(RunCodeTestsRequest) returns (stream RunCodeTestsResponse) { }
 }
 
@@ -28,6 +28,7 @@ message RunCodeRequest {
     repeated common.v1.SolutionFile files = 1;
     common.v1.ProgrammingLanguage language = 2;
     bool has_dependencies = 3;
+    string command = 4;
 }
 
 message RunCodeResponse {
@@ -39,16 +40,21 @@ message RunCodeResponse {
 message RunCodeTestsRequest {
     repeated common.v1.Problem.TestData tests = 1;
     repeated common.v1.SolutionFile files = 2;
+    common.v1.ProgrammingLanguage language = 3;
+    bool has_dependencies = 4;
 }
 
 message RunCodeTestsResponse {
-    RunStage stage = 1;
-    string stdout = 2;
-    string stderr = 3;
+    string test_id = 1;
+    RunStage stage = 2;
+    string stdout = 3;
+    string stderr = 4;
+    bool success = 5;
 }
 
 enum RunStage {
     RUN_STAGE_UNSPECIFIED = 0;
     RUN_STAGE_COMPILE = 1;
     RUN_STAGE_EXECUTE = 2;
+    RUN_STAGE_COMPLETE = 3;
 }

@@ -1,0 +1,15 @@
+{
+  "problemId": "{{ faker.random.uuid }}",
+  "files": [
+    {
+      "entry": true,
+      "path": "Jordan Fresh Cliffs",
+      "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+    },
+    {
+      "entry": false,
+      "path": "application",
+      "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+    }
+  ]
+}

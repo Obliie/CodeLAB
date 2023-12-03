@@ -14,8 +14,8 @@ from common.config import Config
 from common.service_logging import init_logging, log_and_flush
 from pymongo import MongoClient
 
-DATABASE_USERNAME_FILE = "/run/secrets/mongo-root-username"
-DATABASE_PASSWORD_FILE = "/run/secrets/mongo-root-password"
+DATABASE_USERNAME_FILE = "/run/secrets/problemdb-root-username"
+DATABASE_PASSWORD_FILE = "/run/secrets/problemdb-root-password"
 
 PROTOBUF_PROBLEM_ID_FIELD = "id"
 
@@ -84,6 +84,9 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
         problem_document[PROTOBUF_PROBLEM_ID_FIELD] = str(
             problem_document.pop(PROBLEM_ID_FIELD)
         )
+
+        for test in problem_document[PROBLEM_TESTS_FIELD]:
+            test["id"] = str(test.pop("test_id"))
 
         problem = problem_pb2.Problem()
         json_format.ParseDict(problem_document, problem)
@@ -179,7 +182,7 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
             .get_collection(PROBLEMS_COLLECTION_NAME)
             .update_one(
                 {PROBLEM_ID_FIELD: self._query_id(request.problem_id)},
-                {"$push": {PROBLEM_TESTS_FIELD: {"$each": tests}}},
+                {"$push": {PROBLEM_TESTS_FIELD: {"$each": [dict(test, **{'test_id': ObjectId()}) for test in tests]}}},
             )
         )
 

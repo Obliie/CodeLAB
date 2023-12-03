@@ -30,4 +30,4 @@ class SeriesTestRunner(BaseTestRunner):
             log_and_flush(logging.INFO, f"Passed: {success}. Expected {test.expected_stdout}")
             log_and_flush(logging.INFO, "=========================================")
 
-            yield output, success, run_time
+            yield test.id, output, success, run_time

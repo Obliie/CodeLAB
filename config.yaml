@@ -4,6 +4,15 @@ services:
             host: problem-db
             port: 27001
             name: problem
+    submission:
+        database:
+            host: submission-db
+            port: 27002
+            name: submission
+    status:
+        queue:
+            host: status-queue
+            port: 27003
     code-runner:
         container-files: /tmp/code-runner
         languages:

@@ -1,0 +1,63 @@
+{
+  "problem": {
+    "id": "{{ faker.random.uuid }}",
+    "title": "Administrator grey",
+    "description": "Camp",
+    "tests": [
+      {
+        "id": "{{ faker.random.uuid }}",
+        "arguments": "deposit Glen",
+        "inputFiles": [
+          {
+            "path": "Unbranded Illinois ADP",
+            "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+          },
+          {
+            "path": "white",
+            "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+          }
+        ],
+        "expectedStdout": "Tasty Wooden Shirt best-of-breed Administrator",
+        "expectedFiles": [
+          {
+            "path": "ivory Organic",
+            "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+          },
+          {
+            "path": "TCP Usability Checking Account",
+            "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+          }
+        ]
+      },
+      {
+        "id": "{{ faker.random.uuid }}",
+        "arguments": "salmon",
+        "inputFiles": [
+          {
+            "path": "Implemented Ergonomic",
+            "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+          },
+          {
+            "path": "Personal Loan Account protocol",
+            "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+          }
+        ],
+        "expectedStdout": "Buckinghamshire collaborative",
+        "expectedFiles": [
+          {
+            "path": "Bedfordshire",
+            "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+          },
+          {
+            "path": "Sleek Concrete Cheese Specialist Borders",
+            "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+          }
+        ]
+      }
+    ],
+    "supportedLanguages": [
+      "PROGRAMMING_LANGUAGE_UNSPECIFIED",
+      "PROGRAMMING_LANGUAGE_UNSPECIFIED"
+    ]
+  }
+}

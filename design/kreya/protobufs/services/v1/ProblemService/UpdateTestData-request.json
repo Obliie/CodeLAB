@@ -1,0 +1,27 @@
+{
+  "test": {
+    "id": "{{ faker.random.uuid }}",
+    "arguments": "Summit Implementation invoice",
+    "inputFiles": [
+      {
+        "path": "Internal",
+        "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+      },
+      {
+        "path": "HDD",
+        "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+      }
+    ],
+    "expectedStdout": "bandwidth Walks",
+    "expectedFiles": [
+      {
+        "path": "ivory Games & Home Small",
+        "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+      },
+      {
+        "path": "hardware",
+        "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+      }
+    ]
+  }
+}

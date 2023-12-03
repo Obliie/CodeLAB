@@ -1,0 +1,63 @@
+{
+  "problem": {
+    "id": "{{ faker.random.uuid }}",
+    "title": "Jamaican Dollar",
+    "description": "access quantifying GB",
+    "tests": [
+      {
+        "id": "{{ faker.random.uuid }}",
+        "arguments": "Chief neural-net Belgium",
+        "inputFiles": [
+          {
+            "path": "deposit Incredible",
+            "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+          },
+          {
+            "path": "quantify",
+            "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+          }
+        ],
+        "expectedStdout": "aggregate hack",
+        "expectedFiles": [
+          {
+            "path": "calculate Brooks",
+            "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+          },
+          {
+            "path": "capacitor deposit connecting",
+            "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+          }
+        ]
+      },
+      {
+        "id": "{{ faker.random.uuid }}",
+        "arguments": "moderator system Group",
+        "inputFiles": [
+          {
+            "path": "Licensed Frozen Towels Grocery",
+            "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+          },
+          {
+            "path": "Sleek Plastic Chair invoice Course",
+            "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+          }
+        ],
+        "expectedStdout": "solution Senior",
+        "expectedFiles": [
+          {
+            "path": "Sleek connecting",
+            "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+          },
+          {
+            "path": "Handmade Soft Bacon",
+            "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+          }
+        ]
+      }
+    ],
+    "supportedLanguages": [
+      "PROGRAMMING_LANGUAGE_JAVA",
+      "PROGRAMMING_LANGUAGE_UNSPECIFIED"
+    ]
+  }
+}

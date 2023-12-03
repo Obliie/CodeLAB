@@ -12,10 +12,11 @@ message Problem {
     repeated common.v1.ProgrammingLanguage supported_languages = 5;
 
     message TestData {
-        optional string arguments = 1;
-        repeated TestFile input_files = 2;
-        optional string expected_stdout = 3;
-        repeated TestFile expected_files = 4;
+        string id = 1;
+        optional string arguments = 2;
+        repeated TestFile input_files = 3;
+        optional string expected_stdout = 4;
+        repeated TestFile expected_files = 5;
     }
 
     message TestFile {

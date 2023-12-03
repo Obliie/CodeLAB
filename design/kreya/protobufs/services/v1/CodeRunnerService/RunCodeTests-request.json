@@ -1,0 +1,68 @@
+{
+  "tests": [
+    {
+      "id": "{{ faker.random.uuid }}",
+      "arguments": "Well bypass",
+      "inputFiles": [
+        {
+          "path": "Gorgeous extend SQL",
+          "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+        },
+        {
+          "path": "e-business compress hard drive",
+          "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+        }
+      ],
+      "expectedStdout": "Mount Divide transmit",
+      "expectedFiles": [
+        {
+          "path": "RAM olive Tala",
+          "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+        },
+        {
+          "path": "one-to-one",
+          "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+        }
+      ]
+    },
+    {
+      "id": "{{ faker.random.uuid }}",
+      "arguments": "open-source reboot",
+      "inputFiles": [
+        {
+          "path": "grey",
+          "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+        },
+        {
+          "path": "Islands Guyana",
+          "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+        }
+      ],
+      "expectedStdout": "Quality",
+      "expectedFiles": [
+        {
+          "path": "Program magnetic",
+          "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+        },
+        {
+          "path": "Kroon maroon",
+          "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "entry": true,
+      "path": "Via withdrawal",
+      "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+    },
+    {
+      "entry": false,
+      "path": "Afghanistan",
+      "data": "Q29uZ29sZXNlIEZyYW5jIHN5c3RlbQ=="
+    }
+  ],
+  "language": "PROGRAMMING_LANGUAGE_PYTHON",
+  "hasDependencies": true
+}
