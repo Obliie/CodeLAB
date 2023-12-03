@@ -13,17 +13,13 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Link from 'next/link';
 import * as React from 'react';
+import UserActions from './UserActions';
 
 const LINKS = [
     { text: 'Home', href: '/', icon: HomeIcon },
     { text: 'Problems', href: '/problem/list', icon: ViewHeadlineIcon },
     { text: 'Submissions', href: '/submissions/list', icon: LibraryBooksIcon },
     { text: 'Groups', href: '/groups/list', icon: GroupsIcon }
-];
-
-const PLACEHOLDER_LINKS = [
-    { text: 'Settings', icon: SettingsIcon },
-    { text: 'Logout', icon: LogoutIcon },
 ];
 
 export default function UserDrawer({ width }: { width: number }) {
@@ -56,18 +52,7 @@ export default function UserDrawer({ width }: { width: number }) {
                 ))}
             </List>
             <Divider sx={{ mt: 'auto' }} />
-            <List>
-                {PLACEHOLDER_LINKS.map(({ text, icon: Icon }) => (
-                    <ListItem key={text} disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                <Icon />
-                            </ListItemIcon>
-                            <ListItemText primary={text} />
-                        </ListItemButton>
-                    </ListItem>
-                ))}
-            </List>
+            <UserActions />
         </Drawer>
     );
 }

@@ -11,6 +11,8 @@ services:
         env_file:
             - .env
         depends_on:
+            user-db:
+                condition: service_started
             proto-builder:
                 condition: service_completed_successfully
         develop:
@@ -25,6 +27,11 @@ services:
             - frontend
         networks:
             - codelabweb
+        secrets:
+            - oauth-google-client-id
+            - oauth-google-client-secret
+            - userdb-root-username
+            - userdb-root-password
 
     ###
     # Service Containers
@@ -201,6 +208,25 @@ services:
     ###
     # Databases
     ###
+    user-db:
+        image: mongo:7.0.2
+        environment:
+            MONGO_INITDB_ROOT_USERNAME_FILE: /run/secrets/userdb-root-username
+            MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/userdb-root-password
+            MONGO_INITDB_DATABASE: admin
+            MONGO_USERNAME_FILE: /run/secrets/userdb-username
+            MONGO_PASSWORD_FILE: /run/secrets/userdb-password
+        command: mongod --port ${USER_DB_PORT}
+        profiles:
+            - frontend
+        networks:
+            - codelabweb
+        secrets:
+            - userdb-root-username
+            - userdb-root-password
+            - userdb-username
+            - userdb-password
+
     problem-db:
         image: mongo:7.0.2
         environment:
@@ -391,6 +417,18 @@ secrets:
         file: ./secrets/api_gateway_cert.pem
     api-gateway-key:
         file: ./secrets/api_gateway_key.pem
+    oauth-google-client-id:
+        file: ./secrets/oauth_google_client_id
+    oauth-google-client-secret:
+        file: ./secrets/oauth_google_client_secret
+    userdb-root-username:
+        file: ./secrets/userdb_root_username
+    userdb-root-password:
+        file: ./secrets/userdb_root_password
+    userdb-username:
+        file: ./secrets/userdb_username
+    userdb-password:
+        file: ./secrets/userdb_password
     problemdb-root-username:
         file: ./secrets/problemdb_root_username
     problemdb-root-password:

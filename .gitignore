@@ -1,3 +1,4 @@
 *.env
 env/*
 **/build/*
+secrets/oauth*

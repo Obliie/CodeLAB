@@ -85,8 +85,9 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
             problem_document.pop(PROBLEM_ID_FIELD)
         )
 
-        for test in problem_document[PROBLEM_TESTS_FIELD]:
-            test["id"] = str(test.pop("test_id"))
+        if PROBLEM_TESTS_FIELD in problem_document.keys():
+            for test in problem_document[PROBLEM_TESTS_FIELD]:
+                test["id"] = str(test.pop("test_id"))
 
         problem = problem_pb2.Problem()
         json_format.ParseDict(problem_document, problem)

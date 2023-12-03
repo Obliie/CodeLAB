@@ -1,7 +1,9 @@
+import { NextAuthProvider } from '@/components/NextAuthProvider';
 import ThemeRegistry from '@/components/ThemeRegistry/ThemeRegistry';
 import UserAppBar from '@/components/UserAppBar';
 import UserDrawer from '@/components/UserDrawer';
 import Box from '@mui/material/Box';
+import { SessionProvider } from 'next-auth/react';
 import * as React from 'react';
 
 export const metadata = {
@@ -16,19 +18,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <html lang="en">
             <body>
                 <ThemeRegistry>
-                    <UserAppBar title="CodeLAB" />
-                    <UserDrawer width={DRAWER_WIDTH} />
-                    <Box
-                        component="main"
-                        sx={{
-                            flexGrow: 1,
-                            bgcolor: 'background.default',
-                            ml: `${DRAWER_WIDTH}px`,
-                            mt: ['48px', '56px', '64px'],
-                            p: 3,
-                        }}>
-                        {children}
-                    </Box>
+                    <NextAuthProvider>
+                        <UserAppBar title="CodeLAB" />
+                        <UserDrawer width={DRAWER_WIDTH} />
+                        <Box
+                            component="main"
+                            sx={{
+                                flexGrow: 1,
+                                bgcolor: 'background.default',
+                                ml: `${DRAWER_WIDTH}px`,
+                                mt: ['48px', '56px', '64px'],
+                                p: 3,
+                            }}>
+                            {children}
+                        </Box>
+                    </NextAuthProvider>
                 </ThemeRegistry>
             </body>
         </html>
