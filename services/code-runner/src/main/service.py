@@ -63,12 +63,6 @@ class CodeRunnerServicer(code_runner_service_pb2_grpc.CodeRunnerService):
     ) -> code_runner_service_pb2.RunCodeTestsResponse:
         resp = code_runner_service_pb2.RunCodeTestsResponse()
 
-        resp.stage = code_runner_service_pb2.RunStage.RUN_STAGE_COMPILE
-        resp.stdout = "RunCode received submission"
-        resp.stderr = ""
-        yield resp
-
-        log_and_flush(logging.INFO, f"Got {len(request.tests)} to run :)")
         with SeriesTestRunner(self.container_controller, request.files, request.tests) as runner:
             runner.setup()
             log_and_flush(logging.INFO, f"Got {len(request.tests)} to run")
@@ -81,11 +75,6 @@ class CodeRunnerServicer(code_runner_service_pb2_grpc.CodeRunnerService):
                 resp.success = success
 
                 yield resp
-
-        resp.stage = code_runner_service_pb2.RunStage.RUN_STAGE_COMPLETE
-        resp.stdout = "RunCode execution complete. Container down."
-        resp.stderr = ""
-        yield resp
 
 
 def serve() -> None:

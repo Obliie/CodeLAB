@@ -68,10 +68,10 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
             .get_collection(SUBMISSIONS_COLLECTION_NAME)
             .update_one(
                 {"_id": self._query_id(submission_id)},
-                {"$push": {"tests": {"$each": [json_format.MessageToDict(test_result_response)]}}},
+                {"$push": {"tests": {"$each": [dict(json_format.MessageToDict(test_result_response), **{"success": test_result_response.success})]}}},
             )
         )
-        return                                    
+        return
     
     def _send_test_result_event(self, submission_id: str, test_result_response: code_runner_service_pb2.RunCodeTestsResponse):
         return
@@ -113,13 +113,44 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
         request: submission_service_pb2.GetSubmissionRequest,
         context: grpc.ServicerContext,
     ) -> submission_service_pb2.GetSubmissionResponse:
-        return
+        log_and_flush(logging.INFO, f"Trying to get submission {str(request.submission_id)}")
+        submission_document = (
+            self.client[self.DATABASE_NAME]
+            .get_collection(SUBMISSIONS_COLLECTION_NAME)
+            .find_one({"_id": self._query_id(request.submission_id)})
+        )
+
+        log_and_flush(logging.INFO, f"Got submission {str(request.submission_id)}")
+
+        resp = submission_service_pb2.GetSubmissionResponse()
+        resp.problem_id = submission_document["problem_id"]
+        resp.user_id = submission_document["user_id"]
+        resp.submission_no = "NAN"
+        for test in submission_document["tests"]:
+            if "testId" in test.keys():
+                test_result = submission_service_pb2.SubmissionTestResult()
+                test_result.test_id = test["testId"]
+                test_result.passed = test["success"]
+                test_result.output = test["stdout"]
+                resp.test_results.append(test_result)
+
+        return resp
 
     def GetUserSubmissions(self,
         request: submission_service_pb2.GetUserSubmissionsRequest,
         context: grpc.ServicerContext,
     ) -> submission_service_pb2.GetUserSubmissionsResponse:
-        return
+        submissions = (
+            self.client[self.DATABASE_NAME]
+            .get_collection(SUBMISSIONS_COLLECTION_NAME)
+            .find({"user_id": request.user_id})
+        )
+
+        resp = submission_service_pb2.GetUserSubmissionsResponse()
+        for submission in submissions:
+            resp.submission_id.append(str(submission["_id"]))
+
+        return resp
 
     def GetProblemSubmissions(self,
         request: submission_service_pb2.GetProblemSubmissionsRequest,
