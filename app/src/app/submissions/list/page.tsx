@@ -1,5 +1,7 @@
 "use client"
 import { useClient } from '@/lib/connect';
+import { ProblemService } from '@/protobufs/services/v1/problem_service_connect';
+import { GetProblemResponse } from '@/protobufs/services/v1/problem_service_pb';
 import { SubmissionService } from '@/protobufs/services/v1/submission_service_connect';
 import { GetSubmissionResponse, GetUserSubmissionsResponse } from '@/protobufs/services/v1/submission_service_pb';
 import { PromiseClient } from '@connectrpc/connect';
@@ -35,15 +37,17 @@ async function SubmissionDataGrid() {
 
     const { data: session } = useSession();
     const submissionService: PromiseClient<typeof SubmissionService> = useClient(SubmissionService);
+    const problemService: PromiseClient<typeof ProblemService> = useClient(ProblemService);
     if (session) {
         const submissions = await submissionService.getUserSubmissions({userId: session.user.id}) as GetUserSubmissionsResponse
 
         var rows = [];
         for (let submissionId of submissions.submissionId) {
             const submission = await submissionService.getSubmission({submissionId: submissionId}) as GetSubmissionResponse;
+            const problem = await problemService.getProblem({problemId: submission.problemId}) as GetProblemResponse
             const row = {
                 "id": submissionId,
-                "problem": submission.problemId,
+                "problem": problem.problem?.title,
                 "solutionFiles": "N/A",
                 "testsPassed": submission.testResults.filter(result => result.passed).length,
                 "testsFailed": submission.testResults.filter(result => !result.passed).length
