@@ -3,6 +3,7 @@ import logging
 import os
 
 import grpc
+import pika
 from protobufs.services.v1 import status_service_pb2, status_service_pb2_grpc
 
 from common.config import Config
@@ -10,8 +11,43 @@ from common.service_logging import init_logging, log_and_flush
 
 
 class StatusServicer(status_service_pb2_grpc.StatusService):
-    def __init__(self):
-        self.removeme = 1
+    QUEUE_HOST = Config.CONFIG["services"]["status"]["queue"]["host"]
+    QUEUE_PORT = Config.CONFIG["services"]["status"]["queue"]["port"]
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    def PostStatusEvent(self,
+        request: status_service_pb2.PostStatusEventRequest,
+        context: grpc.ServicerContext
+    ) -> status_service_pb2.PostStatusEventResponse:
+        creds = pika.PlainCredentials(username="admin", password="password")
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host=self.QUEUE_HOST, port=self.QUEUE_PORT, credentials=creds))
+        channel = connection.channel()
+        channel.exchange_declare(exchange='events', exchange_type='topic')
+        channel.basic_publish(exchange='events', routing_key=request.event_group, body=request.data, properties=pika.BasicProperties(delivery_mode=2))
+
+        return status_service_pb2.PostStatusEventResponse()
+
+    def SubscribeStatusEvents(self,
+        request: status_service_pb2.SubscribeStatusEventsRequest,
+        context: grpc.ServicerContext
+    ) -> status_service_pb2.SubscribeStatusEventsResponse:
+        creds = pika.PlainCredentials(username="admin", password="password")
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host=self.QUEUE_HOST, port=self.QUEUE_PORT, credentials=creds))
+        channel = connection.channel()
+        channel.exchange_declare(exchange='events', exchange_type='topic')
+        result = channel.queue_declare('', exclusive=True, durable=True)
+
+        log_and_flush(logging.INFO, f"On queue {result.method.queue} subbed to {request.event_group}")
+
+        channel.queue_bind(exchange='events', queue=result.method.queue, routing_key=request.event_group)
+        for method_frame, properties, body in channel.consume(queue=result.method.queue, inactivity_timeout=1):
+            if method_frame:
+                event = status_service_pb2.SubscribeStatusEventsResponse(event=body.decode('utf-8'))
+                yield event
+        
+        return
 
 def serve() -> None:
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
@@ -20,6 +56,7 @@ def serve() -> None:
     )
     server.add_insecure_port(f"[::]:{ os.environ['STATUS_SERVICE_PORT'] }")
     log_and_flush(logging.INFO, "Starting Status service...")
+    logging.getLogger("pika").setLevel(logging.WARNING)
     server.start()
     server.wait_for_termination()
 

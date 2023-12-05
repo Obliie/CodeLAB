@@ -2,6 +2,7 @@ from concurrent import futures
 import logging
 import os
 import base64
+import time
 from typing import List
 
 from threading import Thread
@@ -9,14 +10,16 @@ import grpc
 from google.protobuf import json_format
 from bson.objectid import ObjectId
 
-from protobufs.common.v1 import problem_pb2, solution_pb2, language_pb2
+from protobufs.common.v1 import problem_pb2, solution_pb2, language_pb2, status_pb2
 from protobufs.services.v1 import submission_service_pb2, submission_service_pb2_grpc
 from protobufs.services.v1 import problem_service_pb2, problem_service_pb2_grpc
 from protobufs.services.v1 import code_runner_service_pb2, code_runner_service_pb2_grpc
+from protobufs.services.v1 import status_service_pb2, status_service_pb2_grpc
 
 from common.config import Config
 from common.service_logging import init_logging, log_and_flush
 from pymongo import MongoClient
+from google.protobuf import json_format
 
 DATABASE_USERNAME_FILE = "/run/secrets/submissiondb-root-username"
 DATABASE_PASSWORD_FILE = "/run/secrets/submissiondb-root-password"
@@ -74,10 +77,38 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
         return
     
     def _send_test_result_event(self, submission_id: str, test_result_response: code_runner_service_pb2.RunCodeTestsResponse):
+        with grpc.insecure_channel(f"status:{ os.environ['STATUS_SERVICE_PORT' ]}") as channel:
+            stub = status_service_pb2_grpc.StatusServiceStub(channel)
+            event = submission_service_pb2.SubmissionStatusEvent(state=status_pb2.SubmissionStatus.SUBMISSION_STATUS_EXECUTING)
+            result = submission_service_pb2.SubmissionTestResult()
+            result.test_id = test_result_response.test_id
+            result.passed = test_result_response.success
+            result.output = test_result_response.stdout
+            event.result.CopyFrom(result)
+
+            event_string = json_format.MessageToJson(event)
+
+            stub.PostStatusEvent(status_service_pb2.PostStatusEventRequest(event_group=f"{submission_id}", data=event_string))
+        
+        return
+    
+    def _send_status_update_event(self, submission_id: str, status: status_pb2.SubmissionStatus):
+        with grpc.insecure_channel(f"status:{ os.environ['STATUS_SERVICE_PORT' ]}") as channel:
+            stub = status_service_pb2_grpc.StatusServiceStub(channel)
+            event = submission_service_pb2.SubmissionStatusEvent(state=status)
+
+            event_string = json_format.MessageToJson(event)
+
+            stub.PostStatusEvent(status_service_pb2.PostStatusEventRequest(event_group=f"{submission_id}", data=event_string))
+        
         return
     
     def _save_code_runner_responses(self, submission_id: str, tests: List[problem_pb2.Problem.TestData], files: List[solution_pb2.SolutionFile]):
+        time.sleep(1)
+        self._send_status_update_event(submission_id, status_pb2.SUBMISSION_STATUS_RECEIVED)
+
         with grpc.insecure_channel(f"code-runner:{ os.environ['CODE_RUNNER_SERVICE_PORT' ]}") as channel:
+            failed = False
             stub = code_runner_service_pb2_grpc.CodeRunnerServiceStub(channel)
 
             for test_result_response in stub.RunCodeTests(
@@ -88,6 +119,16 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
                 log_and_flush(logging.INFO, f"Got data from code runner...")
                 self._save_test_result(submission_id, test_result_response)
                 self._send_test_result_event(submission_id, test_result_response)
+                if not test_result_response.success:
+                    failed = True
+
+            if failed:
+                log_and_flush(logging.INFO, "SENDING SUBMISSION_STATUS_COMPLETE_FAIL")
+                self._send_status_update_event(submission_id, status_pb2.SUBMISSION_STATUS_COMPLETE_FAIL)
+            else:
+                log_and_flush(logging.INFO, "SENDING SUBMISSION_STATUS_COMPLETE_PASS")
+                self._send_status_update_event(submission_id, status_pb2.SUBMISSION_STATUS_COMPLETE_PASS)
+
 
     def SubmitCode(self,
         request: submission_service_pb2.SubmitCodeRequest,
@@ -99,7 +140,6 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
             problem_response = stub.GetProblem(problem_service_pb2.GetProblemRequest(problem_id=request.problem_id))
         
         submission_id = self._create_submission(user_id=request.user_id, problem_id=problem_response.problem.id, submission_files=request.files)
-        log_and_flush(logging.INFO, f"Created submission {str(submission_id)}")
 
         thread = Thread(target=self._save_code_runner_responses, args=(submission_id, problem_response.problem.tests, request.files))
         thread.start()
@@ -126,13 +166,14 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
         resp.problem_id = submission_document["problem_id"]
         resp.user_id = submission_document["user_id"]
         resp.submission_no = "NAN"
-        for test in submission_document["tests"]:
-            if "testId" in test.keys():
-                test_result = submission_service_pb2.SubmissionTestResult()
-                test_result.test_id = test["testId"]
-                test_result.passed = test["success"]
-                test_result.output = test["stdout"]
-                resp.test_results.append(test_result)
+        if "tests" in submission_document.keys():
+            for test in submission_document["tests"]:
+                if "testId" in test.keys():
+                    test_result = submission_service_pb2.SubmissionTestResult()
+                    test_result.test_id = test["testId"]
+                    test_result.passed = test["success"]
+                    test_result.output = test["stdout"]
+                    resp.test_results.append(test_result)
 
         return resp
 

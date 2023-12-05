@@ -2,10 +2,12 @@ import { transport, useClient } from '@/lib/connect';
 import { ProgrammingLanguage } from '@/protobufs/common/v1/language_pb';
 import { Problem } from '@/protobufs/common/v1/problem_pb';
 import { SolutionFile, SolutionFileType } from '@/protobufs/common/v1/solution_pb';
+import { SubmissionStatus } from '@/protobufs/common/v1/status_pb';
 import { CodeRunnerService } from '@/protobufs/services/v1/code_runner_service_connect';
 import { RunCodeResponse } from '@/protobufs/services/v1/code_runner_service_pb';
+import { StatusService } from '@/protobufs/services/v1/status_service_connect';
 import { SubmissionService } from '@/protobufs/services/v1/submission_service_connect';
-import { SubmitCodeResponse } from '@/protobufs/services/v1/submission_service_pb';
+import { SubmissionStatusEvent, SubmitCodeResponse } from '@/protobufs/services/v1/submission_service_pb';
 import { PromiseClient, createPromiseClient } from '@connectrpc/connect';
 import { createGrpcWebTransport } from '@connectrpc/connect-web';
 import Button from '@mui/material/Button';
@@ -22,6 +24,7 @@ async function onCodeSubmit(
     data: string[],
     setData: Function,
     submissionService: PromiseClient<typeof SubmissionService>,
+    statusService: PromiseClient<typeof StatusService>,
     problem: Problem,
 ) {
     const mainFile: SolutionFile = new SolutionFile();
@@ -37,23 +40,38 @@ async function onCodeSubmit(
         problemId: problem.id,
         userId: userId ?? "none"
     }) as SubmitCodeResponse;
-    setData([`SUBMISSION SENT WITH ID: ${submissionResponse.submissionId}`])
-    /*
-    for await (const response of submissionService.submitCode({
-        files: [mainFile],
-        tests: problem.tests
+    setData([`Submission sent. ID: ${submissionResponse.submissionId}`, "======"])
+
+    for await (const response of statusService.subscribeStatusEvents({
+        eventGroup: submissionResponse.submissionId,
+        requestAll: true
     })) {
-        if (response.stderr) {
-            setData((oldData: string[]) => [...oldData, `${response.stderr}. Output: ${response.stdout}`]);
-        } else {
-            setData((oldData: string[]) => [...oldData, `${response.stdout}`]);
+        const event = SubmissionStatusEvent.fromJsonString(response.event)
+        switch(event.state) {
+            case SubmissionStatus.RECEIVED:
+                setData((oldData: string[]) => [...oldData, `SUBMISSION_STATUS_RECEIVED`]);
+                continue
+            case SubmissionStatus.COMPILING:
+                setData((oldData: string[]) => [...oldData, `SUBMISSION_STATUS_COMPILING`]);
+                continue
+            case SubmissionStatus.EXECUTING:
+                setData((oldData: string[]) => [...oldData, `SUBMISSION_STATUS_EXECUTING: TestID ${event.result.testId}, Passed: ${event.result.passed}, Output: ${event.result.output}`]);
+                continue
+            case SubmissionStatus.COMPLETE_PASS:
+                setData((oldData: string[]) => [...oldData, `SUBMISSION_STATUS_COMPLETE_PASS`]);
+                break
+            case SubmissionStatus.COMPLETE_FAIL:
+                setData((oldData: string[]) => [...oldData, `SUBMISSION_STATUS_COMPLETE_FAIL`]);
+                break
         }
-    }*/
+        
+    }
 }
 
 export default function CodeOutput({ code, problem }: { code: string, problem: Problem }) {
     const [data, setData] = useState<string[]>([]);
     const submissionService: PromiseClient<typeof SubmissionService> = useClient(SubmissionService);
+    const statusService: PromiseClient<typeof StatusService> = useClient(StatusService);
     const { data: session } = useSession();
 
     return (
@@ -82,7 +100,7 @@ export default function CodeOutput({ code, problem }: { code: string, problem: P
                 <Button
                     sx={{ margin: '0px 10px', marginBottom: '10px' }}
                     variant="outlined"
-                    onClick={() => onCodeSubmit(session?.user.id, code, data, setData, submissionService, problem)}>
+                    onClick={() => onCodeSubmit(session?.user.id, code, data, setData, submissionService, statusService, problem)}>
                     Submit
                 </Button>
             </CardActions>

@@ -56,7 +56,7 @@ message GetProblemSubmissionsResponse {
 
 message SubmissionStatusEvent {
     common.v1.SubmissionStatus state = 1;
-    optional string output = 2;
+    SubmissionTestResult result = 2;
 }
 
 message SubmissionTestResult {

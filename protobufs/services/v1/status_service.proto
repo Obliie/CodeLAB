@@ -13,7 +13,7 @@ service StatusService {
 
 message PostStatusEventRequest {
     string event_group = 1;
-    bytes data = 2;
+    string data = 2;
 }
 
 message PostStatusEventResponse {
@@ -26,5 +26,5 @@ message SubscribeStatusEventsRequest {
 }
 
 message SubscribeStatusEventsResponse {
-    bytes event = 1;
+    string event = 1;
 }

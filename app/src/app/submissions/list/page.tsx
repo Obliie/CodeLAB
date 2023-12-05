@@ -85,7 +85,7 @@ export default function SubmissionsListPage() {
                 <Card>
                     <CardContent>
                         <Typography gutterBottom variant="h5" component="div">Your Submissions</Typography>
-                        <React.Suspense fallback={<Skeleton width="100%" />}>
+                        <React.Suspense fallback={<Skeleton width="700px" />}>
                             <SubmissionDataGrid />
                         </React.Suspense>
                     </CardContent>
