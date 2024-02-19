@@ -179,7 +179,7 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
             .get_collection(PROBLEMS_COLLECTION_NAME)
             .update_one(
                 {PROBLEM_ID_FIELD: self._query_id(request.problem_id)},
-                {"$push": {PROBLEM_TESTS_FIELD: {"$each": [dict(test, **{'test_id': ObjectId()}) for test in tests]}}},
+                {"$push": {PROBLEM_TESTS_FIELD: {"$each": [dict(test, **{'id': str(ObjectId())}) for test in tests]}}},
             )
         )
 
@@ -193,7 +193,22 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
         request: problem_service_pb2.RemoveTestDataRequest,
         context: grpc.ServicerContext,
     ) -> problem_service_pb2.RemoveTestDataResponse:
-        raise NotImplementedError()
+        resp = problem_service_pb2.RemoveTestDataResponse()
+        if len(request.test_ids) == 0:
+            return resp
+        
+        result = (
+            self.client[self.DATABASE_NAME]
+            .get_collection(PROBLEMS_COLLECTION_NAME)
+            .update_one(
+                {PROBLEM_ID_FIELD: self._query_id(request.problem_id)},
+                {"$pull": {PROBLEM_TESTS_FIELD: {"id": {"$in": list(request.test_ids)}}}},
+            )
+        )
+
+        resp.success = result.acknowledged
+
+        return resp
 
     def UpdateTestData(
         self,

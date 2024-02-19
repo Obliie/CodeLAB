@@ -76,7 +76,7 @@ message AddTestDataResponse {
 
 message RemoveTestDataRequest {
     string problem_id = 1;
-    repeated common.v1.Problem.TestData tests = 2;
+    repeated string test_ids = 2;
 }
 
 message RemoveTestDataResponse {

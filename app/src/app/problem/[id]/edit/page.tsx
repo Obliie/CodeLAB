@@ -57,7 +57,6 @@ async function ProblemEditDisplay({ id }: { id: string }) {
 
                     <React.Suspense fallback={<Skeleton width="100%" />}>
                         <ProblemTestDataGrid problem={problem.problem}/>
-                        <TestDataDialog testData={undefined} problem_id={id} />
                     </React.Suspense>
                 </CardContent>
             </Card>
