@@ -41,7 +41,6 @@ async function Problem({ id }: { id: string }) {
                         </Typography>
                         
                         {problem.problem.tests ? (<ProblemTestData testData={problem.problem.tests} />) : (<></>)}
-                        <TestDataDialog testData={undefined} problem_id={id} />
                     </CardContent>
                 </Card>
             </Stack>

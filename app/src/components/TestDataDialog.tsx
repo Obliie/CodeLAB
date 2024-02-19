@@ -44,15 +44,9 @@ export default function TestDataDialog({ testData, problem_id }: { testData: Pro
         setOpen(false);
     };
 
-    const handleDelete = async  () => {
-    };
-
     return (
         <React.Fragment>
             <Box textAlign='end'>
-                <Button variant="outlined" onClick={handleDelete} color='error' sx={{marginRight: '8px'}}>
-                    Delete Test Data
-                </Button>
                 <Button variant="outlined" onClick={handleClickOpen}>
                     Create Test Data
                 </Button>

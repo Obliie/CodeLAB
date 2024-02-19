@@ -85,9 +85,9 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
             problem_document.pop(PROBLEM_ID_FIELD)
         )
 
-        if PROBLEM_TESTS_FIELD in problem_document.keys():
-            for test in problem_document[PROBLEM_TESTS_FIELD]:
-                test["id"] = str(test.pop("test_id"))
+        #if PROBLEM_TESTS_FIELD in problem_document.keys():
+            #for test in problem_document[PROBLEM_TESTS_FIELD]:
+                #test["id"] = str(test.pop("test_id"))
 
         problem = problem_pb2.Problem()
         json_format.ParseDict(problem_document, problem)
@@ -134,6 +134,7 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
         context: grpc.ServicerContext,
     ) -> problem_service_pb2.UpdateProblemResponse:
         problem_dict = json_format.MessageToDict(request.problem)
+        print(request)
 
         result = (
             self.client[self.DATABASE_NAME]
