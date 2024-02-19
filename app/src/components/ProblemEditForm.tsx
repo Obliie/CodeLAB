@@ -15,13 +15,7 @@ export default function ProblemEditForm({problem, updateProblem}: {problem: Prob
     });
     const problemServiceClient = useClient(ProblemService);
 
-    console.log("AA: " + problem);
-    console.log("BB: " + problemState);
-
-
     const handleSubmit = async  () => {
-      console.log("making req... ")
-      console.log("SS: " + problem)
       problem.title = problemState.title
       problem.description = problemState.description
 
