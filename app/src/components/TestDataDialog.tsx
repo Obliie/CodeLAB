@@ -14,7 +14,15 @@ import TextField from '@mui/material/TextField';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 
-export default function TestDataDialog({ testData, problem_id }: { testData: Problem_TestData | undefined, problem_id: string }) {
+export default function TestDataDialog({
+    testData,
+    problem_id,
+    handleDelete,
+}: {
+    testData: Problem_TestData | undefined;
+    problem_id: string;
+    handleDelete: React.MouseEventHandler | undefined;
+}) {
     const [open, setOpen] = React.useState(false);
     const [args, setArgs] = React.useState('');
     const [expectedStdout, setExpectedStdout] = React.useState('');
@@ -29,16 +37,17 @@ export default function TestDataDialog({ testData, problem_id }: { testData: Pro
         setOpen(false);
     };
 
-    const handleSubmit = async  () => {
+    const handleSubmit = async () => {
         const testData = new Problem_TestData();
         testData.arguments = args;
         testData.expectedStdout = expectedStdout;
-        
-        await problemServiceClient.addTestData({
-            problemId: problem_id,
-            tests: [testData]
-        })
-        .catch(err => handleGrpcError(err)) as AddTestDataResponse;
+
+        (await problemServiceClient
+            .addTestData({
+                problemId: problem_id,
+                tests: [testData],
+            })
+            .catch(err => handleGrpcError(err))) as AddTestDataResponse;
 
         router.refresh();
         setOpen(false);
@@ -46,8 +55,11 @@ export default function TestDataDialog({ testData, problem_id }: { testData: Pro
 
     return (
         <React.Fragment>
-            <Box textAlign='end'>
-                <Button variant="outlined" onClick={handleClickOpen}>
+            <Box textAlign="end" paddingTop="20px">
+                <Button variant="outlined" color="error" onClick={handleDelete} sx={{ marginRight: '15px' }}>
+                    Delete Test Data
+                </Button>
+                <Button variant="contained" onClick={handleClickOpen}>
                     Create Test Data
                 </Button>
             </Box>
@@ -62,7 +74,9 @@ export default function TestDataDialog({ testData, problem_id }: { testData: Pro
                         type="text"
                         fullWidth
                         variant="standard"
-                        onChange={(event) => { setArgs(event.target.value)}}
+                        onChange={event => {
+                            setArgs(event.target.value);
+                        }}
                     />
                     <TextField
                         autoFocus
@@ -73,7 +87,9 @@ export default function TestDataDialog({ testData, problem_id }: { testData: Pro
                         multiline
                         fullWidth
                         variant="standard"
-                        onChange={(event) => { setExpectedStdout(event.target.value)}}
+                        onChange={event => {
+                            setExpectedStdout(event.target.value);
+                        }}
                     />
                 </DialogContent>
                 <DialogActions>

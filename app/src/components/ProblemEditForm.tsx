@@ -4,6 +4,7 @@ import { handleGrpcError } from "@/lib/error";
 import { Problem } from "@/protobufs/common/v1/problem_pb";
 import { ProblemService } from "@/protobufs/services/v1/problem_service_connect";
 import { UpdateProblemResponse } from "@/protobufs/services/v1/problem_service_pb";
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import { useState } from "react";
@@ -53,7 +54,9 @@ export default function ProblemEditForm({problem, updateProblem}: {problem: Prob
               variant="standard"
               onChange={(event) => { setProblemState({...problemState, description: event.target.value} )}}
             />
-            <Button type="submit" onClick={handleSubmit}>Save</Button>
+            <Box textAlign="end" paddingTop="20px">
+              <Button type="submit" variant="contained" onClick={handleSubmit}>Save</Button>
+            </Box>
       </form>
     );
 }

@@ -80,12 +80,7 @@ export default function ProblemTestDataGrid({ problem }: { problem: Problem }) {
                 rowSelectionModel={selectedTests}
                 onRowSelectionModelChange={handleSelectedTestChange}
             />
-            <TestDataDialog testData={undefined} problem_id={problem.id} />
-            <Box textAlign="end">
-                <Button variant="outlined" color="error" onClick={handleDelete}>
-                    Delete Test Data
-                </Button>
-            </Box>
+            <TestDataDialog testData={undefined} problem_id={problem.id} handleDelete={handleDelete}/>
         </Box>
     );
 }
