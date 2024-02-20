@@ -18,12 +18,18 @@ DATABASE_USERNAME_FILE = "/run/secrets/problemdb-root-username"
 DATABASE_PASSWORD_FILE = "/run/secrets/problemdb-root-password"
 
 PROTOBUF_PROBLEM_ID_FIELD = "id"
+PROTOBUF_GROUP_ID_FIELD = "id"
 
 PROBLEMS_COLLECTION_NAME = "problems"
 PROBLEM_ID_FIELD = "_id"
 PROBLEM_TITLE_FIELD = "title"
 PROBLEM_DESCRIPTION_FIELD = "description"
 PROBLEM_TESTS_FIELD = "tests"
+
+PROBLEM_GROUPS_COLLECTION_NAME = "groups"
+GROUP_ID_FIELD = "_id"
+GROUP_NAME_FIELD = "name"
+GROUP_PROBLEMS_FIELD = "problems"
 
 PROBLEM_SUMMARY_LENGTH = 250
 
@@ -163,6 +169,114 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
         )
 
         resp = problem_service_pb2.DeleteProblemResponse()
+        resp.success = result.acknowledged
+
+        return resp
+
+    def _group_document_to_group(
+        self, group_document: Dict[Any, Any]
+    ) -> problem_pb2.ProblemGroup:
+        group_document[PROTOBUF_GROUP_ID_FIELD] = str(
+            group_document.pop(GROUP_ID_FIELD)
+        )
+
+        group = problem_pb2.ProblemGroup()
+        json_format.ParseDict(group_document, group)
+
+        return group
+
+    def GetProblemGroupList(
+        self,
+        request: problem_service_pb2.GetProblemGroupListRequest,
+        context: grpc.ServicerContext,
+    ) -> problem_service_pb2.GetProblemGroupListResponse:
+        groups = (
+            self.client[self.DATABASE_NAME]
+            .get_collection(PROBLEM_GROUPS_COLLECTION_NAME)
+            .find({})
+            .limit(request.limit)
+        )
+
+        resp = problem_service_pb2.GetProblemGroupListResponse()
+        for group in groups:
+            summary = self._group_document_to_group(group)
+            resp.groups.append(summary)
+
+        return resp
+
+    def GetProblemGroup(
+        self,
+        request: problem_service_pb2.GetProblemGroupRequest,
+        context: grpc.ServicerContext,
+    ) -> problem_service_pb2.GetProblemGroupResponse:
+        problem_document = (
+            self.client[self.DATABASE_NAME]
+            .get_collection(PROBLEM_GROUPS_COLLECTION_NAME)
+            .find_one({GROUP_ID_FIELD: self._query_id(request.group_id)})
+        )
+
+        resp = problem_service_pb2.GetProblemGroupResponse()
+        resp.group.CopyFrom(self._group_document_to_group(problem_document))
+
+        return resp
+
+    def CreateProblemGroup(
+        self,
+        request: problem_service_pb2.CreateProblemGroupRequest,
+        context: grpc.ServicerContext,
+    ) -> problem_service_pb2.CreateProblemGroupResponse:
+        result = (
+            self.client[self.DATABASE_NAME]
+            .get_collection(PROBLEM_GROUPS_COLLECTION_NAME)
+            .insert_one(json_format.MessageToDict(request.group))
+        )
+        request.group.id = str(result.inserted_id)
+
+        resp = problem_service_pb2.CreateProblemGroupResponse()
+        resp.group.CopyFrom(request.group)
+        resp.success = result.acknowledged
+
+        return resp
+
+    def UpdateProblemGroup(
+        self,
+        request: problem_service_pb2.UpdateProblemGroupRequest,
+        context: grpc.ServicerContext,
+    ) -> problem_service_pb2.UpdateProblemGroupResponse:
+        group_dict = json_format.MessageToDict(request.group)
+
+        result = (
+            self.client[self.DATABASE_NAME]
+            .get_collection(PROBLEM_GROUPS_COLLECTION_NAME)
+            .update_one(
+                {
+                    GROUP_ID_FIELD: self._query_id(
+                        group_dict.pop(PROTOBUF_GROUP_ID_FIELD)
+                    )
+                },
+                {"$set": group_dict},
+            )
+        )
+
+        resp = problem_service_pb2.UpdateProblemGroupResponse()
+        resp.success = result.acknowledged
+
+        return resp
+
+    def DeleteProblemGroup(
+        self,
+        request: problem_service_pb2.DeleteProblemGroupRequest,
+        context: grpc.ServicerContext,
+    ) -> problem_service_pb2.DeleteProblemGroupResponse:
+        result = (
+            self.client[self.DATABASE_NAME]
+            .get_collection(PROBLEM_GROUPS_COLLECTION_NAME)
+            .delete_one(
+                {GROUP_ID_FIELD: self._query_id(request.group_id)},
+            )
+        )
+
+        resp = problem_service_pb2.DeleteProblemGroupResponse()
         resp.success = result.acknowledged
 
         return resp

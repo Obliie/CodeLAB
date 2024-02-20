@@ -16,6 +16,11 @@ service ProblemService {
     rpc UpdateProblem(UpdateProblemRequest) returns (UpdateProblemResponse) { }
     // Deletes an existing problem.
     rpc DeleteProblem(DeleteProblemRequest) returns (DeleteProblemResponse) { }
+    rpc GetProblemGroupList(GetProblemGroupListRequest) returns (GetProblemGroupListResponse) { }
+    rpc GetProblemGroup(GetProblemGroupRequest) returns (GetProblemGroupResponse) { }
+    rpc CreateProblemGroup(CreateProblemGroupRequest) returns (CreateProblemGroupResponse) { }
+    rpc UpdateProblemGroup(UpdateProblemGroupRequest) returns (UpdateProblemGroupResponse) { }
+    rpc DeleteProblemGroup(DeleteProblemGroupRequest) returns (DeleteProblemGroupResponse) { }
     // Adds test data to an existing problem.
     rpc AddTestData(AddTestDataRequest) returns (AddTestDataResponse) { }
     // Removes test data from an existing problem.
@@ -62,6 +67,47 @@ message DeleteProblemRequest {
 }
 
 message DeleteProblemResponse {
+    bool success = 1;
+}
+
+message GetProblemGroupListRequest {
+    int32 limit = 1;
+}
+
+message GetProblemGroupListResponse {
+    repeated common.v1.ProblemGroup groups = 1;
+}
+
+message GetProblemGroupRequest {
+    string group_id = 1;
+}
+
+message GetProblemGroupResponse {
+    common.v1.ProblemGroup group = 1;
+}
+
+message CreateProblemGroupRequest {
+    common.v1.ProblemGroup group = 1;
+}
+
+message CreateProblemGroupResponse {
+    common.v1.ProblemGroup group = 1;
+    bool success = 2;
+}
+
+message UpdateProblemGroupRequest {
+    common.v1.ProblemGroup group = 1;
+}
+
+message UpdateProblemGroupResponse {
+    bool success = 1;
+}
+
+message DeleteProblemGroupRequest {
+    string group_id = 1;
+}
+
+message DeleteProblemGroupResponse {
     bool success = 1;
 }
 

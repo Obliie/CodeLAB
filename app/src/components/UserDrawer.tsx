@@ -19,7 +19,7 @@ const LINKS = [
     { text: 'Home', href: '/', icon: HomeIcon },
     { text: 'Problems', href: '/problem/list', icon: ViewHeadlineIcon },
     { text: 'Submissions', href: '/submissions/list', icon: LibraryBooksIcon },
-    { text: 'Groups', href: '/groups/list', icon: GroupsIcon }
+    { text: 'Groups', href: '/group/list', icon: GroupsIcon }
 ];
 
 export default function UserDrawer({ width }: { width: number }) {
