@@ -27,7 +27,6 @@ class SeriesTestRunner(BaseTestRunner):
             run_time = round(time.time() - start_time, 3)
 
             success = output.decode().strip() == test.expected_stdout
-            log_and_flush(logging.INFO, f"EXPECT RUNNER --- {test.expected_stdout} -- GOT f{output}")
             log_and_flush(logging.INFO, f"=== Ran test - Exit Code {exit_code} ===")
             log_and_flush(logging.INFO, f"Output: {output.decode()}. Runtime: {run_time}")
             log_and_flush(logging.INFO, f"Passed: {success}. Expected {test.expected_stdout}")
