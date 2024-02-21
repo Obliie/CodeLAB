@@ -2,10 +2,12 @@
 from concurrent import futures
 import logging
 import os
+from typing import Any, Dict
 import yaml
 
 import grpc
 from protobufs.services.v1 import code_runner_service_pb2, code_runner_service_pb2_grpc
+from protobufs.common.v1 import language_pb2
 
 from common.config import Config
 from container_controller import ContainerController
@@ -16,8 +18,9 @@ from runners.test_runner import BaseTestRunner
 
 
 class CodeRunnerServicer(code_runner_service_pb2_grpc.CodeRunnerService):
-    def __init__(self, container_controller: ContainerController):
+    def __init__(self, container_controller: ContainerController, languages_config: Dict[Any, Any]):
         self.container_controller = container_controller
+        self.languages_config = languages_config
 
     def GetRunnerState(
         self,
@@ -63,7 +66,8 @@ class CodeRunnerServicer(code_runner_service_pb2_grpc.CodeRunnerService):
     ) -> code_runner_service_pb2.RunCodeTestsResponse:
         resp = code_runner_service_pb2.RunCodeTestsResponse()
 
-        with SeriesTestRunner(self.container_controller, request.files, request.tests) as runner:
+        language_config = self.languages_config[language_pb2.ProgrammingLanguage.Name(request.language)]
+        with SeriesTestRunner(self.container_controller, request.files, request.tests, language_config) as runner:
             runner.setup()
             log_and_flush(logging.INFO, f"Got {len(request.tests)} to run")
             for test_id, result, success, run_time in runner.run_tests():
@@ -78,13 +82,15 @@ class CodeRunnerServicer(code_runner_service_pb2_grpc.CodeRunnerService):
 
 
 def serve() -> None:
+    languages_config = Config.CONFIG["services"]["code-runner"]["languages"]
+
     with ContainerController(
         storage_path=Config.CONFIG["services"]["code-runner"]["container-files"],
-        language_config=Config.CONFIG["services"]["code-runner"]["languages"],
+        language_config=languages_config,
     ) as container_controller:
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
         code_runner_service_pb2_grpc.add_CodeRunnerServiceServicer_to_server(
-            CodeRunnerServicer(container_controller), server
+            CodeRunnerServicer(container_controller, languages_config), server
         )
         server.add_insecure_port(f"[::]:{ os.environ['CODE_RUNNER_SERVICE_PORT'] }")
         log_and_flush(logging.INFO, "Starting Code Runner service...")

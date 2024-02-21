@@ -3,7 +3,7 @@ import pathlib
 import time
 import uuid
 import docker
-from config import Config
+from common.config import Config
 import yaml
 
 from container_controller import ContainerController, ContainerStage
@@ -17,7 +17,7 @@ def test_generate_runner_config_python() -> None:
     controller = ContainerController(language_config=Config.CONFIG["services"]["code-runner"]["languages"])
     config = controller._generate_runner_config(language_pb2.PROGRAMMING_LANGUAGE_PYTHON)
 
-    expected_config_keys = ["docker-image"]
+    expected_config_keys = ["docker-image", "run-command", "main-file"]
     for key in expected_config_keys:
         assert key in config
         assert config[key] is not None
@@ -28,7 +28,7 @@ def test_generate_runner_config_java() -> None:
     controller = ContainerController(language_config=Config.CONFIG["services"]["code-runner"]["languages"])
     config = controller._generate_runner_config(language_pb2.PROGRAMMING_LANGUAGE_JAVA)
 
-    expected_config_keys = ["docker-image"]
+    expected_config_keys = ["docker-image", "run-command", "main-file"]
     for key in expected_config_keys:
         assert key in config
         assert config[key] is not None
@@ -80,7 +80,7 @@ def test_copy_bytes_to_container(datadir: pathlib.Path) -> None:
 
         container: Container = controller._get_container(container_id)
         test_file_bytes = b"Test String123"
-        controller._copy_bytes_to_container(container, test_file_bytes, "/tmp/code-runner")
+        controller._copy_bytes_to_container(container, test_file_bytes, "/tmp/code-runner", "main.py")
 
         # Check config file is copied to container
         exit_code, output = container.exec_run("cat /tmp/code-runner/main.py")

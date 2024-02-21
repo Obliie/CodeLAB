@@ -45,15 +45,9 @@ class ContainerController:
         shutil.rmtree(self.storage_path)
 
     def _generate_runner_config(self, language: language_pb2.ProgrammingLanguage) -> Dict[Any, Any]:
-        runner_config_keys = ["docker-image"]
+        runner_config_keys = ["docker-image", "main-file", "run-command"]
 
-        config = None
-        match language:
-            case language_pb2.PROGRAMMING_LANGUAGE_PYTHON:
-                config = self.language_config["python3.11"]
-            case language_pb2.PROGRAMMING_LANGUAGE_JAVA:
-                config = self.language_config["amazoncorretto21"]
-
+        config = self.language_config[language_pb2.ProgrammingLanguage.Name(language)]
         if not config:
             raise RuntimeError()
 
@@ -94,11 +88,11 @@ class ContainerController:
         container.exec_run(f"mkdir -p {dst_dir}")
         container.put_archive(dst_dir, stream.getvalue())
 
-    def _copy_bytes_to_container(self, container: Container, src_bytes: bytes, dst_dir: str):
+    def _copy_bytes_to_container(self, container: Container, src_bytes: bytes, dst_dir: str, path: str):
         stream = io.BytesIO()
         f = io.BytesIO(src_bytes)
         with tarfile.open(fileobj=stream, mode="w|") as tar:
-            info = tarfile.TarInfo(name="main.py")  # File name in archive
+            info = tarfile.TarInfo(name=path)  # File name in archive
             info.mtime = time.time()
             info.size = len(src_bytes)
 

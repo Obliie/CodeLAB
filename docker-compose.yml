@@ -324,7 +324,7 @@ services:
         env_file:
             - .env
         volumes:
-            - ./services/common/src/main:/service_common:ro
+            - ./services/common/src/main:/service_common/common:ro
             - ./services/code-runner/src/main:/service:ro
             - ./services/code-runner/src/test/unit:/tests:ro
             - ./services/code-runner/src/test/.pytest_cache:/test-cache

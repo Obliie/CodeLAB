@@ -16,11 +16,13 @@ services:
     code-runner:
         container-files: /tmp/code-runner
         languages:
-            python3.11:
+            PROGRAMMING_LANGUAGE_PYTHON:
                 display-name: 'Python 3.11'
                 docker-image: 'python:3.11.4-slim'
-                run-command: python3.11 ${FILE} ${ARGS}
-            amazoncorretto21:
+                main-file: 'main.py'
+                run-command: python3 {FILE} {ARGS}
+            PROGRAMMING_LANGUAGE_JAVA:
                 display-name: 'Java 21'
                 docker-image: 'amazoncorretto:21.0.1'
-                run-command: java -jar ${FILE} ${ARGS}
+                main-file: 'solution.java'
+                run-command: java -jar {FILE} {ARGS}
