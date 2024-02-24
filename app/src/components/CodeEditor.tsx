@@ -1,17 +1,18 @@
 'use client';
 import { ProgrammingLanguage } from '@/protobufs/common/v1/language_pb';
 import { Editor } from '@monaco-editor/react';
+import { Typography } from '@mui/material';
 
 function getEditorLanguage(language: ProgrammingLanguage) {
-    switch(language) {
+    switch (language) {
         case ProgrammingLanguage.PYTHON:
-            return "python"
+            return 'python';
         case ProgrammingLanguage.PROLOG:
-            return "plaintext"
+            return 'plaintext';
     }
 }
 
-export default function CodeEditor({ setCode, language }: { setCode: Function, language: ProgrammingLanguage }) {
+export default function CodeEditor({ setCode, language }: { setCode: Function; language: ProgrammingLanguage }) {
     return (
         <Editor
             height="70vh"
@@ -20,14 +21,14 @@ export default function CodeEditor({ setCode, language }: { setCode: Function, l
             theme="vs-dark"
             options={{
                 minimap: {
-                    enabled: false
-                }
+                    enabled: false,
+                },
             }}
             onChange={(value, _) => {
                 if (value) {
                     setCode(value);
                 }
             }}
-        />
+        /> 
     );
 }
