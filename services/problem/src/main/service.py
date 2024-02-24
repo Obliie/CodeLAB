@@ -54,11 +54,14 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
         summary = problem_pb2.ProblemSummary()
         summary.id = str(problem[PROBLEM_ID_FIELD])
         summary.title = problem[PROBLEM_TITLE_FIELD]
-        summary.summary = (
-            (f"{problem[PROBLEM_DESCRIPTION_FIELD][:PROBLEM_SUMMARY_LENGTH]}...")
-            if len(problem[PROBLEM_DESCRIPTION_FIELD]) > PROBLEM_SUMMARY_LENGTH
-            else problem[PROBLEM_DESCRIPTION_FIELD]
-        )
+        if PROBLEM_DESCRIPTION_FIELD in problem:
+            summary.summary = (
+                (f"{problem[PROBLEM_DESCRIPTION_FIELD][:PROBLEM_SUMMARY_LENGTH]}...")
+                if len(problem[PROBLEM_DESCRIPTION_FIELD]) > PROBLEM_SUMMARY_LENGTH
+                else problem[PROBLEM_DESCRIPTION_FIELD]
+            )
+        else:
+            summary.summary = "No description."
 
         return summary
 
@@ -117,6 +120,8 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
         request: problem_service_pb2.CreateProblemRequest,
         context: grpc.ServicerContext,
     ) -> problem_service_pb2.CreateProblemResponse:
+        log_and_flush(logging.INFO, f"langs: {request.problem.supported_languages}")
+
         result = (
             self.client[self.DATABASE_NAME]
             .get_collection(PROBLEMS_COLLECTION_NAME)

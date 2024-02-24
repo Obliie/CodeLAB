@@ -4,6 +4,7 @@ package protobufs.services.v1;
 
 import "protobufs/common/v1/solution.proto";
 import "protobufs/common/v1/status.proto";
+import "protobufs/common/v1/language.proto";
 
 // A service to handle receiving code submissions
 service SubmissionService {
@@ -20,7 +21,8 @@ service SubmissionService {
 message SubmitCodeRequest {
     string problem_id = 1;
     string user_id = 2;
-    repeated common.v1.SolutionFile files = 3;
+    common.v1.ProgrammingLanguage language = 3;
+    repeated common.v1.SolutionFile files = 4;
 }
 
 message SubmitCodeResponse {

@@ -24,7 +24,6 @@ export default function ProblemTestDataGrid({ problem }: { problem: Problem }) {
     };
 
     const handleDelete = async () => {
-        console.log(selectedTests)
         await problemServiceClient.removeTestData({
             problemId: problem.id,
             testIds: selectedTests

@@ -26,6 +26,7 @@ async function onCodeSubmit(
     submissionService: PromiseClient<typeof SubmissionService>,
     statusService: PromiseClient<typeof StatusService>,
     problem: Problem,
+    language: ProgrammingLanguage
 ) {
     const mainFile: SolutionFile = new SolutionFile();
     mainFile.entry = true;
@@ -38,7 +39,8 @@ async function onCodeSubmit(
     const submissionResponse = await submissionService.submitCode({
         files: [mainFile],
         problemId: problem.id,
-        userId: userId ?? "none"
+        userId: userId ?? "none",
+        language: language
     }) as SubmitCodeResponse;
     setData([`Submission sent. ID: ${submissionResponse.submissionId}`, "======"])
 
@@ -68,7 +70,7 @@ async function onCodeSubmit(
     }
 }
 
-export default function CodeOutput({ code, problem }: { code: string, problem: Problem }) {
+export default function CodeOutput({ code, language, problem }: { code: string, language: ProgrammingLanguage, problem: Problem }) {
     const [data, setData] = useState<string[]>([]);
     const submissionService: PromiseClient<typeof SubmissionService> = useClient(SubmissionService);
     const statusService: PromiseClient<typeof StatusService> = useClient(StatusService);
@@ -100,7 +102,7 @@ export default function CodeOutput({ code, problem }: { code: string, problem: P
                 <Button
                     sx={{ margin: '0px 10px', marginBottom: '10px' }}
                     variant="outlined"
-                    onClick={() => onCodeSubmit(session?.user.id, code, data, setData, submissionService, statusService, problem)}>
+                    onClick={() => onCodeSubmit(session?.user.id, code, data, setData, submissionService, statusService, problem, language)}>
                     Submit
                 </Button>
             </CardActions>

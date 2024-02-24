@@ -6,8 +6,7 @@ import { UpdateProblemResponse } from '@/protobufs/services/v1/problem_service_p
 
 export async function UpdateProblemRequest({ problem }: { problem: Problem }) {
     'use server';
-    console.log("making req... ")
-    console.log("SS: " + problem)
+
     const response = (await useServerClient(ProblemService)
         .updateProblem({
             problem: problem

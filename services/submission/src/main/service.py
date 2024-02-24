@@ -103,7 +103,7 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
         
         return
     
-    def _save_code_runner_responses(self, submission_id: str, tests: List[problem_pb2.Problem.TestData], files: List[solution_pb2.SolutionFile]):
+    def _save_code_runner_responses(self, submission_id: str, tests: List[problem_pb2.Problem.TestData], language: language_pb2.ProgrammingLanguage, files: List[solution_pb2.SolutionFile]):
         time.sleep(1)
         self._send_status_update_event(submission_id, status_pb2.SUBMISSION_STATUS_RECEIVED)
 
@@ -113,7 +113,7 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
 
             for test_result_response in stub.RunCodeTests(
                 code_runner_service_pb2.RunCodeTestsRequest(
-                    tests=tests, files=files, language=language_pb2.PROGRAMMING_LANGUAGE_PYTHON, has_dependencies=False
+                    tests=tests, files=files, language=language, has_dependencies=False
                 )
             ):
                 log_and_flush(logging.INFO, f"Got data from code runner...")
@@ -141,7 +141,7 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
         
         submission_id = self._create_submission(user_id=request.user_id, problem_id=problem_response.problem.id, submission_files=request.files)
 
-        thread = Thread(target=self._save_code_runner_responses, args=(submission_id, problem_response.problem.tests, request.files))
+        thread = Thread(target=self._save_code_runner_responses, args=(submission_id, problem_response.problem.tests, request.language, request.files))
         thread.start()
 
         resp = submission_service_pb2.SubmitCodeResponse()
