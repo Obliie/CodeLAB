@@ -18,6 +18,17 @@ import Typography from '@mui/material/Typography';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 
+function getMainFileName(language: ProgrammingLanguage) {
+    switch(language) {
+        case ProgrammingLanguage.PYTHON:
+            return "main.py"
+        case ProgrammingLanguage.PROLOG:
+            return "main.pl"
+    }
+
+    return "main"
+}
+
 async function onCodeSubmit(
     userId: string | undefined,
     code: string,
@@ -30,7 +41,7 @@ async function onCodeSubmit(
 ) {
     const mainFile: SolutionFile = new SolutionFile();
     mainFile.entry = true;
-    mainFile.path = 'main.py';
+    mainFile.path = getMainFileName(language);
 
     const encoder = new TextEncoder();
     mainFile.data = encoder.encode(code);

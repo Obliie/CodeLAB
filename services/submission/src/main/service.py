@@ -172,7 +172,11 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
                     test_result = submission_service_pb2.SubmissionTestResult()
                     test_result.test_id = test["testId"]
                     test_result.passed = test["success"]
-                    test_result.output = test["stdout"]
+                    if "stdout" in test:
+                        test_result.output = test["stdout"]
+                    else:
+                        test_result.output = ""
+                    
                     resp.test_results.append(test_result)
 
         return resp

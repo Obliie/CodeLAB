@@ -63,6 +63,9 @@ services:
                 - action: sync
                   path: ./protobufs/build/python/protobufs
                   target: /service/protobufs
+                - action: sync
+                  path: ./config.yaml
+                  target: ./config.yaml
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         command: watchmedo auto-restart --recursive --pattern="*.py" --directory="/service/" python3 /service/service.py

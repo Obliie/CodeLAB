@@ -12,8 +12,8 @@ from runners.test_runner import BaseTestRunner
 
 class SeriesTestRunner(BaseTestRunner):
 
-    def __init__(self, container_controller: ContainerController, solution_files: List[solution_pb2.SolutionFile], tests: problem_pb2.Problem.TestData, config: Dict[Any, Any]):
-        super(SeriesTestRunner, self).__init__(container_controller, solution_files, config)
+    def __init__(self, container_controller: ContainerController, solution_files: List[solution_pb2.SolutionFile], tests: problem_pb2.Problem.TestData, language: language_pb2.ProgrammingLanguage, config: Dict[Any, Any]):
+        super(SeriesTestRunner, self).__init__(container_controller, solution_files, language, config)
         self.tests = tests
         self.config = config
 
