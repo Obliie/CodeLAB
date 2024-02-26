@@ -40,7 +40,7 @@ async function ProblemEditDisplay({ id }: { id: string }) {
 
     return problem?.problem ? (
         <Stack direction="column" spacing={2} width="100%">
-            <Card sx={{ overflow: 'auto', padding: '10px' }}>
+            <Card sx={{ overflow: 'auto' }}>
                 <CardContent>
                     <Typography gutterBottom variant="h5" component="div">
                         Problem
@@ -49,7 +49,7 @@ async function ProblemEditDisplay({ id }: { id: string }) {
                     <ProblemEditForm problem={problem.problem} updateProblem={UpdateProblemRequest} />
                 </CardContent>
             </Card>
-            <Card sx={{ overflow: 'auto', padding: '10px' }}>
+            <Card sx={{ overflow: 'auto' }}>
                 <CardContent>
                     <Typography gutterBottom variant="h5" component="div">
                         Test Data

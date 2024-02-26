@@ -63,7 +63,6 @@ export default function GroupDialog({ group }: { group: ProblemGroup | undefined
                         label="Name"
                         type="text"
                         fullWidth
-                        variant="standard"
                         onChange={(event) => { setName(event.target.value)}}
                     />
                     <TextField
@@ -74,7 +73,6 @@ export default function GroupDialog({ group }: { group: ProblemGroup | undefined
                         type="text"
                         multiline
                         fullWidth
-                        variant="standard"
                         onChange={event => {
                             setDescription(event.target.value);
                         }}

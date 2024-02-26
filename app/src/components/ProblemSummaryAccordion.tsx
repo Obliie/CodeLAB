@@ -17,7 +17,7 @@ export default function ProblemSummaryAccordion({ problemSummaries }: { problemS
             <AccordionDetails>
                 <Typography>{problem.summary}</Typography>
             </AccordionDetails>
-            <AccordionActions>
+            <AccordionActions sx={{marginBottom: '10px'}}>
                 <ProblemActions problemId={problem.id} deleteAction={DeleteProblemRequest}/>
             </AccordionActions>
         </Accordion>

@@ -53,7 +53,6 @@ export default function GroupEditForm({ group, problems }: { group: ProblemGroup
               value={groupState.name}
               type="text"
               fullWidth
-              variant="standard"
               onChange={(event) => { setGroupState({...groupState, name: event.target.value} )}}
           />
           <TextField
@@ -64,7 +63,6 @@ export default function GroupEditForm({ group, problems }: { group: ProblemGroup
               type="text"
               multiline
               fullWidth
-              variant="standard"
               onChange={(event) => { setGroupState({...groupState, description: event.target.value} )}}
             />
             <MultiProblemSelect selectedProblems={selectedProblems} setSelectedProblems={setSelectedProblems} problems={problems} />

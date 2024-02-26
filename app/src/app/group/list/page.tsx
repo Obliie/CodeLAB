@@ -27,16 +27,16 @@ async function GroupsList() {
     return groups ? (
         <Box width="100%" paddingTop="10px">
             {groups.groups.map(group => (
-                <Card key={group.id} sx={{marginBottom: '10px', paddingLeft: '10px', paddingTop: '10px'}}>
+                <Card key={group.id} sx={{ marginBottom: '10px' }}>
                     <CardContent>
                         <Typography gutterBottom variant="h5" component="div">
                             {group.name}
                         </Typography>
                         <Typography>Contains {group.problemIds.length} problems</Typography>
-                        <CardActions sx={{justifyContent: 'end'}}>
-                            <ProblemGroupActions groupId={group.id} deleteAction={DeleteProblemGroupRequest} />
-                        </CardActions>
                     </CardContent>
+                    <CardActions sx={{ justifyContent: 'end', marginBottom: '10px' }}>
+                        <ProblemGroupActions groupId={group.id} deleteAction={DeleteProblemGroupRequest} />
+                    </CardActions>
                 </Card>
             ))}
         </Box>
@@ -48,7 +48,7 @@ async function GroupsList() {
 export default function GroupsListPage() {
     return (
         <Container>
-            <GroupDialog group={undefined}/>
+            <GroupDialog group={undefined} />
             <Box
                 sx={{
                     display: 'flex',

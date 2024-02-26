@@ -6,7 +6,7 @@ import { Problem } from '@/protobufs/common/v1/problem_pb';
 import { ProblemService } from '@/protobufs/services/v1/problem_service_connect';
 import { CreateProblemResponse } from '@/protobufs/services/v1/problem_service_pb';
 import { CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material';
-import { Autocomplete, Box, Checkbox, FormControlLabel, FormGroup, Typography } from '@mui/material';
+import { Autocomplete, Box, Checkbox, FormControlLabel, FormGroup, InputAdornment, Stack, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -35,6 +35,8 @@ export default function ProblemDialog({ problem }: { problem: Problem | undefine
     const [title, setTitle] = React.useState('');
     const [description, setDescription] = React.useState('');
     const [supportedLanguages, setSupportedLanguages] = React.useState<ProgrammingLanguage[]>([]);
+    const [runTimeout, setRunTimeout] = React.useState(30);
+    const [runMaxMemory, setRunMaxMemory] = React.useState(512);
     const [displayTestData, setDisplayTestData] = React.useState(true);
     const problemServiceClient = useClient(ProblemService);
     const router = useRouter();
@@ -52,6 +54,8 @@ export default function ProblemDialog({ problem }: { problem: Problem | undefine
         problem.title = title;
         problem.description = description;
         problem.supportedLanguages = supportedLanguages;
+        problem.runTimeout = runTimeout;
+        problem.runMaxMemory = runMaxMemory;
 
         const response = (await problemServiceClient
             .createProblem({
@@ -85,7 +89,6 @@ export default function ProblemDialog({ problem }: { problem: Problem | undefine
                         label="Title"
                         type="text"
                         fullWidth
-                        variant="standard"
                         onChange={event => {
                             setTitle(event.target.value);
                         }}
@@ -98,7 +101,6 @@ export default function ProblemDialog({ problem }: { problem: Problem | undefine
                         type="text"
                         multiline
                         fullWidth
-                        variant="standard"
                         onChange={event => {
                             setDescription(event.target.value);
                         }}
@@ -122,7 +124,7 @@ export default function ProblemDialog({ problem }: { problem: Problem | undefine
                             </li>
                         )}
                         renderInput={params => <TextField {...params} label="Supported Languages" />}
-                        sx={{ paddingTop: '15px' }}
+                        sx={{ paddingTop: '8px' }}
                         value={supportedLanguages}
                         onChange={(event, newValue, reason) => {
                             if (
@@ -136,6 +138,40 @@ export default function ProblemDialog({ problem }: { problem: Problem | undefine
                             setSupportedLanguages(newValue);
                         }}
                     />
+                    <Stack direction="row" spacing={2} sx={{ paddingTop: '15px'}}>
+                        <TextField
+                            fullWidth
+                            label="Run Timeout"
+                            id="run-timeout"
+                            type='number'
+                            value={runTimeout}
+                            onChange={event => setRunTimeout(parseInt(event.target.value))}
+                            InputProps={{
+                                type: 'number',
+                                inputProps: {
+                                    min: 0,
+                                    max: 600
+                                },
+                                endAdornment: <InputAdornment position="end">s</InputAdornment>,
+                            }}
+                        />
+                        <TextField
+                            fullWidth
+                            label="Run Memory Limit"
+                            id="run-memory-limit"
+                            type='number'
+                            value={runMaxMemory}
+                            onChange={event => setRunMaxMemory(parseInt(event.target.value))}
+                            InputProps={{
+                                type: 'number',
+                                inputProps: {
+                                    min: 0,
+                                    max: 1024
+                                },
+                                endAdornment: <InputAdornment position="end">MB</InputAdornment>,
+                            }}
+                        />
+                    </Stack>
                     <FormGroup sx={{ paddingTop: '10px' }}>
                         <FormControlLabel
                             control={

@@ -11,7 +11,6 @@ export default function ProblemActions({ problemId, deleteAction }: { problemId:
         <React.Fragment>
             <Button
                 variant="outlined"
-                sx={{ margin: '10px'}}
                 color="error"
                 onClick={async () => {
                     await deleteAction({ problemId: problemId });

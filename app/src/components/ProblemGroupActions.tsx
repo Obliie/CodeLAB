@@ -11,7 +11,7 @@ export default function ProblemGroupActions({ groupId, deleteAction }: { groupId
         <React.Fragment>
             <Button
                 variant="outlined"
-                sx={{ margin: '10px', alignContent: 'end'}}
+                sx={{ alignContent: 'end'}}
                 color="error"
                 onClick={async () => {
                     await deleteAction({ groupId: groupId });

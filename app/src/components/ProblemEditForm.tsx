@@ -7,7 +7,7 @@ import { ProblemService } from "@/protobufs/services/v1/problem_service_connect"
 import { UpdateProblemResponse } from "@/protobufs/services/v1/problem_service_pb";
 import { CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
-import { FormControlLabel, FormGroup } from "@mui/material";
+import { FormControlLabel, FormGroup, InputAdornment, Stack } from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -42,17 +42,21 @@ export default function ProblemEditForm({problem, updateProblem}: {problem: Prob
                 return language;
             }
         }),
-        displayTestData: problem.displayTestData
+        displayTestData: problem.displayTestData,
+        runTimeout: problem.runTimeout,
+        runMaxMemory: problem.runMaxMemory,
     });
     const problemServiceClient = useClient(ProblemService);
     const [submitLoading, setSubmitLoading] = useState(false);
 
     const handleSubmit = async  () => {
         setSubmitLoading(true);
-        problem.title = problemState.title
-        problem.description = problemState.description
-        problem.supportedLanguages = problemState.supportedLanguages
-        problem.displayTestData = problemState.displayTestData
+        problem.title = problemState.title;
+        problem.description = problemState.description;
+        problem.supportedLanguages = problemState.supportedLanguages;
+        problem.displayTestData = problemState.displayTestData;
+        problem.runTimeout = problemState.runTimeout;
+        problem.runMaxMemory = problemState.runMaxMemory;
 
         const response = (await problemServiceClient
             .updateProblem({
@@ -75,7 +79,6 @@ export default function ProblemEditForm({problem, updateProblem}: {problem: Prob
               value={problemState.title}
               type="text"
               fullWidth
-              variant="standard"
               onChange={(event) => { setProblemState({...problemState, title: event.target.value} )}}
           />
           <TextField
@@ -86,7 +89,6 @@ export default function ProblemEditForm({problem, updateProblem}: {problem: Prob
               type="text"
               multiline
               fullWidth
-              variant="standard"
               onChange={(event) => { setProblemState({...problemState, description: event.target.value} )}}
             />
             <Autocomplete
@@ -108,7 +110,7 @@ export default function ProblemEditForm({problem, updateProblem}: {problem: Prob
                     </li>
                 )}
                 renderInput={params => <TextField {...params} label="Supported Languages" />}
-                sx={{ paddingTop: '15px' }}
+                sx={{ paddingTop: '8px' }}
                 value={problemState.supportedLanguages}
                 onChange={(event, newValue, reason) => {
                     if (
@@ -130,6 +132,40 @@ export default function ProblemEditForm({problem, updateProblem}: {problem: Prob
                   })});
                   }}
             />
+            <Stack direction="row" spacing={2} sx={{ paddingTop: '15px' }}>
+                <TextField
+                    fullWidth
+                    label="Run Timeout"
+                    id="run-timeout"
+                    type='number'
+                    value={problemState.runTimeout}
+                    onChange={event => setProblemState({...problemState, runTimeout: parseInt(event.target.value)} )}
+                    InputProps={{
+                        type: 'number',
+                        inputProps: {
+                            min: 0,
+                            max: 600
+                        },
+                        endAdornment: <InputAdornment position="end">s</InputAdornment>,
+                    }}
+                />
+                <TextField
+                    fullWidth
+                    label="Run Memory Limit"
+                    id="run-memory-limit"
+                    type='number'
+                    value={problemState.runMaxMemory}
+                    onChange={event => setProblemState({...problemState, runMaxMemory: parseInt(event.target.value)} )}
+                    InputProps={{
+                        type: 'number',
+                        inputProps: {
+                            min: 0,
+                            max: 1024
+                        },
+                        endAdornment: <InputAdornment position="end">MB</InputAdornment>,
+                    }}
+                />
+            </Stack>
             <FormGroup sx={{ paddingTop: '10px' }}>
               <FormControlLabel control={
                   <Checkbox
