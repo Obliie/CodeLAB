@@ -2,6 +2,7 @@
 from concurrent import futures
 import logging
 import os
+import time
 from typing import Any, Dict
 
 import grpc
@@ -143,13 +144,16 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
         resp.success = result.acknowledged
 
         return resp
-
+    
     def UpdateProblem(
         self,
         request: problem_service_pb2.UpdateProblemRequest,
         context: grpc.ServicerContext,
     ) -> problem_service_pb2.UpdateProblemResponse:
         problem_dict = json_format.MessageToDict(request.problem)
+
+        # Artificial slowdown for frontend astethics
+        time.sleep(1)
 
         result = (
             self.client[self.DATABASE_NAME]

@@ -38,7 +38,7 @@ async function ProblemEditDisplay({ id }: { id: string }) {
         })
         .catch(err => handleGrpcError(err))) as GetProblemResponse;
 
-    return problem.problem ? (
+    return problem?.problem ? (
         <Stack direction="column" spacing={2} width="100%">
             <Card sx={{ overflow: 'auto', padding: '10px' }}>
                 <CardContent>

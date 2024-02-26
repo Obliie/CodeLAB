@@ -6,6 +6,7 @@ import { Problem } from "@/protobufs/common/v1/problem_pb";
 import { ProblemService } from "@/protobufs/services/v1/problem_service_connect";
 import { UpdateProblemResponse } from "@/protobufs/services/v1/problem_service_pb";
 import { CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material";
+import LoadingButton from "@mui/lab/LoadingButton";
 import { FormControlLabel, FormGroup } from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
@@ -44,20 +45,23 @@ export default function ProblemEditForm({problem, updateProblem}: {problem: Prob
         displayTestData: problem.displayTestData
     });
     const problemServiceClient = useClient(ProblemService);
+    const [submitLoading, setSubmitLoading] = useState(false);
 
     const handleSubmit = async  () => {
-      problem.title = problemState.title
-      problem.description = problemState.description
-      problem.supportedLanguages = problemState.supportedLanguages
-      problem.displayTestData = problemState.displayTestData
+        setSubmitLoading(true);
+        problem.title = problemState.title
+        problem.description = problemState.description
+        problem.supportedLanguages = problemState.supportedLanguages
+        problem.displayTestData = problemState.displayTestData
 
-      const response = (await problemServiceClient
-          .updateProblem({
-              problem: problem
-          })
-          .catch(err => handleGrpcError(err))) as UpdateProblemResponse;
-    
-      return response;
+        const response = (await problemServiceClient
+            .updateProblem({
+                problem: problem
+            })
+            .catch(err => handleGrpcError(err))) as UpdateProblemResponse;
+        
+        setSubmitLoading(false);
+        return response;
     }
 
     const allProgrammingLanguages = [ProgrammingLanguage.PYTHON, ProgrammingLanguage.PROLOG]
@@ -139,7 +143,10 @@ export default function ProblemEditForm({problem, updateProblem}: {problem: Prob
                 } label="Display Test Data" />
               </FormGroup>
             <Box textAlign="end" paddingTop="20px">
-              <Button type="submit" variant="contained" onClick={handleSubmit}>Save</Button>
+              {submitLoading ? 
+                (<LoadingButton loading variant="contained" size='medium' sx={{ paddingTop: '19px', paddingBottom: '19px' }}></LoadingButton>) :
+                (<Button type="submit" variant="contained" onClick={handleSubmit}>Save</Button>)
+              }
             </Box>
         </Box>
     );

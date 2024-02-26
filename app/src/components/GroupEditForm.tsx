@@ -13,6 +13,7 @@ import Checkbox from "@mui/material/Checkbox";
 import TextField from "@mui/material/TextField";
 import { useState } from "react";
 import MultiProblemSelect from "./MultiProblemSelect";
+import LoadingButton from "@mui/lab/LoadingButton";
 
 export default function GroupEditForm({ group, problems }: { group: ProblemGroup, problems: ProblemSummary[] }) {
     const [groupState, setGroupState] = useState({
@@ -22,21 +23,24 @@ export default function GroupEditForm({ group, problems }: { group: ProblemGroup
     const [selectedProblems, setSelectedProblems] = useState<ProblemSummary[]>(
         problems.filter(problem => group.problemIds.includes(problem.id))
     );
+    const [submitLoading, setSubmitLoading] = useState(false);
 
     const problemServiceClient = useClient(ProblemService);
 
     const handleSubmit = async  () => {
-      group.name = groupState.name
-      group.description = groupState.description
-      group.problemIds = selectedProblems.map(problem => problem.id);
+        setSubmitLoading(true);
+        group.name = groupState.name
+        group.description = groupState.description
+        group.problemIds = selectedProblems.map(problem => problem.id);
 
-      const response = (await problemServiceClient
-          .updateProblemGroup({
-              group: group
-          })
-          .catch(err => handleGrpcError(err))) as UpdateProblemGroupResponse;
-    
-      return response;
+        const response = (await problemServiceClient
+            .updateProblemGroup({
+                group: group
+            })
+            .catch(err => handleGrpcError(err))) as UpdateProblemGroupResponse;
+        
+        setSubmitLoading(false);
+        return response;
     }
 
 
@@ -65,7 +69,10 @@ export default function GroupEditForm({ group, problems }: { group: ProblemGroup
             />
             <MultiProblemSelect selectedProblems={selectedProblems} setSelectedProblems={setSelectedProblems} problems={problems} />
             <Box textAlign="end" paddingTop="20px">
-              <Button type="submit" variant="contained" onClick={handleSubmit}>Save</Button>
+              {submitLoading ? 
+                (<LoadingButton loading variant="contained" size='medium' sx={{ paddingTop: '19px', paddingBottom: '19px' }}></LoadingButton>) :
+                (<Button type="submit" variant="contained" onClick={handleSubmit}>Save</Button>)
+              }
             </Box>
       </Box>
     );
