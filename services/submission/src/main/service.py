@@ -103,7 +103,14 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
             stub.PostStatusEvent(status_service_pb2.PostStatusEventRequest(event_group=f"{submission_id}", data=event_string))
         
         return
-    
+
+    def _signal_event_stream_end(self, submission_id: str):
+        with grpc.insecure_channel(f"status:{ os.environ['STATUS_SERVICE_PORT' ]}") as channel:
+            stub = status_service_pb2_grpc.StatusServiceStub(channel)
+            stub.PostStatusEvent(status_service_pb2.PostStatusEventRequest(event_group=f"{submission_id}", data="end"))
+        
+        return
+
     def _save_code_runner_responses(self, submission_id: str, problem: problem_pb2.Problem, language: language_pb2.ProgrammingLanguage, files: List[solution_pb2.SolutionFile]):
         time.sleep(1)
         self._send_status_update_event(submission_id, status_pb2.SUBMISSION_STATUS_RECEIVED)
@@ -134,6 +141,8 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
             else:
                 log_and_flush(logging.INFO, "SENDING SUBMISSION_STATUS_COMPLETE_PASS")
                 self._send_status_update_event(submission_id, status_pb2.SUBMISSION_STATUS_COMPLETE_PASS)
+
+            self._signal_event_stream_end(submission_id)
 
 
     def SubmitCode(self,

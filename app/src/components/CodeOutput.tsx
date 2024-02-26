@@ -1,7 +1,7 @@
 import { transport, useClient } from '@/lib/connect';
 import { ProgrammingLanguage } from '@/protobufs/common/v1/language_pb';
 import { Problem } from '@/protobufs/common/v1/problem_pb';
-import { SolutionFile, SolutionFileType } from '@/protobufs/common/v1/solution_pb';
+import { SolutionFile } from '@/protobufs/common/v1/solution_pb';
 import { SubmissionStatus } from '@/protobufs/common/v1/status_pb';
 import { CodeRunnerService } from '@/protobufs/services/v1/code_runner_service_connect';
 import { RunCodeResponse } from '@/protobufs/services/v1/code_runner_service_pb';
