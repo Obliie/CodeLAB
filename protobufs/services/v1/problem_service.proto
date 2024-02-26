@@ -31,6 +31,7 @@ service ProblemService {
 
 message GetProblemSummariesRequest {
     int32 limit = 1;
+    repeated string id_filter = 2;
 }
 
 message GetProblemSummariesResponse {

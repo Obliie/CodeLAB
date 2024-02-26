@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 export default function HomePage() {
     return (
         <Box sx={{ display: 'flex' }}>
-            <div>CONTENT</div>
+            <div>Welcome to CodeLAB</div>
         </Box>
     );
 }

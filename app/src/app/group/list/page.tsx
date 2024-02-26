@@ -32,11 +32,7 @@ async function GroupsList() {
                         <Typography gutterBottom variant="h5" component="div">
                             {group.name}
                         </Typography>
-                        <Typography>Contains {group.problems.length} problems
-                        
-                        </Typography>
-
-
+                        <Typography>Contains {group.problemIds.length} problems</Typography>
                         <CardActions sx={{justifyContent: 'end'}}>
                             <ProblemGroupActions groupId={group.id} deleteAction={DeleteProblemGroupRequest} />
                         </CardActions>

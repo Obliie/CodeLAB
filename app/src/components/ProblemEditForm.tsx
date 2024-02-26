@@ -62,7 +62,6 @@ export default function ProblemEditForm({problem, updateProblem}: {problem: Prob
     return (
       <form>
           <TextField
-              autoFocus
               margin="dense"
               id="title"
               label="Title"
@@ -73,7 +72,6 @@ export default function ProblemEditForm({problem, updateProblem}: {problem: Prob
               onChange={(event) => { setProblemState({...problemState, title: event.target.value} )}}
           />
           <TextField
-              autoFocus
               margin="dense"
               id="description"
               label="Description"

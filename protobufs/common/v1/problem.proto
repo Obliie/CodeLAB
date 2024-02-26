@@ -34,5 +34,6 @@ message ProblemSummary {
 message ProblemGroup {
     string id = 1;
     string name = 2;
-    repeated Problem problems = 3;
+    string description = 3;
+    repeated string problem_ids = 4;
 }

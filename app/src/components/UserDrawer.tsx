@@ -16,10 +16,9 @@ import * as React from 'react';
 import UserActions from './UserActions';
 
 const LINKS = [
-    { text: 'Home', href: '/', icon: HomeIcon },
     { text: 'Problems', href: '/problem/list', icon: ViewHeadlineIcon },
+    { text: 'Groups', href: '/group/list', icon: GroupsIcon },
     { text: 'Submissions', href: '/submissions/list', icon: LibraryBooksIcon },
-    { text: 'Groups', href: '/group/list', icon: GroupsIcon }
 ];
 
 export default function UserDrawer({ width }: { width: number }) {

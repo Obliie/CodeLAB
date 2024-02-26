@@ -73,12 +73,21 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
         request: problem_service_pb2.GetProblemSummariesRequest,
         context: grpc.ServicerContext,
     ) -> problem_service_pb2.GetProblemSummariesResponse:
-        problems = (
-            self.client[self.DATABASE_NAME]
-            .get_collection(PROBLEMS_COLLECTION_NAME)
-            .find({})
-            .limit(request.limit)
-        )
+        if request.id_filter:
+            problem_ids = [self._query_id(id_str) for id_str in request.id_filter]
+            problems = (
+                self.client[self.DATABASE_NAME]
+                .get_collection(PROBLEMS_COLLECTION_NAME)
+                .find({"_id": {"$in": problem_ids}})
+                .limit(request.limit)
+            )
+        else:
+            problems = (
+                self.client[self.DATABASE_NAME]
+                .get_collection(PROBLEMS_COLLECTION_NAME)
+                .find({})
+                .limit(request.limit)
+            )
 
         resp = problem_service_pb2.GetProblemSummariesResponse()
         for problem in problems:

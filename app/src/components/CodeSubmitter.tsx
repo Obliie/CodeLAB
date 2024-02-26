@@ -36,7 +36,7 @@ function getLanguage(language: string) {
     return ProgrammingLanguage.UNSPECIFIED;
 }
 
-function LangageSelector({ languages, curLanguage, setLanguage}: { languages: ProgrammingLanguage[], curLanguage: any, setLanguage: Function }) {
+function LangageSelector({ languages, curLanguage, setLanguage }: { languages: ProgrammingLanguage[], curLanguage: any, setLanguage: Function }) {
     const handleChange = (event: SelectChangeEvent) => {
         setLanguage(event.target.value);
     };

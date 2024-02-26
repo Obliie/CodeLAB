@@ -17,6 +17,7 @@ import * as React from 'react';
 export default function GroupDialog({ group }: { group: ProblemGroup | undefined }) {
     const [open, setOpen] = React.useState(false);
     const [name, setName] = React.useState('');
+    const [description, setDescription] = React.useState('');
     const problemServiceClient = useClient(ProblemService);
     const router = useRouter();
 
@@ -31,6 +32,7 @@ export default function GroupDialog({ group }: { group: ProblemGroup | undefined
     const handleSubmit = async  () => {
         const group = new ProblemGroup();
         group.name = name
+        group.description = description
         
         const response = await problemServiceClient.createProblemGroup({
             group: group
@@ -63,6 +65,19 @@ export default function GroupDialog({ group }: { group: ProblemGroup | undefined
                         fullWidth
                         variant="standard"
                         onChange={(event) => { setName(event.target.value)}}
+                    />
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id="description"
+                        label="Description"
+                        type="text"
+                        multiline
+                        fullWidth
+                        variant="standard"
+                        onChange={event => {
+                            setDescription(event.target.value);
+                        }}
                     />
                 </DialogContent>
                 <DialogActions>
