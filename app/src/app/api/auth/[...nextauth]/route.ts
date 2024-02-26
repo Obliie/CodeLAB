@@ -3,9 +3,6 @@ import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import NextAuth from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 
-const GOOGLE_OAUTH_CLIENT_ID_FILE = "/run/secrets/oauth-google-client-id"
-const GOOGLE_OAUTH_CLIENT_SECRET_FILE = "/run/secrets/oauth-google-client-secret"
-
 const handler = NextAuth({
   adapter: MongoDBAdapter(userDbClientPromise),
   providers: [

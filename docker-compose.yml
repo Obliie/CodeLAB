@@ -31,8 +31,6 @@ services:
         networks:
             - codelabweb
         secrets:
-            - oauth-google-client-id
-            - oauth-google-client-secret
             - userdb-root-username
             - userdb-root-password
 
@@ -423,10 +421,6 @@ secrets:
         file: ./secrets/api_gateway_cert.pem
     api-gateway-key:
         file: ./secrets/api_gateway_key.pem
-    oauth-google-client-id:
-        file: ./secrets/oauth_google_client_id
-    oauth-google-client-secret:
-        file: ./secrets/oauth_google_client_secret
     userdb-root-username:
         file: ./secrets/userdb_root_username
     userdb-root-password:
