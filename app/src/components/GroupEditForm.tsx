@@ -41,7 +41,7 @@ export default function GroupEditForm({ group, problems }: { group: ProblemGroup
 
 
     return (
-      <form>
+      <Box>
           <TextField
               margin="dense"
               id="name"
@@ -67,6 +67,6 @@ export default function GroupEditForm({ group, problems }: { group: ProblemGroup
             <Box textAlign="end" paddingTop="20px">
               <Button type="submit" variant="contained" onClick={handleSubmit}>Save</Button>
             </Box>
-      </form>
+      </Box>
     );
 }

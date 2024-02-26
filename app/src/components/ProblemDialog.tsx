@@ -6,7 +6,7 @@ import { Problem } from '@/protobufs/common/v1/problem_pb';
 import { ProblemService } from '@/protobufs/services/v1/problem_service_connect';
 import { CreateProblemResponse } from '@/protobufs/services/v1/problem_service_pb';
 import { CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material';
-import { Autocomplete, Box, Checkbox, Typography } from '@mui/material';
+import { Autocomplete, Box, Checkbox, FormControlLabel, FormGroup, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -20,14 +20,14 @@ const icon = <CheckBoxOutlineBlank fontSize="small" />;
 const checkedIcon = <CheckBox fontSize="small" />;
 
 function getLanguageDisplayName(language: ProgrammingLanguage) {
-    switch(language) {
+    switch (language) {
         case ProgrammingLanguage.PYTHON:
-            return "Python"
+            return 'Python';
         case ProgrammingLanguage.PROLOG:
-            return "Prolog"
+            return 'Prolog';
     }
 
-    return "";
+    return '';
 }
 
 export default function ProblemDialog({ problem }: { problem: Problem | undefined }) {
@@ -35,6 +35,7 @@ export default function ProblemDialog({ problem }: { problem: Problem | undefine
     const [title, setTitle] = React.useState('');
     const [description, setDescription] = React.useState('');
     const [supportedLanguages, setSupportedLanguages] = React.useState<ProgrammingLanguage[]>([]);
+    const [displayTestData, setDisplayTestData] = React.useState(true);
     const problemServiceClient = useClient(ProblemService);
     const router = useRouter();
 
@@ -65,7 +66,7 @@ export default function ProblemDialog({ problem }: { problem: Problem | undefine
         setOpen(false);
     };
 
-    const allProgrammingLanguages = [ProgrammingLanguage.PYTHON, ProgrammingLanguage.PROLOG]
+    const allProgrammingLanguages = [ProgrammingLanguage.PYTHON, ProgrammingLanguage.PROLOG];
 
     return (
         <React.Fragment>
@@ -75,7 +76,7 @@ export default function ProblemDialog({ problem }: { problem: Problem | undefine
                 </Button>
             </Box>
             <Dialog open={open} onClose={handleClose}>
-                <DialogTitle>Problem</DialogTitle>
+                <DialogTitle>Create Problem</DialogTitle>
                 <DialogContent>
                     <TextField
                         autoFocus
@@ -125,16 +126,31 @@ export default function ProblemDialog({ problem }: { problem: Problem | undefine
                         value={supportedLanguages}
                         onChange={(event, newValue, reason) => {
                             if (
-                              event.type === 'keydown' &&
-                              ((event as React.KeyboardEvent).key === 'Backspace' ||
-                                (event as React.KeyboardEvent).key === 'Delete') &&
-                              reason === 'removeOption'
+                                event.type === 'keydown' &&
+                                ((event as React.KeyboardEvent).key === 'Backspace' ||
+                                    (event as React.KeyboardEvent).key === 'Delete') &&
+                                reason === 'removeOption'
                             ) {
-                              return;
+                                return;
                             }
                             setSupportedLanguages(newValue);
-                          }}
+                        }}
                     />
+                    <FormGroup sx={{ paddingTop: '10px' }}>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    key="display-test-data"
+                                    style={{ marginRight: 8 }}
+                                    checked={displayTestData}
+                                    onChange={event => {
+                                        setDisplayTestData(event.target.checked);
+                                    }}
+                                />
+                            }
+                            label="Display Test Data"
+                        />
+                    </FormGroup>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose}>Cancel</Button>

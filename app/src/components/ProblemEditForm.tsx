@@ -6,6 +6,7 @@ import { Problem } from "@/protobufs/common/v1/problem_pb";
 import { ProblemService } from "@/protobufs/services/v1/problem_service_connect";
 import { UpdateProblemResponse } from "@/protobufs/services/v1/problem_service_pb";
 import { CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material";
+import { FormControlLabel, FormGroup } from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -32,14 +33,15 @@ export default function ProblemEditForm({problem, updateProblem}: {problem: Prob
         title: problem.title,
         description: problem.description,
         supportedLanguages: problem.supportedLanguages.map((language) => {
-          if (language === "PROGRAMMING_LANGUAGE_PYTHON") {
-            return ProgrammingLanguage.PYTHON;
-          } else if (language === "PROGRAMMING_LANGUAGE_PROLOG") {
-            return ProgrammingLanguage.PROLOG;
-          } else {
-              return language;
-          }
-      })
+            if (language === "PROGRAMMING_LANGUAGE_PYTHON") {
+              return ProgrammingLanguage.PYTHON;
+            } else if (language === "PROGRAMMING_LANGUAGE_PROLOG") {
+              return ProgrammingLanguage.PROLOG;
+            } else {
+                return language;
+            }
+        }),
+        displayTestData: problem.displayTestData
     });
     const problemServiceClient = useClient(ProblemService);
 
@@ -47,6 +49,7 @@ export default function ProblemEditForm({problem, updateProblem}: {problem: Prob
       problem.title = problemState.title
       problem.description = problemState.description
       problem.supportedLanguages = problemState.supportedLanguages
+      problem.displayTestData = problemState.displayTestData
 
       const response = (await problemServiceClient
           .updateProblem({
@@ -60,7 +63,7 @@ export default function ProblemEditForm({problem, updateProblem}: {problem: Prob
     const allProgrammingLanguages = [ProgrammingLanguage.PYTHON, ProgrammingLanguage.PROLOG]
 
     return (
-      <form>
+      <Box>
           <TextField
               margin="dense"
               id="title"
@@ -123,9 +126,21 @@ export default function ProblemEditForm({problem, updateProblem}: {problem: Prob
                   })});
                   }}
             />
+            <FormGroup sx={{ paddingTop: '10px' }}>
+              <FormControlLabel control={
+                  <Checkbox
+                      key="display-test-data"
+                      style={{ marginRight: 8 }}
+                      checked={problemState.displayTestData}
+                      onChange={event => {
+                        setProblemState({...problemState, displayTestData: event.target.checked});
+                      }}
+                  />
+                } label="Display Test Data" />
+              </FormGroup>
             <Box textAlign="end" paddingTop="20px">
               <Button type="submit" variant="contained" onClick={handleSubmit}>Save</Button>
             </Box>
-      </form>
+        </Box>
     );
 }

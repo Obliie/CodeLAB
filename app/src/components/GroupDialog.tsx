@@ -54,7 +54,7 @@ export default function GroupDialog({ group }: { group: ProblemGroup | undefined
                 </Button>
             </Box>
             <Dialog open={open} onClose={handleClose}>
-                <DialogTitle>Group</DialogTitle>
+                <DialogTitle>Create Group</DialogTitle>
                 <DialogContent>
                     <TextField
                         autoFocus

@@ -24,7 +24,7 @@ async function Problem({ id }: { id: string }) {
             <CodeSubmitter problem={problem.problem}/>
 
             <Stack direction="column" spacing={2} width="100%">
-                <Card sx={{ width: '35vw', height: '40vh', overflow: 'auto' }}>
+                <Card sx={{ width: '35vw', height: problem.problem.displayTestData ? '40vh' : '81.2vh', overflow: 'auto' }}>
                     <CardContent>
                         <Typography gutterBottom variant="h5" component="div">
                             {problem.problem?.title}
@@ -34,15 +34,18 @@ async function Problem({ id }: { id: string }) {
                         </Typography>
                     </CardContent>
                 </Card>
-                <Card sx={{ width: '35vw', height: '40vh' }}>
-                    <CardContent sx={{ height: '90%' }}>
-                        <Typography gutterBottom variant="h5" component="div">
-                            Test Data
-                        </Typography>
-                        
-                        {problem.problem.tests ? (<ProblemTestData testData={problem.problem.tests} />) : (<></>)}
-                    </CardContent>
-                </Card>
+                {problem.problem.displayTestData ? (
+                    <Card sx={{ width: '35vw', height: '40vh' }}>
+                        <CardContent sx={{ height: '90%' }}>
+                            <Typography gutterBottom variant="h5" component="div">
+                                Test Data
+                            </Typography>
+                            
+                            {problem.problem.tests ? (<ProblemTestData testData={problem.problem.tests} />) : (<></>)}
+                        </CardContent>
+                    </Card>)
+                : <></>
+                }
             </Stack>
         </Stack>
     ) : (

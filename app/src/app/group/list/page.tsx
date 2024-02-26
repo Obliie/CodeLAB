@@ -27,7 +27,7 @@ async function GroupsList() {
     return groups ? (
         <Box width="100%" paddingTop="10px">
             {groups.groups.map(group => (
-                <Card key={group.id} sx={{marginBottom: '10px'}}>
+                <Card key={group.id} sx={{marginBottom: '10px', paddingLeft: '10px', paddingTop: '10px'}}>
                     <CardContent>
                         <Typography gutterBottom variant="h5" component="div">
                             {group.name}

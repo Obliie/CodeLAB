@@ -10,6 +10,7 @@ message Problem {
     string description = 3;
     repeated TestData tests = 4;
     repeated common.v1.ProgrammingLanguage supported_languages = 5;
+    bool display_test_data = 6;
 
     message TestData {
         string id = 1;

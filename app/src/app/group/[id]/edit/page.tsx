@@ -46,7 +46,7 @@ async function GroupEditDisplay({ id }: { id: string }) {
 
     return group.group ? (
         <Stack direction="column" spacing={2} width="100%">
-            <Card sx={{ overflow: 'auto' }}>
+            <Card sx={{ overflow: 'auto', padding: '10px' }}>
                 <CardContent>
                     <Typography gutterBottom variant="h5" component="div">
                         Group
