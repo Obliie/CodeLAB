@@ -67,16 +67,23 @@ class CodeRunnerServicer(code_runner_service_pb2_grpc.CodeRunnerService):
         resp = code_runner_service_pb2.RunCodeTestsResponse()
 
         language_config = self.languages_config[language_pb2.ProgrammingLanguage.Name(request.language)]
-        with SeriesTestRunner(self.container_controller, request.files, request.tests, request.language, language_config) as runner:
+        with SeriesTestRunner(self.container_controller, request.files, request.tests, request.language, request.run_timeout, request.run_max_memory, language_config) as runner:
             runner.setup()
             log_and_flush(logging.INFO, f"Got {len(request.tests)} to run")
-            for test_id, result, success, run_time in runner.run_tests():
+            for test_id, result, success, run_time, timeout in runner.run_tests():
                 log_and_flush(logging.INFO, f"Run for test {test_id} complete")
+                if timeout:
+                    resp.timeout = timeout
+                    resp.success = False
+                    yield resp
+                    return
+                
                 resp.test_id = test_id
                 resp.stage = code_runner_service_pb2.RunStage.RUN_STAGE_EXECUTE
                 resp.stdout = result
                 resp.stderr = ""
                 resp.success = success
+                resp.runtime = run_time
 
                 yield resp
 

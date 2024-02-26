@@ -68,7 +68,10 @@ async function onCodeSubmit(
                 setData((oldData: string[]) => [...oldData, `SUBMISSION_STATUS_COMPILING`]);
                 continue
             case SubmissionStatus.EXECUTING:
-                setData((oldData: string[]) => [...oldData, `SUBMISSION_STATUS_EXECUTING: TestID ${event.result.testId}, Passed: ${event.result.passed}, Output: ${event.result.output}`]);
+                setData((oldData: string[]) => [...oldData, `SUBMISSION_STATUS_EXECUTING: TestID ${event.result.testId}, Passed: ${event.result.passed}, Output: ${event.result.output}, Runtime: ${event.result.runtime}`]);
+                continue
+            case SubmissionStatus.COMPLETE_TIMEOUT:
+                setData((oldData: string[]) => [...oldData, `SUBMISSION_STATUS_COMPLETE_TIMEOUT`]);
                 continue
             case SubmissionStatus.COMPLETE_PASS:
                 setData((oldData: string[]) => [...oldData, `SUBMISSION_STATUS_COMPLETE_PASS`]);

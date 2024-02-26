@@ -69,9 +69,9 @@ class ContainerController:
         with open(container_storage_path / "config.yaml", "w+") as container_config:
             yaml.dump(config, container_config)
 
-    def _start_container(self, image_name: str) -> Container:
+    def _start_container(self, image_name: str, memory_limit: int) -> Container:
         image: Image = self.docker_client.images.pull(image_name)
-        container: Container = self.docker_client.containers.run(image=image, detach=True, tty=True)
+        container: Container = self.docker_client.containers.run(image=image, detach=True, tty=True, mem_limit=f"{memory_limit}m")
         container.rename(self.DEFAULT_CONTAINER_NAME.format(container_id=container.id))
         self.containers[container.id] = container
 
@@ -111,9 +111,9 @@ class ContainerController:
         container.stop()
         container.remove(force=True)
 
-    def create(self, language: language_pb2.ProgrammingLanguage) -> str:
+    def create(self, language: language_pb2.ProgrammingLanguage, memory_limit: int) -> str:
         config = self._generate_runner_config(language)
-        container = self._start_container(config["docker-image"])
+        container = self._start_container(config["docker-image"], memory_limit=memory_limit)
 
         self._save_runner_config(container.id, config)
         self._copy_file_to_container(

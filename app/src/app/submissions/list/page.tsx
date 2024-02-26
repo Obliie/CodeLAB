@@ -33,6 +33,11 @@ async function SubmissionDataGrid() {
             headerName: 'Tests Failed',
             width: 150,
         },
+        {
+            field: 'runtime',
+            headerName: 'Total Runtime',
+            width: 150
+        }
     ];
 
     const { data: session } = useSession();
@@ -50,7 +55,8 @@ async function SubmissionDataGrid() {
                 "problem": problem.problem?.title,
                 "solutionFiles": "N/A",
                 "testsPassed": submission.testResults.filter(result => result.passed).length,
-                "testsFailed": submission.testResults.filter(result => !result.passed).length
+                "testsFailed": submission.testResults.filter(result => !result.passed).length,
+                "runtime": `${submission.testResults.map(result => result.runtime).reduce((accumulatedRuntime, runtime) => accumulatedRuntime + runtime).toPrecision(4)}s`
             }
             rows.push(row);
         };

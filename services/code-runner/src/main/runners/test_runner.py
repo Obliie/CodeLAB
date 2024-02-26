@@ -9,14 +9,16 @@ from common.service_logging import log_and_flush
 class BaseTestRunner:
     DEFAULT_STORAGE_PATH = "/tmp/code-runner"
 
-    def __init__(self, container_controller: ContainerController, solution_files: List[solution_pb2.SolutionFile], language: language_pb2.ProgrammingLanguage, config: Dict[Any, Any]):
+    def __init__(self, container_controller: ContainerController, solution_files: List[solution_pb2.SolutionFile], language: language_pb2.ProgrammingLanguage, run_timeout: int, run_max_memory: int, config: Dict[Any, Any]):
         self.container_controller = container_controller
         self.solution_files = solution_files
         self.config = config
         self.language = language
+        self.run_timeout = run_timeout
+        self.run_max_memory = run_max_memory
 
     def __enter__(self):
-        self.container_id: str = self.container_controller.create(self.language)
+        self.container_id: str = self.container_controller.create(self.language, self.run_max_memory)
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):

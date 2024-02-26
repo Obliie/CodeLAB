@@ -84,6 +84,7 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
             result.test_id = test_result_response.test_id
             result.passed = test_result_response.success
             result.output = test_result_response.stdout
+            result.runtime = test_result_response.runtime
             event.result.CopyFrom(result)
 
             event_string = json_format.MessageToJson(event)
@@ -103,7 +104,7 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
         
         return
     
-    def _save_code_runner_responses(self, submission_id: str, tests: List[problem_pb2.Problem.TestData], language: language_pb2.ProgrammingLanguage, files: List[solution_pb2.SolutionFile]):
+    def _save_code_runner_responses(self, submission_id: str, problem: problem_pb2.Problem, language: language_pb2.ProgrammingLanguage, files: List[solution_pb2.SolutionFile]):
         time.sleep(1)
         self._send_status_update_event(submission_id, status_pb2.SUBMISSION_STATUS_RECEIVED)
 
@@ -113,10 +114,15 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
 
             for test_result_response in stub.RunCodeTests(
                 code_runner_service_pb2.RunCodeTestsRequest(
-                    tests=tests, files=files, language=language, has_dependencies=False
+                    tests=problem.tests, files=files, language=language, has_dependencies=False, run_timeout=problem.run_timeout, run_max_memory=problem.run_max_memory
                 )
             ):
                 log_and_flush(logging.INFO, f"Got data from code runner...")
+                if test_result_response.timeout:
+                    failed = True
+                    self._send_status_update_event(submission_id, status_pb2.SUBMISSION_STATUS_COMPLETE_TIMEOUT)
+                    break
+
                 self._save_test_result(submission_id, test_result_response)
                 self._send_test_result_event(submission_id, test_result_response)
                 if not test_result_response.success:
@@ -141,7 +147,7 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
         
         submission_id = self._create_submission(user_id=request.user_id, problem_id=problem_response.problem.id, submission_files=request.files)
 
-        thread = Thread(target=self._save_code_runner_responses, args=(submission_id, problem_response.problem.tests, request.language, request.files))
+        thread = Thread(target=self._save_code_runner_responses, args=(submission_id, problem_response.problem, request.language, request.files))
         thread.start()
 
         resp = submission_service_pb2.SubmitCodeResponse()
@@ -176,6 +182,8 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
                         test_result.output = test["stdout"]
                     else:
                         test_result.output = ""
+                    if "runtime" in test:
+                        test_result.runtime = test["runtime"]
                     
                     resp.test_results.append(test_result)
 

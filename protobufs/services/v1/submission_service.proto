@@ -65,4 +65,5 @@ message SubmissionTestResult {
     string test_id = 1;
     bool passed = 2;
     string output = 3;
+    float runtime = 4;
 }

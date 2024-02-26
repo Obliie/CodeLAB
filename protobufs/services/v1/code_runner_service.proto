@@ -42,6 +42,8 @@ message RunCodeTestsRequest {
     repeated common.v1.SolutionFile files = 2;
     common.v1.ProgrammingLanguage language = 3;
     bool has_dependencies = 4;
+    int32 run_timeout = 5;
+    int32 run_max_memory = 6;
 }
 
 message RunCodeTestsResponse {
@@ -50,6 +52,8 @@ message RunCodeTestsResponse {
     string stdout = 3;
     string stderr = 4;
     bool success = 5;
+    float runtime = 6;
+    bool timeout = 7;
 }
 
 enum RunStage {
