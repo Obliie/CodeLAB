@@ -56,7 +56,7 @@ async function SubmissionDataGrid() {
                 "solutionFiles": "N/A",
                 "testsPassed": submission.testResults.filter(result => result.passed).length,
                 "testsFailed": submission.testResults.filter(result => !result.passed).length,
-                "runtime": `${submission.testResults.map(result => result.runtime).reduce((accumulatedRuntime, runtime) => accumulatedRuntime + runtime).toPrecision(4)}s`
+                "runtime": submission.testResults.length > 0 ? `${submission.testResults.map(result => result.runtime).reduce((accumulatedRuntime, runtime) => accumulatedRuntime + runtime).toPrecision(4)}s` : 'N/A'
             }
             rows.push(row);
         };

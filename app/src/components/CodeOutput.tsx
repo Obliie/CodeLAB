@@ -10,6 +10,7 @@ import { SubmissionService } from '@/protobufs/services/v1/submission_service_co
 import { SubmissionStatusEvent, SubmitCodeResponse } from '@/protobufs/services/v1/submission_service_pb';
 import { PromiseClient, createPromiseClient } from '@connectrpc/connect';
 import { createGrpcWebTransport } from '@connectrpc/connect-web';
+import LoadingButton from '@mui/lab/LoadingButton';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
@@ -37,8 +38,10 @@ async function onCodeSubmit(
     submissionService: PromiseClient<typeof SubmissionService>,
     statusService: PromiseClient<typeof StatusService>,
     problem: Problem,
-    language: ProgrammingLanguage
+    language: ProgrammingLanguage,
+    setSubmitLoading: Function
 ) {
+    setSubmitLoading(true);
     const mainFile: SolutionFile = new SolutionFile();
     mainFile.entry = true;
     mainFile.path = getMainFileName(language);
@@ -80,14 +83,16 @@ async function onCodeSubmit(
                 setData((oldData: string[]) => [...oldData, `SUBMISSION_STATUS_COMPLETE_FAIL`]);
                 break
         }
-        
     }
+
+    setSubmitLoading(false);
 }
 
 export default function CodeOutput({ code, language, problem }: { code: string, language: ProgrammingLanguage, problem: Problem }) {
     const [data, setData] = useState<string[]>([]);
     const submissionService: PromiseClient<typeof SubmissionService> = useClient(SubmissionService);
     const statusService: PromiseClient<typeof StatusService> = useClient(StatusService);
+    const [submitLoading, setSubmitLoading] = useState(false);
     const { data: session } = useSession();
 
     return (
@@ -99,7 +104,7 @@ export default function CodeOutput({ code, language, problem }: { code: string, 
                 flexDirection: 'column',
                 justifyContent: 'space-between',
             }}>
-            <CardContent>
+            <CardContent sx={{overflow: 'auto'}}>
                 <Typography gutterBottom variant="h5" component="div">
                     Output
                 </Typography>
@@ -113,12 +118,15 @@ export default function CodeOutput({ code, language, problem }: { code: string, 
             </CardContent>
 
             <CardActions sx={{ display: 'flex', flexDirection: 'row-reverse' }}>
-                <Button
+            {submitLoading ? 
+                (<LoadingButton loading variant="contained" size='medium' sx={{ padding: '19px' }}></LoadingButton>) :
+                (<Button
                     sx={{ margin: '0px 10px', marginBottom: '10px' }}
                     variant="outlined"
-                    onClick={() => onCodeSubmit(session?.user.id, code, data, setData, submissionService, statusService, problem, language)}>
+                    onClick={() => onCodeSubmit(session?.user.id, code, data, setData, submissionService, statusService, problem, language, setSubmitLoading)}>
                     Submit
-                </Button>
+                </Button>)
+              }
             </CardActions>
         </Card>
     );
