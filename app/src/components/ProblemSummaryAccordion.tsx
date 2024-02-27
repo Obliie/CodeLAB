@@ -8,7 +8,7 @@ import ProblemActions from "./ProblemActions";
 import { DeleteProblemRequest } from "@/actions/DeleteProblemRequest";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 
-export default function ProblemSummaryAccordion({ problemSummaries }: { problemSummaries: ProblemSummary[] }) {
+export default function ProblemSummaryAccordion({ problemSummaries, nav }: { problemSummaries: ProblemSummary[], nav: string }) {
     return (problemSummaries.map(problem => (
         <Accordion key={problem.id}>
             <AccordionSummary expandIcon={<ExpandMore />}>
@@ -18,7 +18,7 @@ export default function ProblemSummaryAccordion({ problemSummaries }: { problemS
                 <Typography>{problem.summary}</Typography>
             </AccordionDetails>
             <AccordionActions sx={{marginBottom: '10px'}}>
-                <ProblemActions problemId={problem.id} deleteAction={DeleteProblemRequest}/>
+                <ProblemActions problemId={problem.id} deleteAction={DeleteProblemRequest} nav={nav} />
             </AccordionActions>
         </Accordion>
     )));

@@ -1,4 +1,5 @@
 import CodeSubmitter from '@/components/CodeSubmitter';
+import NextBreadcrumb from '@/components/NextBreadcrumb';
 import ProblemSummaryAccordion from '@/components/ProblemSummaryAccordion';
 import ProblemTestData from '@/components/ProblemTestData';
 import TestDataDialog from '@/components/TestDataDialog';
@@ -59,24 +60,25 @@ async function Group({ id }: { id: string }) {
                 Problems
             </Typography>
 
-            <ProblemSummaryAccordion problemSummaries={problemSummaries.problemSummaries} />
+            {group.group.problemIds.length > 0 ? 
+            (<ProblemSummaryAccordion problemSummaries={problemSummaries.problemSummaries} nav={`/group/${id}`} />) : <Typography>The group has no assigned problems...</Typography>
+            }
         </Box>
     ) : (
         <></>
     );
 }
 
-export default function GroupPage({ params }: { params: { id: string } }) {
+export default function GroupPage({ params }: { params: { groupId: string } }) {
     return (
         <Container>
             <Box
                 sx={{
                     display: 'flex',
                     flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
                 }}>
-                <Group id={params.id} />
+                <NextBreadcrumb />
+                <Group id={params.groupId} />
             </Box>
         </Container>
     );

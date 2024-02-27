@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 
-export default function ProblemActions({ problemId, deleteAction }: { problemId: string; deleteAction: Function }) {
+export default function ProblemActions({ problemId, deleteAction, nav }: { problemId: string; deleteAction: Function, nav: string }) {
     const router = useRouter();
 
     return (
@@ -18,12 +18,12 @@ export default function ProblemActions({ problemId, deleteAction }: { problemId:
                 }}>
                 Delete
             </Button>
-            <Link href={`/problem/${problemId}/edit`}>
+            <Link href={`${nav}/problem/${problemId}/edit`}>
                 <Button variant="outlined" sx={{}}>
                     Edit
                 </Button>
             </Link>
-            <Link href={`/problem/${problemId}`}>
+            <Link href={`${nav}/problem/${problemId}`}>
                 <Button variant="contained" sx={{ marginRight: '10px' }}>
                     View
                 </Button>

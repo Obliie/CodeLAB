@@ -1,3 +1,4 @@
+import NextBreadcrumb from '@/components/NextBreadcrumb';
 import CodeSubmitter from '@/components/CodeSubmitter';
 import ProblemTestData from '@/components/ProblemTestData';
 import TestDataDialog from '@/components/TestDataDialog';
@@ -20,11 +21,11 @@ async function Problem({ id }: { id: string }) {
         .catch(err => handleGrpcError(err))) as GetProblemResponse;
 
     return problem.problem ? (
-        <Stack direction="row" spacing={2} width="70vw">
+        <Stack direction="row" spacing={2} width="100%">
             <CodeSubmitter problem={problem.problem}/>
 
             <Stack direction="column" spacing={2} width="100%">
-                <Card sx={{ width: '35vw', height: problem.problem.displayTestData ? '40vh' : '81.2vh', overflow: 'auto' }}>
+                <Card sx={{ minWidth: '50%', height: problem.problem.displayTestData ? "50%" : "100%", overflow: 'auto' }}>
                     <CardContent>
                         <Typography gutterBottom variant="h5" component="div">
                             {problem.problem?.title}
@@ -35,7 +36,7 @@ async function Problem({ id }: { id: string }) {
                     </CardContent>
                 </Card>
                 {problem.problem.displayTestData ? (
-                    <Card sx={{ width: '35vw', height: '40vh' }}>
+                    <Card sx={{ minWidth: '50%', height: "50%" }}>
                         <CardContent sx={{ height: '90%' }}>
                             <Typography gutterBottom variant="h5" component="div">
                                 Test Data
@@ -53,17 +54,16 @@ async function Problem({ id }: { id: string }) {
     );
 }
 
-export default function ProblemPage({ params }: { params: { id: string } }) {
+export default function ProblemPage({ params }: { params: { problemId: string } }) {
     return (
         <Container>
             <Box
                 sx={{
                     display: 'flex',
                     flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
                 }}>
-                <Problem id={params.id} />
+                <NextBreadcrumb />
+                <Problem id={params.problemId} />
             </Box>
         </Container>
     );

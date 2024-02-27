@@ -19,18 +19,25 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <body>
                 <ThemeRegistry>
                     <NextAuthProvider>
-                        <UserAppBar title="CodeLAB" />
-                        <UserDrawer width={DRAWER_WIDTH} />
-                        <Box
-                            component="main"
-                            sx={{
-                                flexGrow: 1,
-                                bgcolor: 'background.default',
-                                ml: `${DRAWER_WIDTH}px`,
-                                mt: ['48px', '56px', '64px'],
-                                p: 3,
-                            }}>
-                            {children}
+                        <Box sx={{display: 'block', width: '100%'}}>
+                            <UserAppBar title="CodeLAB" />
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    bgcolor: 'background.default',
+                                    mt: ['48px', '56px', '64px'],
+                                }}>
+                                <UserDrawer width={DRAWER_WIDTH} />
+                                <Box
+                                    sx={{
+                                        width: `calc(100% - ${DRAWER_WIDTH}px)`,
+                                        mt: ['24px', '28px', '32px'],
+                                        mb: ['24px', '28px', '32px'],
+                                    }}    
+                                >
+                                    {children}
+                                </Box>
+                            </Box>
                         </Box>
                     </NextAuthProvider>
                 </ThemeRegistry>

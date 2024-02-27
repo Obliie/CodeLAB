@@ -25,7 +25,7 @@ export default function UserDrawer({ width }: { width: number }) {
     return (
         <Drawer
             sx={{
-                width: width,
+                minWidth: width,
                 flexShrink: 0,
                 '& .MuiDrawer-paper': {
                     width: width,

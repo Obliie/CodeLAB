@@ -25,6 +25,8 @@ services:
                   target: /app
                 - action: rebuild
                   path: ./app/package.json
+                - action: rebuild
+                  path: ./app/next.config.js
                 - action: sync
                   path: ./protobufs/build/ts/protobufs
                   target: /app/src/protobufs

@@ -7,7 +7,7 @@
         {
             "label": "CodeLAB: Start backend (WATCH)",
             "type": "shell",
-            "command": "docker compose --profile backend watch",
+            "command": "docker compose -f docker-compose.yml -f docker-compose.debug.yml --profile backend --profile frontend watch",
             "presentation": {
                 "group": "backend",
                 "panel": "shared"
@@ -16,7 +16,7 @@
         {
             "label": "CodeLAB: Start backend (REBUILD)",
             "type": "shell",
-            "command": "docker compose --profile backend up --force-recreate --build",
+            "command": "docker compose -f docker-compose.yml -f docker-compose.debug.yml --profile backend --profile frontend up --force-recreate --build",
             "presentation": {
                 "group": "backend",
                 "panel": "shared"

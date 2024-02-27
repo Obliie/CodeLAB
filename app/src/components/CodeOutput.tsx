@@ -98,8 +98,8 @@ export default function CodeOutput({ code, language, problem }: { code: string, 
     return session ? (
         <Card
             sx={{
-                width: '35vw',
-                height: '20vh',
+                width: "100%",
+                height: "25%",
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',

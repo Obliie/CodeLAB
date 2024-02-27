@@ -5,7 +5,7 @@ import { useClient, useServerClient } from '@/lib/connect';
 import { handleGrpcError } from '@/lib/error';
 import { RunCodeRequest } from '@/protobufs/services/v1/code_runner_service_pb';
 import { ProblemService } from '@/protobufs/services/v1/problem_service_connect';
-import { GetProblemGroupResponse, GetProblemResponse, GetProblemSummariesResponse } from '@/protobufs/services/v1/problem_service_pb';
+import { GetProblemResponse, GetProblemSummariesResponse } from '@/protobufs/services/v1/problem_service_pb';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Accordion from '@mui/material/Accordion';
 import AccordionActions from '@mui/material/AccordionActions';
@@ -28,31 +28,37 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Problem } from '@/protobufs/common/v1/problem_pb';
 import ProblemTestDataGrid from '@/components/ProblemTestDataGrid';
 import TestDataDialog from '@/components/TestDataDialog';
-import GroupEditForm from '@/components/GroupEditForm';
-import { UpdateProblemGroupRequest } from '@/actions/UpdateProblemGroupRequest';
+import NextBreadcrumb from '@/components/NextBreadcrumb';
 
 export const dynamic = 'force-dynamic'
 
-async function GroupEditDisplay({ id }: { id: string }) {
-    const group = (await useServerClient(ProblemService)
-        .getProblemGroup({
-            groupId: id,
+async function ProblemEditDisplay({ id }: { id: string }) {
+    const problem = (await useServerClient(ProblemService)
+        .getProblem({
+            problemId: id,
         })
-        .catch(err => handleGrpcError(err))) as GetProblemGroupResponse;
+        .catch(err => handleGrpcError(err))) as GetProblemResponse;
 
-    const problems = (await useServerClient(ProblemService)
-        .getProblemSummaries({})
-        .catch(err => handleGrpcError(err))) as GetProblemSummariesResponse;
-
-    return group.group ? (
+    return problem?.problem ? (
         <Stack direction="column" spacing={2} width="100%">
             <Card sx={{ overflow: 'auto' }}>
                 <CardContent>
                     <Typography gutterBottom variant="h5" component="div">
-                        Group
+                        Problem
                     </Typography>
 
-                    <GroupEditForm group={group.group} problems={problems?.problemSummaries} />
+                    <ProblemEditForm problem={problem.problem} updateProblem={UpdateProblemRequest} />
+                </CardContent>
+            </Card>
+            <Card sx={{ overflow: 'auto' }}>
+                <CardContent>
+                    <Typography gutterBottom variant="h5" component="div">
+                        Test Data
+                    </Typography>
+
+                    <React.Suspense fallback={<Skeleton width="100%" />}>
+                        <ProblemTestDataGrid problem={problem.problem}/>
+                    </React.Suspense>
                 </CardContent>
             </Card>
         </Stack>
@@ -63,18 +69,17 @@ async function GroupEditDisplay({ id }: { id: string }) {
 
 
 
-export default function GroupEditPage({ params }: { params: { id: string } }) {
+export default function ProblemEditPage({ params }: { params: { problemId: string } }) {
     return (
         <Container>
             <Box
                 sx={{
                     display: 'flex',
                     flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
                 }}>
+                <NextBreadcrumb />
                 <React.Suspense fallback={<Skeleton width="100%" />}>
-                    <GroupEditDisplay id={params.id} />
+                    <ProblemEditDisplay id={params.problemId} />
                 </React.Suspense>
             </Box>
         </Container>

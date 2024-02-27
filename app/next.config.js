@@ -22,6 +22,22 @@ const nextConfig = {
     env: {
         NEXT_PUBLIC_FRONTEND_URL: process.env.NEXT_PUBLIC_FRONTEND_URL,
     },
+    async rewrites() {
+        return [
+            {
+                source: '/problem',
+                destination: '/problem/list',
+            },
+            {
+                source: '/group',
+                destination: '/group/list',
+            },
+            {
+                source: '/group/:groupId/problem/:problemId',
+                destination: '/problem/:problemId',
+            },
+        ];
+    },
 };
 
 module.exports = nextConfig;
