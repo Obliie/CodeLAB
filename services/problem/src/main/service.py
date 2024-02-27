@@ -54,7 +54,12 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
     ) -> problem_pb2.ProblemSummary:
         summary = problem_pb2.ProblemSummary()
         summary.id = str(problem[PROBLEM_ID_FIELD])
-        summary.title = problem[PROBLEM_TITLE_FIELD]
+
+        if PROBLEM_TITLE_FIELD in problem:
+            summary.title = problem[PROBLEM_TITLE_FIELD]
+        else:
+            summary.title = "Untitled problem."
+        
         if PROBLEM_DESCRIPTION_FIELD in problem:
             summary.summary = (
                 (f"{problem[PROBLEM_DESCRIPTION_FIELD][:PROBLEM_SUMMARY_LENGTH]}...")
@@ -262,6 +267,9 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
         context: grpc.ServicerContext,
     ) -> problem_service_pb2.UpdateProblemGroupResponse:
         group_dict = json_format.MessageToDict(request.group)
+
+        # Artificial slowdown for frontend astethics
+        time.sleep(1)
 
         result = (
             self.client[self.DATABASE_NAME]
