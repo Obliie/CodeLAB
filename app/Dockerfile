@@ -5,3 +5,4 @@ WORKDIR /app
 COPY app/ ./
 COPY protobufs/build/ts/protobufs /app/src/protobufs/
 RUN npm ci
+RUN npm run build
