@@ -15,7 +15,7 @@ services:
                 condition: service_started
             proto-builder:
                 condition: service_completed_successfully
-        command: npm run dev -- -H 0.0.0.0
+        command: npm run start -- -H 0.0.0.0
         profiles:
             - frontend
         networks:
