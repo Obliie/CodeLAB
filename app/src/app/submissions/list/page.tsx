@@ -89,13 +89,11 @@ export default function SubmissionsListPage() {
                 sx={{
                     display: 'flex',
                     flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
                 }}>
                 <Card>
                     <CardContent>
                         <Typography gutterBottom variant="h5" component="div">Your Submissions</Typography>
-                        <React.Suspense fallback={<Skeleton width="700px" />}>
+                        <React.Suspense fallback={<Skeleton width="100%" />}>
                             <SubmissionDataGrid />
                         </React.Suspense>
                     </CardContent>

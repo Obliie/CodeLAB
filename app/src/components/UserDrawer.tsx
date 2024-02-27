@@ -2,8 +2,9 @@ import HomeIcon from '@mui/icons-material/Home';
 import LogoutIcon from '@mui/icons-material/Logout';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ViewHeadlineIcon from '@mui/icons-material/ViewHeadline';
-import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
-import GroupsIcon from '@mui/icons-material/Groups';
+import ArticleIcon from '@mui/icons-material/Article';
+import WorkspacesIcon from '@mui/icons-material/Workspaces';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
@@ -17,8 +18,9 @@ import UserActions from './UserActions';
 
 const LINKS = [
     { text: 'Problems', href: '/problem/list', icon: ViewHeadlineIcon },
-    { text: 'Groups', href: '/group/list', icon: GroupsIcon },
-    { text: 'Submissions', href: '/submissions/list', icon: LibraryBooksIcon },
+    { text: 'Groups', href: '/group/list', icon: WorkspacesIcon },
+    { text: 'Submissions', href: '/submissions/list', icon: ArticleIcon },
+    { text: 'Users', href: '/user/list', icon: ManageAccountsIcon },
 ];
 
 export default function UserDrawer({ width }: { width: number }) {
