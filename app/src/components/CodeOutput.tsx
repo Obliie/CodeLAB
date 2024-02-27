@@ -95,7 +95,7 @@ export default function CodeOutput({ code, language, problem }: { code: string, 
     const [submitLoading, setSubmitLoading] = useState(false);
     const { data: session } = useSession();
 
-    return (
+    return session ? (
         <Card
             sx={{
                 width: '35vw',
@@ -128,6 +128,18 @@ export default function CodeOutput({ code, language, problem }: { code: string, 
                 </Button>)
               }
             </CardActions>
+        </Card>
+        ) : (
+        <Card>
+            <CardContent>
+                <Typography gutterBottom variant="h5" component="div">
+                    Output
+                </Typography>
+
+                <Typography>
+                    You must sign in to create a submission...
+                </Typography>
+            </CardContent>
         </Card>
     );
 }
