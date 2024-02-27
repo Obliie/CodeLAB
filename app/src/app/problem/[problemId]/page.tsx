@@ -12,49 +12,48 @@ import CardContent from '@mui/material/CardContent';
 import Container from '@mui/material/Container';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import { Problem } from '@/protobufs/common/v1/problem_pb';
 
-async function Problem({ id }: { id: string }) {
-    const problem = (await useServerClient(ProblemService)
-        .getProblem({
-            problemId: id,
-        })
-        .catch(err => handleGrpcError(err))) as GetProblemResponse;
-
-    return problem.problem ? (
+async function ProblemDisplay({ problem }: { problem: Problem }) {
+    return (
         <Stack direction="row" spacing={2} width="100%">
-            <CodeSubmitter problem={problem.problem}/>
+            <CodeSubmitter problem={problem}/>
 
             <Stack direction="column" spacing={2} width="100%">
-                <Card sx={{ minWidth: '50%', height: problem.problem.displayTestData ? "50%" : "100%", overflow: 'auto' }}>
+                <Card sx={{ minWidth: '50%', height: problem.displayTestData ? "50%" : "100%", overflow: 'auto' }}>
                     <CardContent>
                         <Typography gutterBottom variant="h5" component="div">
-                            {problem.problem?.title}
+                            {problem.title}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                            {problem.problem?.description}
+                            {problem.description}
                         </Typography>
                     </CardContent>
                 </Card>
-                {problem.problem.displayTestData ? (
+                {problem.displayTestData ? (
                     <Card sx={{ minWidth: '50%', height: "50%" }}>
                         <CardContent sx={{ height: '90%' }}>
                             <Typography gutterBottom variant="h5" component="div">
                                 Test Data
                             </Typography>
                             
-                            {problem.problem.tests ? (<ProblemTestData testData={problem.problem.tests} />) : (<></>)}
+                            {problem.tests ? (<ProblemTestData testData={problem.tests} />) : (<></>)}
                         </CardContent>
                     </Card>)
                 : <></>
                 }
             </Stack>
         </Stack>
-    ) : (
-        <></>
-    );
+    )
 }
 
-export default function ProblemPage({ params }: { params: { problemId: string } }) {
+export default async function ProblemPage({ params }: { params: { problemId: string } }) {
+    const problem = (await useServerClient(ProblemService)
+        .getProblem({
+            problemId: params.problemId,
+        })
+        .catch(err => handleGrpcError(err))) as GetProblemResponse;
+
     return (
         <Container>
             <Box
@@ -62,8 +61,13 @@ export default function ProblemPage({ params }: { params: { problemId: string } 
                     display: 'flex',
                     flexDirection: 'column',
                 }}>
-                <NextBreadcrumb />
-                <Problem id={params.problemId} />
+                {problem?.problem ? (
+                    <Box>
+                        <NextBreadcrumb mappings={new Map<string, string>([[params.problemId, problem.problem.title]])} />
+                        <ProblemDisplay problem={problem.problem} />
+                    </Box>
+                    ) : <></>
+                }
             </Box>
         </Container>
     );

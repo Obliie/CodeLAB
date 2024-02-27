@@ -33,8 +33,12 @@ const nextConfig = {
                 destination: '/group/list',
             },
             {
-                source: '/group/:groupId/problem/:problemId',
+                source: '/group/:groupId/:problemId',
                 destination: '/problem/:problemId',
+            },
+            {
+                source: '/group/:groupId/:problemId/edit',
+                destination: '/problem/:problemId/edit',
             },
         ];
     },

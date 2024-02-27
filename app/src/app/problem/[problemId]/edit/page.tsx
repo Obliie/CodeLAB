@@ -32,14 +32,8 @@ import NextBreadcrumb from '@/components/NextBreadcrumb';
 
 export const dynamic = 'force-dynamic'
 
-async function ProblemEditDisplay({ id }: { id: string }) {
-    const problem = (await useServerClient(ProblemService)
-        .getProblem({
-            problemId: id,
-        })
-        .catch(err => handleGrpcError(err))) as GetProblemResponse;
-
-    return problem?.problem ? (
+async function ProblemEditDisplay({ problem }: { problem: Problem }) {
+    return (
         <Stack direction="column" spacing={2} width="100%">
             <Card sx={{ overflow: 'auto' }}>
                 <CardContent>
@@ -47,7 +41,7 @@ async function ProblemEditDisplay({ id }: { id: string }) {
                         Problem
                     </Typography>
 
-                    <ProblemEditForm problem={problem.problem} update={true} close={undefined}/>
+                    <ProblemEditForm problem={problem} update={true} close={undefined}/>
                 </CardContent>
             </Card>
             <Card sx={{ overflow: 'auto' }}>
@@ -57,19 +51,23 @@ async function ProblemEditDisplay({ id }: { id: string }) {
                     </Typography>
 
                     <React.Suspense fallback={<Skeleton width="100%" />}>
-                        <ProblemTestDataGrid problem={problem.problem}/>
+                        <ProblemTestDataGrid problem={problem}/>
                     </React.Suspense>
                 </CardContent>
             </Card>
         </Stack>
-    ) : (
-        <></>
-    );
+    )
 }
 
 
 
-export default function ProblemEditPage({ params }: { params: { problemId: string } }) {
+export default async function ProblemEditPage({ params }: { params: { problemId: string } }) {
+    const problem = (await useServerClient(ProblemService)
+        .getProblem({
+            problemId: params.problemId,
+        })
+        .catch(err => handleGrpcError(err))) as GetProblemResponse;
+
     return (
         <Container>
             <Box
@@ -77,10 +75,13 @@ export default function ProblemEditPage({ params }: { params: { problemId: strin
                     display: 'flex',
                     flexDirection: 'column',
                 }}>
-                <NextBreadcrumb />
-                <React.Suspense fallback={<Skeleton width="100%" />}>
-                    <ProblemEditDisplay id={params.problemId} />
-                </React.Suspense>
+                {problem?.problem ? (
+                    <Box>
+                        <NextBreadcrumb mappings={new Map<string, string>([[params.problemId, problem.problem.title]])} />
+                        <ProblemEditDisplay problem={problem.problem} />
+                    </Box>
+                    ) : <></>
+                }
             </Box>
         </Container>
     );

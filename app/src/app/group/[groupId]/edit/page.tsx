@@ -25,7 +25,7 @@ import { UpdateProblemRequest } from '@/actions/UpdateProblemRequest';
 import ProblemEditForm from '@/components/ProblemEditForm';
 import Stack from '@mui/material/Stack';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { Problem } from '@/protobufs/common/v1/problem_pb';
+import { Problem, ProblemGroup } from '@/protobufs/common/v1/problem_pb';
 import ProblemTestDataGrid from '@/components/ProblemTestDataGrid';
 import TestDataDialog from '@/components/TestDataDialog';
 import GroupEditForm from '@/components/GroupEditForm';
@@ -34,18 +34,12 @@ import NextBreadcrumb from '@/components/NextBreadcrumb';
 
 export const dynamic = 'force-dynamic'
 
-async function GroupEditDisplay({ id }: { id: string }) {
-    const group = (await useServerClient(ProblemService)
-        .getProblemGroup({
-            groupId: id,
-        })
-        .catch(err => handleGrpcError(err))) as GetProblemGroupResponse;
-
+async function GroupEditDisplay({ group }: { group: ProblemGroup }) {
     const problems = (await useServerClient(ProblemService)
         .getProblemSummaries({})
         .catch(err => handleGrpcError(err))) as GetProblemSummariesResponse;
 
-    return group.group ? (
+    return (
         <Stack direction="column" spacing={2} width="100%">
             <Card sx={{ overflow: 'auto' }}>
                 <CardContent>
@@ -53,18 +47,22 @@ async function GroupEditDisplay({ id }: { id: string }) {
                         Group
                     </Typography>
 
-                    <GroupEditForm group={group.group} problems={problems?.problemSummaries} />
+                    <GroupEditForm group={group} problems={problems?.problemSummaries} />
                 </CardContent>
             </Card>
         </Stack>
-    ) : (
-        <></>
-    );
+    )
 }
 
 
 
-export default function GroupEditPage({ params }: { params: { groupId: string } }) {
+export default async function GroupEditPage({ params }: { params: { groupId: string } }) {
+    const group = (await useServerClient(ProblemService)
+        .getProblemGroup({
+            groupId: params.groupId,
+        })
+        .catch(err => handleGrpcError(err))) as GetProblemGroupResponse;
+
     return (
         <Container>
             <Box
@@ -72,10 +70,13 @@ export default function GroupEditPage({ params }: { params: { groupId: string } 
                     display: 'flex',
                     flexDirection: 'column',
                 }}>
-                <NextBreadcrumb />
-                <React.Suspense fallback={<Skeleton width="100%" />}>
-                    <GroupEditDisplay id={params.groupId} />
-                </React.Suspense>
+                {group?.group ? (
+                        <Box>
+                            <NextBreadcrumb mappings={new Map<string, string>([[params.groupId, group.group.name]])} />
+                            <GroupEditDisplay group={group.group} />
+                        </Box>
+                    ) : <></>
+                }
             </Box>
         </Container>
     );

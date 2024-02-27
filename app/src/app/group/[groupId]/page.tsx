@@ -5,7 +5,7 @@ import ProblemTestData from '@/components/ProblemTestData';
 import TestDataDialog from '@/components/TestDataDialog';
 import { useClient, useServerClient } from '@/lib/connect';
 import { handleGrpcError } from '@/lib/error';
-import { ProblemSummary } from '@/protobufs/common/v1/problem_pb';
+import { ProblemGroup, ProblemSummary } from '@/protobufs/common/v1/problem_pb';
 import { ProblemService } from '@/protobufs/services/v1/problem_service_connect';
 import { GetProblemGroupResponse, GetProblemResponse, GetProblemSummariesResponse } from '@/protobufs/services/v1/problem_service_pb';
 import Box from '@mui/material/Box';
@@ -16,29 +16,23 @@ import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-async function Group({ id }: { id: string }) {
-    const group = (await useServerClient(ProblemService)
-        .getProblemGroup({
-            groupId: id,
-        })
-        .catch(err => handleGrpcError(err))) as GetProblemGroupResponse;
-
+async function Group({ group }: { group: ProblemGroup }) {
     const problemSummaries = (await useServerClient(ProblemService)
         .getProblemSummaries({
-            idFilter: group.group?.problemIds,
+            idFilter: group.problemIds,
         })
     .catch(err => handleGrpcError(err))) as GetProblemSummariesResponse;
 
-    return group.group ? (
+    return (
         <Box>
             <Stack direction="row" spacing={2} width="100%">
                 <Card sx={{ width: '35vw', height: '30vh', overflow: 'auto' }}>
                     <CardContent>
                         <Typography gutterBottom variant="h5" component="div">
-                            {group.group?.name}
+                            {group.name}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                            {group.group?.description}
+                            {group.description}
                         </Typography>
                     </CardContent>
                 </Card>
@@ -60,16 +54,20 @@ async function Group({ id }: { id: string }) {
                 Problems
             </Typography>
 
-            {group.group.problemIds.length > 0 ? 
-            (<ProblemSummaryAccordion problemSummaries={problemSummaries.problemSummaries} nav={`/group/${id}`} />) : <Typography>The group has no assigned problems...</Typography>
+            {group.problemIds.length > 0 ? 
+            (<ProblemSummaryAccordion problemSummaries={problemSummaries.problemSummaries} nav={`/group/${group.id}`} />) : <Typography>The group has no assigned problems...</Typography>
             }
         </Box>
-    ) : (
-        <></>
     );
 }
 
-export default function GroupPage({ params }: { params: { groupId: string } }) {
+export default async function GroupPage({ params }: { params: { groupId: string } }) {
+    const group = (await useServerClient(ProblemService)
+        .getProblemGroup({
+            groupId: params.groupId,
+        })
+        .catch(err => handleGrpcError(err))) as GetProblemGroupResponse;
+
     return (
         <Container>
             <Box
@@ -77,8 +75,13 @@ export default function GroupPage({ params }: { params: { groupId: string } }) {
                     display: 'flex',
                     flexDirection: 'column',
                 }}>
-                <NextBreadcrumb />
-                <Group id={params.groupId} />
+                {group?.group ? (
+                        <Box>
+                            <NextBreadcrumb mappings={new Map<string, string>([[params.groupId, group.group.name]])} />
+                            <Group group={group.group} />
+                        </Box>
+                    ) : <></>
+                }
             </Box>
         </Container>
     );
