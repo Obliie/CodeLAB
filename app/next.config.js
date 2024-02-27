@@ -18,16 +18,10 @@ const nextConfig = {
         // your project has type errors.
         // !! WARN !!
         ignoreBuildErrors: true,
-      },
-    /*
-    async rewrites() {
-        return [
-            {
-                source: '/api/:path*',
-                destination: 'http://codelab.obliie.dev:8080/:path*', // Proxy to Backend
-            },
-        ];
-    },*/
+    },
+    env: {
+        HOST: process.env.HOST,
+    },
 };
 
 module.exports = nextConfig;
