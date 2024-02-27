@@ -20,7 +20,7 @@ const nextConfig = {
         ignoreBuildErrors: true,
     },
     env: {
-        HOST: process.env.HOST,
+        FRONTEND_URL: process.env.FRONTEND_URL,
     },
 };
 
