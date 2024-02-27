@@ -19,6 +19,9 @@ import Typography from '@mui/material/Typography';
 import { useSession } from 'next-auth/react';
 import React from 'react';
 
+// Opt out of caching for all data requests in the route segment
+export const dynamic = 'force-dynamic'
+
 async function GroupsList() {
     const groups = (await useServerClient(ProblemService)
         .getProblemGroupList({})
