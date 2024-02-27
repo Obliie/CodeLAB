@@ -1,8 +1,10 @@
 FROM node:lts-slim
+ARG ENVIRONMENT
 
 WORKDIR /app
 
 COPY app/ ./
 COPY protobufs/build/ts/protobufs /app/src/protobufs/
 RUN npm ci
-RUN npm run build
+
+RUN if [ "$ENVIRONMENT" = "prod" ] ; then npm run build ; fi 
