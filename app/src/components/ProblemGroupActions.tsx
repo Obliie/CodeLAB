@@ -20,12 +20,12 @@ export default function ProblemGroupActions({ groupId, deleteAction }: { groupId
                 Delete
             </Button>
             <Link href={`/group/${groupId}/edit`}>
-                <Button variant="outlined" sx={{}}>
+                <Button variant="outlined">
                     Edit
                 </Button>
             </Link>
             <Link href={`/group/${groupId}`}>
-                <Button variant="contained" sx={{ marginRight: '10px' }}>
+                <Button variant="contained">
                     View
                 </Button>
             </Link>

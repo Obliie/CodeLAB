@@ -19,12 +19,12 @@ export default function ProblemActions({ problemId, deleteAction, nav }: { probl
                 Delete
             </Button>
             <Link href={`${nav}/problem/${problemId}/edit`}>
-                <Button variant="outlined" sx={{}}>
+                <Button variant="outlined">
                     Edit
                 </Button>
             </Link>
             <Link href={`${nav}/problem/${problemId}`}>
-                <Button variant="contained" sx={{ marginRight: '10px' }}>
+                <Button variant="contained">
                     View
                 </Button>
             </Link>

@@ -47,7 +47,7 @@ async function ProblemEditDisplay({ id }: { id: string }) {
                         Problem
                     </Typography>
 
-                    <ProblemEditForm problem={problem.problem} updateProblem={UpdateProblemRequest} />
+                    <ProblemEditForm problem={problem.problem} update={true} close={undefined}/>
                 </CardContent>
             </Card>
             <Card sx={{ overflow: 'auto' }}>
