@@ -4,11 +4,11 @@ import { createGrpcWebTransport } from '@connectrpc/connect-web';
 import { useMemo } from 'react';
 
 export const serverTransport = createGrpcWebTransport({
-    baseUrl: `https://${process.env.FRONTEND_URL == "127.0.0.1" ? "api-gateway" : process.env.FRONTEND_URL}:443/`,
+    baseUrl: `https://${process.env.NEXT_PUBLIC_FRONTEND_URL == "127.0.0.1" ? "api-gateway" : process.env.NEXT_PUBLIC_FRONTEND_URL}:443/`,
 });
 
 const transport = createGrpcWebTransport({
-    baseUrl: `https://${process.env.FRONTEND_URL}:443/`,
+    baseUrl: `https://${process.env.NEXT_PUBLIC_FRONTEND_URL}:443/`,
 });
 
 /**

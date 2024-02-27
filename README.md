@@ -94,7 +94,7 @@ docker compose --profile build up
 ## .env
 The environment must be configured appropriately. The following configuration options must be updated in the `.env` file:
 * HOST: The hostname for the application
-* FRONTEND_URL: The frontend url
+* NEXT_PUBLIC_FRONTEND_URL: The frontend url
 * ENVIRONMENT: The environment type, either `dev` or `prod`
 * GOOGLE_OAUTH_CLIENT_ID: The google oauth client ID
     - You will need to create a project on [Google Cloud Console][1]
