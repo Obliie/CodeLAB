@@ -5,17 +5,26 @@ import { GetProblemResponse } from '@/protobufs/services/v1/problem_service_pb';
 import { SubmissionService } from '@/protobufs/services/v1/submission_service_connect';
 import { GetSubmissionResponse, GetUserSubmissionsResponse } from '@/protobufs/services/v1/submission_service_pb';
 import { PromiseClient } from '@connectrpc/connect';
+import { OpenInNew } from '@mui/icons-material';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Container from '@mui/material/Container';
 import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
-import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
+import { DataGrid, GridActionsCellItem, GridColDef, GridRowId, GridRowParams, GridValueGetterParams } from '@mui/x-data-grid';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import React from 'react';
 
 async function SubmissionDataGrid() {
+    const { data: session } = useSession();
+    const router = useRouter();
+    
+    const handleViewClick = (id: GridRowId) => () => {
+        router.push(`/submission/${id}`)
+    };
+
     const columns: GridColDef[] = [
         { field: 'problem', headerName: 'Problem', width: 250 },
         {
@@ -37,10 +46,27 @@ async function SubmissionDataGrid() {
             field: 'runtime',
             headerName: 'Total Runtime',
             width: 150
+        },
+        {
+            field: 'actions',
+            headerName: 'Actions',
+            width: 100,
+            type: 'actions',
+            getActions: ({ id }: { id: GridRowId }) => {
+                return [
+                    <GridActionsCellItem 
+                        key={`view-${id}`}
+                        icon={<OpenInNew />}
+                        label="open"
+                        onClick={handleViewClick(id)}
+                        color="inherit"
+                    />
+                ];
+            }
         }
     ];
 
-    const { data: session } = useSession();
+
     const submissionService: PromiseClient<typeof SubmissionService> = useClient(SubmissionService);
     const problemService: PromiseClient<typeof ProblemService> = useClient(ProblemService);
     if (session) {

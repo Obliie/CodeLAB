@@ -19,7 +19,7 @@ import UserActions from './UserActions';
 const LINKS = [
     { text: 'Problems', href: '/problem/list', icon: ViewHeadlineIcon },
     { text: 'Groups', href: '/group/list', icon: WorkspacesIcon },
-    { text: 'Submissions', href: '/submissions/list', icon: ArticleIcon },
+    { text: 'Submissions', href: '/submission/list', icon: ArticleIcon },
     { text: 'Users', href: '/user/list', icon: ManageAccountsIcon },
 ];
 
