@@ -11,10 +11,12 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 
 export default function GroupDialog({ group }: { group: ProblemGroup | undefined }) {
+    const { data: session } = useSession();
     const [open, setOpen] = React.useState(false);
     const [name, setName] = React.useState('');
     const [description, setDescription] = React.useState('');
@@ -30,9 +32,14 @@ export default function GroupDialog({ group }: { group: ProblemGroup | undefined
     };
 
     const handleSubmit = async  () => {
+        if (!session) {
+            return;
+        }
+        
         const group = new ProblemGroup();
         group.name = name
         group.description = description
+        group.owner = session?.user.id
         
         const response = await problemServiceClient.createProblemGroup({
             group: group

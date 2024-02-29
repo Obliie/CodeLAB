@@ -36,8 +36,10 @@ message GetSubmissionRequest {
 message GetSubmissionResponse {
     string problem_id = 1;
     string user_id = 2;
-    string submission_no = 3;
-    repeated SubmissionTestResult test_results = 4;
+    string submission_id = 3;
+    common.v1.ProgrammingLanguage language = 4;
+    repeated common.v1.SolutionFile files = 5;
+    repeated SubmissionTestResult test_results = 6;
 }
 
 message GetUserSubmissionsRequest {

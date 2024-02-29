@@ -42,8 +42,7 @@ export default function GroupEditForm({ group, problems }: { group: ProblemGroup
         setSubmitLoading(false);
         return response;
     }
-
-
+    
     return (
       <Box>
           <TextField

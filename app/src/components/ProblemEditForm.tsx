@@ -13,6 +13,7 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 import TextField from "@mui/material/TextField";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -28,6 +29,7 @@ function getLanguageDisplayName(language: ProgrammingLanguage) {
 }
 
 export default function ProblemEditForm({ problem, update, close }: { problem: Problem | undefined, update: boolean, close: any }) {
+    const { data: session } = useSession();
     const [problemState, setProblemState] = useState({
         title: {
             value: problem ? problem.title : "",
@@ -70,6 +72,10 @@ export default function ProblemEditForm({ problem, update, close }: { problem: P
     const problemServiceClient = useClient(ProblemService);
     const router = useRouter();
     const handleSubmit = async  () => {
+        if (!session) {
+            return;
+        }
+
         setSubmitLoading(true);
 
         for (let key in problemState) {
@@ -100,6 +106,7 @@ export default function ProblemEditForm({ problem, update, close }: { problem: P
                 
             setSubmitLoading(false);
         } else {
+            problem.owner = session.user.id
             const response = (await problemServiceClient
                 .createProblem({
                     problem: problem,

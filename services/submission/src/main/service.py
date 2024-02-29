@@ -43,22 +43,23 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
     def _query_id(self, problem_id: str) -> ObjectId:
         return ObjectId(problem_id)
 
-    def _create_submission(self, user_id: str, problem_id: str, submission_files: List[solution_pb2.SolutionFile]):
+    def _create_submission(self, user_id: str, problem_id: str, submission_files: List[solution_pb2.SolutionFile], language: language_pb2.ProgrammingLanguage):
         result = (
             self.client[self.DATABASE_NAME]
             .get_collection(SUBMISSIONS_COLLECTION_NAME)
             .insert_one({
                 "user_id": user_id,
                 "problem_id": problem_id,
+                "language": language,
                 "files": [
                     {
                         "entry": submission_file.entry,
                         "path": submission_file.path,
                         "data": base64.b64encode(submission_file.data),
-                        "tests": []
                     }
                     for submission_file in submission_files
-                ]
+                ],
+                "tests": []
             })
         )
 
@@ -154,7 +155,7 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
 
             problem_response = stub.GetProblem(problem_service_pb2.GetProblemRequest(problem_id=request.problem_id))
         
-        submission_id = self._create_submission(user_id=request.user_id, problem_id=problem_response.problem.id, submission_files=request.files)
+        submission_id = self._create_submission(user_id=request.user_id, problem_id=problem_response.problem.id, submission_files=request.files, language=request.language)
 
         thread = Thread(target=self._save_code_runner_responses, args=(submission_id, problem_response.problem, request.language, request.files))
         thread.start()
@@ -180,7 +181,7 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
         resp = submission_service_pb2.GetSubmissionResponse()
         resp.problem_id = submission_document["problem_id"]
         resp.user_id = submission_document["user_id"]
-        resp.submission_no = "NAN"
+        resp.submission_id = str(submission_document["_id"])
         if "tests" in submission_document.keys():
             for test in submission_document["tests"]:
                 if "testId" in test.keys():
@@ -195,6 +196,16 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
                         test_result.runtime = test["runtime"]
                     
                     resp.test_results.append(test_result)
+
+        resp.language = submission_document["language"]
+        if "files" in submission_document.keys():
+            for file in submission_document["files"]:
+                solution_file = solution_pb2.SolutionFile()
+                solution_file.entry = file["entry"]
+                solution_file.path = file["path"]
+                solution_file.data = file["data"]
+                    
+                resp.files.append(solution_file)
 
         return resp
 

@@ -13,6 +13,8 @@ message Problem {
     bool display_test_data = 6;
     int32 run_timeout = 7;
     int32 run_max_memory = 8;
+    string owner = 9;
+    repeated string members = 10;
 
     message TestData {
         string id = 1;
@@ -32,6 +34,8 @@ message ProblemSummary {
     string id = 1;
     string title = 2;
     string summary = 3;
+    string owner = 5;
+    repeated string members = 6;
 }
 
 message ProblemGroup {
@@ -39,4 +43,6 @@ message ProblemGroup {
     string name = 2;
     string description = 3;
     repeated string problem_ids = 4;
+    string owner = 5;
+    repeated string members = 6;
 }

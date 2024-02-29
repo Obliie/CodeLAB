@@ -26,11 +26,15 @@ PROBLEM_ID_FIELD = "_id"
 PROBLEM_TITLE_FIELD = "title"
 PROBLEM_DESCRIPTION_FIELD = "description"
 PROBLEM_TESTS_FIELD = "tests"
+PROBLEM_OWNER_FIELD = "owner"
+PROBLEM_MEMBERS_FIELD = "members"
 
 PROBLEM_GROUPS_COLLECTION_NAME = "groups"
 GROUP_ID_FIELD = "_id"
 GROUP_NAME_FIELD = "name"
 GROUP_PROBLEMS_FIELD = "problems"
+GROUP_OWNER_FIELD = "owner"
+GROUP_MEMBER_FIELD = "members"
 
 PROBLEM_SUMMARY_LENGTH = 250
 
@@ -54,6 +58,10 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
     ) -> problem_pb2.ProblemSummary:
         summary = problem_pb2.ProblemSummary()
         summary.id = str(problem[PROBLEM_ID_FIELD])
+        summary.owner = problem[PROBLEM_OWNER_FIELD]
+        if PROBLEM_MEMBERS_FIELD in problem:
+            for member in problem[PROBLEM_MEMBERS_FIELD]:
+                summary.members.append(member)
 
         if PROBLEM_TITLE_FIELD in problem:
             summary.title = problem[PROBLEM_TITLE_FIELD]
