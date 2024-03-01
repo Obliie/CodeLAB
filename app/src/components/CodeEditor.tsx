@@ -12,20 +12,21 @@ function getEditorLanguage(language: ProgrammingLanguage) {
     }
 }
 
-export default function CodeEditor({ setCode, language }: { setCode: Function; language: ProgrammingLanguage }) {
+export default function CodeEditor({ code, setCode, language, readOnly }: { code: string | undefined, setCode: Function | undefined; language: ProgrammingLanguage, readOnly: boolean }) {
     return (
         <Editor
             height="70vh"
             defaultLanguage={getEditorLanguage(language)}
-            defaultValue="# Your code here..."
+            defaultValue={code ? code : "# Your code here..."}
             theme="vs-dark"
             options={{
                 minimap: {
                     enabled: false,
                 },
+                readOnly: readOnly
             }}
             onChange={(value, _) => {
-                if (value) {
+                if (setCode && value) {
                     setCode(value);
                 }
             }}

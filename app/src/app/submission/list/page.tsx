@@ -12,7 +12,7 @@ import CardContent from '@mui/material/CardContent';
 import Container from '@mui/material/Container';
 import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
-import { DataGrid, GridActionsCellItem, GridColDef, GridRowId, GridRowParams, GridValueGetterParams } from '@mui/x-data-grid';
+import { DataGrid, GridActionsCellItem, GridColDef, GridRowId, GridRowParams, GridToolbar, GridValueGetterParams } from '@mui/x-data-grid';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import React from 'react';
@@ -27,11 +27,6 @@ async function SubmissionDataGrid() {
 
     const columns: GridColDef[] = [
         { field: 'problem', headerName: 'Problem', width: 250 },
-        {
-            field: 'solutionFiles',
-            headerName: 'Solution Files',
-            width: 150,
-        },
         {
             field: 'testsPassed',
             headerName: 'Tests Passed',
@@ -79,7 +74,6 @@ async function SubmissionDataGrid() {
             const row = {
                 "id": submissionId,
                 "problem": problem.problem?.title,
-                "solutionFiles": "N/A",
                 "testsPassed": submission.testResults.filter(result => result.passed).length,
                 "testsFailed": submission.testResults.filter(result => !result.passed).length,
                 "runtime": submission.testResults.length > 0 ? `${submission.testResults.map(result => result.runtime).reduce((accumulatedRuntime, runtime) => accumulatedRuntime + runtime).toPrecision(4)}s` : 'N/A'
@@ -100,6 +94,7 @@ async function SubmissionDataGrid() {
                 }}
                 pageSizeOptions={[10]}
                 disableRowSelectionOnClick
+                slots={{ toolbar: GridToolbar }}
             />
         )
     }

@@ -72,7 +72,7 @@ export default function CodeSubmitter({ problem }: { problem: Problem}) {
                     {language ? (
                         <Box>
                             <LangageSelector languages={problem.supportedLanguages} curLanguage={language} setLanguage={setLanguage}/>
-                            <CodeEditor setCode={setCode} language={getLanguage(language)}/>
+                            <CodeEditor code={undefined} setCode={setCode} language={getLanguage(language)} readOnly={false}/>
                         </Box>
                     ) : (<Typography>The problem author has not selected any supported languages...</Typography>)}
                 </CardContent>
