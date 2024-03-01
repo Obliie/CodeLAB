@@ -17,10 +17,7 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import Slide, { SlideProps } from "@mui/material/Slide";
-
-function SlideTransition(props: SlideProps) {
-    return <Slide {...props} direction="up" />;
-}
+import SuccessSnackbar from "./SuccessSnackbar";
 
 export default function GroupEditForm({ group, problems }: { group: ProblemGroup, problems: ProblemSummary[] }) {
     const [groupState, setGroupState] = useState({
@@ -42,7 +39,7 @@ export default function GroupEditForm({ group, problems }: { group: ProblemGroup
 
         const response = (await problemServiceClient
             .updateProblemGroup({
-                group: group
+                group: group,
             })
             .catch(err => handleGrpcError(err))) as UpdateProblemGroupResponse;
         
@@ -51,14 +48,6 @@ export default function GroupEditForm({ group, problems }: { group: ProblemGroup
         return response;
     }
 
-    const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
-        if (reason === 'clickaway') {
-          return;
-        }
-    
-        setOpen(false);
-    };
-    
     return (
       <Box>
           <TextField
@@ -87,25 +76,7 @@ export default function GroupEditForm({ group, problems }: { group: ProblemGroup
                 (<Button type="submit" variant="contained" onClick={handleSubmit}>Save</Button>)
               }
             </Box>
-            <Snackbar 
-                open={open}
-                autoHideDuration={3000}
-                onClose={handleClose}
-                anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "center"
-                }}
-                TransitionComponent={SlideTransition}
-            >
-                    <Alert
-                        onClose={handleClose}
-                        severity="success"
-                        variant="filled"
-                        sx={{ width: '100%' }}
-                    >
-                    Group updated successfully!
-                </Alert>
-            </Snackbar>
+            <SuccessSnackbar message="Group successfully updated!" open={open} setOpen={setOpen} />
       </Box>
     );
 }

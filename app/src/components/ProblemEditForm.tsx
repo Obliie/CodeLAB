@@ -16,6 +16,8 @@ import TextField from '@mui/material/TextField';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import SuccessSnackbar from './SuccessSnackbar';
+import { getToken } from 'next-auth/jwt';
 
 function getLanguageDisplayName(language: ProgrammingLanguage) {
     switch (language) {
@@ -26,10 +28,6 @@ function getLanguageDisplayName(language: ProgrammingLanguage) {
     }
 
     return '';
-}
-
-function SlideTransition(props: SlideProps) {
-    return <Slide {...props} direction="up" />;
 }
 
 export default function ProblemEditForm({
@@ -181,14 +179,6 @@ export default function ProblemEditForm({
             setSubmitEnabled(true);
         }
     }, [problemState, edited]);
-
-    const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
-        if (reason === 'clickaway') {
-          return;
-        }
-    
-        setOpen(false);
-    };
 
     return (
         <Box>
@@ -365,19 +355,7 @@ export default function ProblemEditForm({
                     </Button>
                 )}
             </Box>
-            <Snackbar
-                open={open}
-                autoHideDuration={3000}
-                onClose={handleClose}
-                anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'center',
-                }}
-                TransitionComponent={SlideTransition}>
-                <Alert onClose={handleClose} severity="success" variant="filled" sx={{ width: '100%' }}>
-                    Problem updated successfully!
-                </Alert>
-            </Snackbar>
+            <SuccessSnackbar message="Problem successfully updated!" open={open} setOpen={setOpen} />
         </Box>
     );
 }

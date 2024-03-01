@@ -4,36 +4,36 @@ import NextAuth from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 
 const handler = NextAuth({
-  adapter: MongoDBAdapter(userDbClientPromise),
-  providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_OAUTH_CLIENT_ID ?? "",
-      clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET ?? "",
-    }),
-  ],
-  callbacks: {
-    async jwt({ token, user }) {
-        if (user?.id) {
-            token.id = user.id
-        }
-        if (user?.name) {
-            token.name = user.name;
-        }
-        return token
-    },
-    async session({ session, token }) {
-        if (typeof token.id == "string") {
-            session.user.id = token.id;
-            session.user.name = token.name;
-        }
+    adapter: MongoDBAdapter(userDbClientPromise),
+        providers: [
+            GoogleProvider({
+            clientId: process.env.GOOGLE_OAUTH_CLIENT_ID ?? "",
+            clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET ?? "",
+            }),
+        ],
+    callbacks: {
+        async jwt({ token, user }) {
+            if (user?.id) {
+                token.id = user.id
+            }
+            if (user?.name) {
+                token.name = user.name;
+            }
+            return token
+        },
+        async session({ session, token }) {
+            if (typeof token.id == "string") {
+                session.user.id = token.id;
+                session.user.name = token.name;
+            }
 
-        return session;
+            return session;
+        },
     },
-  },
-  debug: true,
-  session: {
-    strategy: 'jwt'
-  }
+    debug: true,
+    session: {
+        strategy: 'jwt'
+    },
 })
 
 export { handler as GET, handler as POST };
