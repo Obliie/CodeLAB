@@ -14,7 +14,7 @@ export default function ProblemTestData({ testData }: { testData: Problem_TestDa
         setValue(newValue);
     };
 
-    return (
+    return (testData.length > 0 ? 
         <Box sx={{ flexGrow: 1, display: 'flex', height: '92%', width: '100%', marginBottom: '16px' }}>
             <Tabs
                 orientation="vertical"
@@ -27,10 +27,10 @@ export default function ProblemTestData({ testData }: { testData: Problem_TestDa
                     <Tab key={i} label={`Test ${i + 1}`} {...a11yProps(i)} />
                 ))}
             </Tabs>
-            {testData.length > 0 ? testData.map((data, i) => (
+            {testData.map((data, i) => (
                 <TestDataTab key={i} testData={data} value={value} index={i} />
-            )) : "No tests..."}
-        </Box>
+            ))}
+        </Box>  : "No tests..."
     );
 }
 

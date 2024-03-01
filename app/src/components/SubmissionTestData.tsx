@@ -15,6 +15,7 @@ export default function SubmissionTestData({ testData }: { testData: SubmissionT
     };
 
     return (
+        testData.length > 0 ? 
         <Box sx={{ flexGrow: 1, display: 'flex', height: '92%', width: '100%', marginBottom: '16px' }}>
             <Tabs
                 orientation="vertical"
@@ -27,10 +28,10 @@ export default function SubmissionTestData({ testData }: { testData: SubmissionT
                     <Tab key={i} label={`Test ${i + 1}`} {...a11yProps(i)} />
                 ))}
             </Tabs>
-            {testData.length > 0 ? testData.map((data, i) => (
+            {testData.map((data, i) => (
                 <SubmissionTestDataTab key={i} testData={data} value={value} index={i} />
-            )) : "No test results..."}
-        </Box>
+            ))}
+        </Box> : "No test results..."
     );
 }
 

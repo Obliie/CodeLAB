@@ -13,30 +13,39 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import { useSession } from 'next-auth/react';
 
 function getLanguageDisplayName(language: string) {
-    switch(language) {
-        case "PROGRAMMING_LANGUAGE_PYTHON":
-            return "Python"
-        case "PROGRAMMING_LANGUAGE_PROLOG":
-            return "Prolog"
+    switch (language) {
+        case 'PROGRAMMING_LANGUAGE_PYTHON':
+            return 'Python';
+        case 'PROGRAMMING_LANGUAGE_PROLOG':
+            return 'Prolog';
     }
 
-    return "";
+    return '';
 }
 
 function getLanguage(language: string) {
-    switch(language) {
-        case "PROGRAMMING_LANGUAGE_PYTHON":
-            return ProgrammingLanguage.PYTHON
-        case "PROGRAMMING_LANGUAGE_PROLOG":
-            return ProgrammingLanguage.PROLOG
+    switch (language) {
+        case 'PROGRAMMING_LANGUAGE_PYTHON':
+            return ProgrammingLanguage.PYTHON;
+        case 'PROGRAMMING_LANGUAGE_PROLOG':
+            return ProgrammingLanguage.PROLOG;
     }
 
     return ProgrammingLanguage.UNSPECIFIED;
 }
 
-function LangageSelector({ languages, curLanguage, setLanguage }: { languages: ProgrammingLanguage[], curLanguage: any, setLanguage: Function }) {
+function LangageSelector({
+    languages,
+    curLanguage,
+    setLanguage,
+}: {
+    languages: ProgrammingLanguage[];
+    curLanguage: any;
+    setLanguage: Function;
+}) {
     const handleChange = (event: SelectChangeEvent) => {
         setLanguage(event.target.value);
     };
@@ -44,41 +53,53 @@ function LangageSelector({ languages, curLanguage, setLanguage }: { languages: P
     return (
         <Box>
             <FormControl fullWidth sx={{ paddingTop: '5px', paddingBottom: '15px' }}>
-                <Select
-                    label="Language"
-                    onChange={handleChange}
-                    defaultValue={curLanguage}
-                >
+                <Select label="Language" onChange={handleChange} defaultValue={curLanguage}>
                     {languages.map(language => (
-                        <MenuItem value={language} key={language}>{getLanguageDisplayName(language)}</MenuItem>
+                        <MenuItem value={language} key={language}>
+                            {getLanguageDisplayName(language)}
+                        </MenuItem>
                     ))}
                 </Select>
             </FormControl>
         </Box>
-    )
+    );
 }
 
-export default function CodeSubmitter({ problem }: { problem: Problem}) {
+export default function CodeSubmitter({ problem }: { problem: Problem }) {
+    const { data: session } = useSession();
     const [code, setCode] = useState('');
     const [language, setLanguage] = useState(problem.supportedLanguages[0]);
 
-    return (
+    return session ? (
         <Stack direction="column" spacing={2} width="100%">
-            <Card sx={{ width: "100%", height: "75%" }}>
+            <Card sx={{ width: '100%', height: '75%' }}>
                 <CardContent>
                     <Typography gutterBottom variant="h5" component="div">
                         Solution
                     </Typography>
                     {language ? (
                         <Box>
-                            <LangageSelector languages={problem.supportedLanguages} curLanguage={language} setLanguage={setLanguage}/>
-                            <CodeEditor code={undefined} setCode={setCode} language={getLanguage(language)} readOnly={false}/>
+                            <LangageSelector
+                                languages={problem.supportedLanguages}
+                                curLanguage={language}
+                                setLanguage={setLanguage}
+                            />
+                            <CodeEditor
+                                code={undefined}
+                                setCode={setCode}
+                                language={getLanguage(language)}
+                                readOnly={false}
+                            />
                         </Box>
-                    ) : (<Typography>The problem author has not selected any supported languages...</Typography>)}
+                    ) : (
+                        <Typography>The problem author has not selected any supported languages...</Typography>
+                    )}
                 </CardContent>
             </Card>
 
-            <CodeOutput code={code} language={getLanguage(language)} problem={problem}/>
+            <CodeOutput code={code} language={getLanguage(language)} problem={problem} />
         </Stack>
+    ) : (
+        'You must be signed in to make a submission...'
     );
 }
