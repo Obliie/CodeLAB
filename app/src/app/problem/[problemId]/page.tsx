@@ -13,11 +13,14 @@ import Container from '@mui/material/Container';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Problem } from '@/protobufs/common/v1/problem_pb';
+import { useSession } from 'next-auth/react';
 
 async function ProblemDisplay({ problem }: { problem: Problem }) {
+    const { data: session } = useSession();
+
     return (
         <Stack direction="row" spacing={2} width="100%">
-            <CodeSubmitter problem={problem}/>
+            {session ? <CodeSubmitter problem={problem}/> : "You must be signed in to make a submission..."}
 
             <Stack direction="column" spacing={2} width="100%">
                 <Card sx={{ minWidth: '50%', height: problem.displayTestData ? "50%" : "100%", overflow: 'auto' }}>

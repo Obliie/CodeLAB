@@ -27,9 +27,9 @@ export default function SubmissionTestData({ testData }: { testData: SubmissionT
                     <Tab key={i} label={`Test ${i + 1}`} {...a11yProps(i)} />
                 ))}
             </Tabs>
-            {testData.map((data, i) => (
+            {testData.length > 0 ? testData.map((data, i) => (
                 <SubmissionTestDataTab key={i} testData={data} value={value} index={i} />
-            ))}
+            )) : "No test results..."}
         </Box>
     );
 }
