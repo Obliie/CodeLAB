@@ -1,3 +1,4 @@
+"use client"
 import { ProblemSummary } from "@/protobufs/common/v1/problem_pb";
 import Accordion from "@mui/material/Accordion";
 import AccordionActions from "@mui/material/AccordionActions";
@@ -7,8 +8,11 @@ import Typography from "@mui/material/Typography";
 import ProblemActions from "./ProblemActions";
 import { DeleteProblemRequest } from "@/actions/DeleteProblemRequest";
 import ExpandMore from "@mui/icons-material/ExpandMore";
+import { useSession } from "next-auth/react";
 
-export default function ProblemSummaryAccordion({ problemSummaries, nav }: { problemSummaries: ProblemSummary[], nav: string }) {
+export default function ProblemSummaryAccordion({ problemSummaries, deleteProblem, nav }: { deleteProblem: Function, problemSummaries: ProblemSummary[], nav: string }) {
+    const { data: session } = useSession();
+
     return (problemSummaries.map(problem => (
         <Accordion key={problem.id}>
             <AccordionSummary expandIcon={<ExpandMore />}>
@@ -18,7 +22,7 @@ export default function ProblemSummaryAccordion({ problemSummaries, nav }: { pro
                 <Typography>{problem.summary}</Typography>
             </AccordionDetails>
             <AccordionActions sx={{marginBottom: '10px', gap: '5px', marginRight: '10px'}}>
-                <ProblemActions problemId={problem.id} deleteAction={DeleteProblemRequest} nav={nav} />
+                <ProblemActions problemId={problem.id} deleteAction={deleteProblem} nav={nav} isOwner={session ? (session?.user.id === problem.owner) : false}/>
             </AccordionActions>
         </Accordion>
     )));

@@ -1,3 +1,4 @@
+import { DeleteProblemRequest } from '@/actions/DeleteProblemRequest';
 import CodeSubmitter from '@/components/CodeSubmitter';
 import NextBreadcrumb from '@/components/NextBreadcrumb';
 import ProblemSummaryAccordion from '@/components/ProblemSummaryAccordion';
@@ -55,7 +56,7 @@ async function Group({ group }: { group: ProblemGroup }) {
             </Typography>
 
             {group.problemIds.length > 0 ? 
-            (<ProblemSummaryAccordion problemSummaries={problemSummaries.problemSummaries} nav={`/group/${group.id}`} />) : <Typography>The group has no assigned problems...</Typography>
+            (<ProblemSummaryAccordion problemSummaries={problemSummaries.problemSummaries} deleteProblem={DeleteProblemRequest} nav={`/group/${group.id}`} />) : <Typography>The group has no assigned problems...</Typography>
             }
         </Box>
     );

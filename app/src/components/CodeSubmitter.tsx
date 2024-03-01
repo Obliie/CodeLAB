@@ -71,8 +71,8 @@ export default function CodeSubmitter({ problem }: { problem: Problem }) {
     const [language, setLanguage] = useState(problem.supportedLanguages[0]);
 
     return session ? (
-        <Stack direction="column" spacing={2} width="100%">
-            <Card sx={{ width: '100%', height: '70%' }}>
+        <Stack direction="column" spacing={2} width="100%" display='flex'>
+            <Card sx={{ width: '100%', minHeight: '70%' }}>
                 <CardContent>
                     <Typography gutterBottom variant="h5" component="div">
                         Solution
@@ -100,6 +100,10 @@ export default function CodeSubmitter({ problem }: { problem: Problem }) {
             <CodeOutput code={code} language={getLanguage(language)} problem={problem} />
         </Stack>
     ) : (
-        'You must be signed in to make a submission...'
+        <Card sx={{ minHeight: '100%' }}>
+            <CardContent>
+                <Typography>You must be signed in to make a submission...</Typography>
+            </CardContent>
+        </Card>
     );
 }

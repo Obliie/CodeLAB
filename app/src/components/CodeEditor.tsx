@@ -15,7 +15,7 @@ function getEditorLanguage(language: ProgrammingLanguage) {
 export default function CodeEditor({ code, setCode, language, readOnly }: { code: string | undefined, setCode: Function | undefined; language: ProgrammingLanguage, readOnly: boolean }) {
     return (
         <Editor
-            height="70vh"
+            height="50vh"
             defaultLanguage={getEditorLanguage(language)}
             defaultValue={code ? code : "# Your code here..."}
             theme="vs-dark"

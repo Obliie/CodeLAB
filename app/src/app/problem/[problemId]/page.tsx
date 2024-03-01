@@ -18,11 +18,11 @@ import { useSession } from 'next-auth/react';
 async function ProblemDisplay({ problem }: { problem: Problem }) {
 
     return (
-        <Stack direction="row" spacing={2} width="100%" height='100%'>
+        <Stack direction="row" spacing={2} width="100%" minHeight='100%'>
             <CodeSubmitter problem={problem}/>
 
-            <Stack direction="column" spacing={2} width="100%" height='100%'>
-                <Card sx={{ minWidth: '50%', height: problem.displayTestData ? "45%" : "90%", overflow: 'auto' }}>
+            <Stack direction="column" spacing={2} width="100%" minHeight='100%' display='flex'>
+                <Card sx={{ minWidth: '50%', minHeight: problem.displayTestData ? "50%" : "100%", overflow: 'auto' }}>
                     <CardContent>
                         <Typography gutterBottom variant="h5" component="div">
                             {problem.title}
@@ -33,8 +33,8 @@ async function ProblemDisplay({ problem }: { problem: Problem }) {
                     </CardContent>
                 </Card>
                 {problem.displayTestData ? (
-                    <Card sx={{ minWidth: '50%', height: "45%" }}>
-                        <CardContent sx={{ height: '90%' }}>
+                    <Card sx={{ minWidth: '50%', minHeight: "48.4%" }}>
+                        <CardContent sx={{ height: '100%' }}>
                             <Typography gutterBottom variant="h5" component="div">
                                 Test Data
                             </Typography>
@@ -69,11 +69,7 @@ export default async function ProblemPage({ params }: { params: { problemId: str
                     height: '100%'
                 }}>
                 {problem?.problem ? (
-                    <Box sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        height: '100%'
-                    }}>
+                    <Box>
                         <NextBreadcrumb mappings={new Map<string, string>([[params.problemId, problem.problem.title]])} />
                         <ProblemDisplay problem={problem.problem} />
                     </Box>

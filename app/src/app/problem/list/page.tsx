@@ -31,7 +31,7 @@ async function ProblemSummaries() {
 
     return problems ? (
         <Box width="100%" paddingTop="10px">
-            <ProblemSummaryAccordion problemSummaries={problems.problemSummaries} nav="" />
+            <ProblemSummaryAccordion problemSummaries={problems.problemSummaries} deleteProblem={DeleteProblemRequest} nav="" />
         </Box>
     ) : (
         <Typography>No problems found</Typography>

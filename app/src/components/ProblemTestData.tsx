@@ -15,7 +15,7 @@ export default function ProblemTestData({ testData }: { testData: Problem_TestDa
     };
 
     return (testData.length > 0 ? 
-        <Box sx={{ flexGrow: 1, display: 'flex', height: '92%', width: '100%', marginBottom: '16px' }}>
+        <Box sx={{ flexGrow: 1, display: 'flex', height: '92%', width: '100%' }}>
             <Tabs
                 orientation="vertical"
                 variant="scrollable"
@@ -49,7 +49,7 @@ function TestDataTab({ testData, value, index }: { testData: Problem_TestData; v
             id={`vertical-tabpanel-${index}`}
             aria-labelledby={`vertical-tab-${index}`}>
             {value === index && (
-                <Box sx={{ p: 3, width: '100%' }}>
+                <Box sx={{ p: 3, width: '100%', display: 'flex', flexDirection: 'column', height: '100%' }}>
                     <Box sx={{ marginBottom: '16px' }}>
                         <Typography variant="h6">Command Line Arguments</Typography>
                         <Typography>{testData.arguments}</Typography>

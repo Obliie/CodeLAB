@@ -99,7 +99,7 @@ export default function CodeOutput({ code, language, problem }: { code: string, 
         <Card
             sx={{
                 width: "100%",
-                height: "20%",
+                minHeight: "20%",
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
