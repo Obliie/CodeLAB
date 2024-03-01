@@ -51,7 +51,7 @@ function TestDataTab({ testData, value, index }: { testData: Problem_TestData; v
             {value === index && (
                 <Box sx={{ p: 3, width: '100%' }}>
                     <Box sx={{ marginBottom: '16px' }}>
-                        <Typography variant="h6">Arguments</Typography>
+                        <Typography variant="h6">Command Line Arguments</Typography>
                         <Typography>{testData.arguments}</Typography>
                     </Box>
                     <Box sx={{ marginBottom: '16px' }}>
