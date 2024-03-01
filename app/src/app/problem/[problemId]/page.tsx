@@ -18,11 +18,11 @@ import { useSession } from 'next-auth/react';
 async function ProblemDisplay({ problem }: { problem: Problem }) {
 
     return (
-        <Stack direction="row" spacing={2} width="100%">
+        <Stack direction="row" spacing={2} width="100%" height='100%'>
             <CodeSubmitter problem={problem}/>
 
-            <Stack direction="column" spacing={2} width="100%">
-                <Card sx={{ minWidth: '50%', height: problem.displayTestData ? "50%" : "100%", overflow: 'auto' }}>
+            <Stack direction="column" spacing={2} width="100%" height='100%'>
+                <Card sx={{ minWidth: '50%', height: problem.displayTestData ? "45%" : "90%", overflow: 'auto' }}>
                     <CardContent>
                         <Typography gutterBottom variant="h5" component="div">
                             {problem.title}
@@ -33,7 +33,7 @@ async function ProblemDisplay({ problem }: { problem: Problem }) {
                     </CardContent>
                 </Card>
                 {problem.displayTestData ? (
-                    <Card sx={{ minWidth: '50%', height: "50%" }}>
+                    <Card sx={{ minWidth: '50%', height: "45%" }}>
                         <CardContent sx={{ height: '90%' }}>
                             <Typography gutterBottom variant="h5" component="div">
                                 Test Data
@@ -57,14 +57,23 @@ export default async function ProblemPage({ params }: { params: { problemId: str
         .catch(err => handleGrpcError(err))) as GetProblemResponse;
 
     return (
-        <Container>
+        <Container sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%'
+        }}>
             <Box
                 sx={{
                     display: 'flex',
                     flexDirection: 'column',
+                    height: '100%'
                 }}>
                 {problem?.problem ? (
-                    <Box>
+                    <Box sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        height: '100%'
+                    }}>
                         <NextBreadcrumb mappings={new Map<string, string>([[params.problemId, problem.problem.title]])} />
                         <ProblemDisplay problem={problem.problem} />
                     </Box>

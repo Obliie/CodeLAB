@@ -26,6 +26,12 @@ async function SubmissionDataGrid() {
     };
 
     const columns: GridColDef[] = [
+        {
+            field: 'submissionTime',
+            headerName: 'Submission Time',
+            type: 'dateTime',
+            width: 250,
+        },
         { field: 'problem', headerName: 'Problem', width: 250 },
         {
             field: 'testsPassed',
@@ -73,6 +79,7 @@ async function SubmissionDataGrid() {
             const problem = await problemService.getProblem({problemId: submission.problemId}) as GetProblemResponse
             const row = {
                 "id": submissionId,
+                "submissionTime": submission.submissionTime.toDate(),
                 "problem": problem.problem?.title,
                 "testsPassed": submission.testResults.filter(result => result.passed).length,
                 "testsFailed": submission.testResults.filter(result => !result.passed).length,

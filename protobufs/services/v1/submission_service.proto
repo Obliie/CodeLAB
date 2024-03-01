@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package protobufs.services.v1;
 
+import "google/protobuf/timestamp.proto";
 import "protobufs/common/v1/solution.proto";
 import "protobufs/common/v1/status.proto";
 import "protobufs/common/v1/language.proto";
@@ -40,6 +41,7 @@ message GetSubmissionResponse {
     common.v1.ProgrammingLanguage language = 4;
     repeated common.v1.SolutionFile files = 5;
     repeated SubmissionTestResult test_results = 6;
+    google.protobuf.Timestamp submission_time = 7;
 }
 
 message GetUserSubmissionsRequest {

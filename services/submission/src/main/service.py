@@ -1,4 +1,5 @@
 from concurrent import futures
+import datetime
 import logging
 import os
 import base64
@@ -10,6 +11,7 @@ import grpc
 from google.protobuf import json_format
 from bson.objectid import ObjectId
 
+from google.protobuf.timestamp_pb2 import Timestamp
 from protobufs.common.v1 import problem_pb2, solution_pb2, language_pb2, status_pb2
 from protobufs.services.v1 import submission_service_pb2, submission_service_pb2_grpc
 from protobufs.services.v1 import problem_service_pb2, problem_service_pb2_grpc
@@ -59,7 +61,8 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
                     }
                     for submission_file in submission_files
                 ],
-                "tests": []
+                "tests": [],
+                "submission_time": datetime.datetime.utcnow().isoformat()
             })
         )
 
@@ -206,6 +209,10 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
                 solution_file.data = file["data"]
                     
                 resp.files.append(solution_file)
+
+        submission_time = Timestamp()
+        submission_time.FromDatetime(datetime.datetime.fromisoformat(submission_document["submission_time"]))
+        resp.submission_time.CopyFrom(submission_time)
 
         return resp
 
