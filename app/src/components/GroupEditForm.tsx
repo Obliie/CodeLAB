@@ -14,6 +14,13 @@ import TextField from "@mui/material/TextField";
 import { useState } from "react";
 import MultiProblemSelect from "./MultiProblemSelect";
 import LoadingButton from "@mui/lab/LoadingButton";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+import Slide, { SlideProps } from "@mui/material/Slide";
+
+function SlideTransition(props: SlideProps) {
+    return <Slide {...props} direction="up" />;
+}
 
 export default function GroupEditForm({ group, problems }: { group: ProblemGroup, problems: ProblemSummary[] }) {
     const [groupState, setGroupState] = useState({
@@ -24,8 +31,8 @@ export default function GroupEditForm({ group, problems }: { group: ProblemGroup
         problems.filter(problem => group.problemIds.includes(problem.id))
     );
     const [submitLoading, setSubmitLoading] = useState(false);
-
     const problemServiceClient = useClient(ProblemService);
+    const [open, setOpen] = useState(false);
 
     const handleSubmit = async  () => {
         setSubmitLoading(true);
@@ -40,8 +47,17 @@ export default function GroupEditForm({ group, problems }: { group: ProblemGroup
             .catch(err => handleGrpcError(err))) as UpdateProblemGroupResponse;
         
         setSubmitLoading(false);
+        setOpen(true);
         return response;
     }
+
+    const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') {
+          return;
+        }
+    
+        setOpen(false);
+    };
     
     return (
       <Box>
@@ -71,6 +87,25 @@ export default function GroupEditForm({ group, problems }: { group: ProblemGroup
                 (<Button type="submit" variant="contained" onClick={handleSubmit}>Save</Button>)
               }
             </Box>
+            <Snackbar 
+                open={open}
+                autoHideDuration={3000}
+                onClose={handleClose}
+                anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "center"
+                }}
+                TransitionComponent={SlideTransition}
+            >
+                    <Alert
+                        onClose={handleClose}
+                        severity="success"
+                        variant="filled"
+                        sx={{ width: '100%' }}
+                    >
+                    Group updated successfully!
+                </Alert>
+            </Snackbar>
       </Box>
     );
 }

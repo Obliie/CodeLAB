@@ -5,7 +5,11 @@ import { useClient, useServerClient } from '@/lib/connect';
 import { handleGrpcError } from '@/lib/error';
 import { RunCodeRequest } from '@/protobufs/services/v1/code_runner_service_pb';
 import { ProblemService } from '@/protobufs/services/v1/problem_service_connect';
-import { GetProblemGroupResponse, GetProblemResponse, GetProblemSummariesResponse } from '@/protobufs/services/v1/problem_service_pb';
+import {
+    GetProblemGroupResponse,
+    GetProblemResponse,
+    GetProblemSummariesResponse,
+} from '@/protobufs/services/v1/problem_service_pb';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Accordion from '@mui/material/Accordion';
 import AccordionActions from '@mui/material/AccordionActions';
@@ -32,7 +36,7 @@ import GroupEditForm from '@/components/GroupEditForm';
 import { UpdateProblemGroupRequest } from '@/actions/UpdateProblemGroupRequest';
 import NextBreadcrumb from '@/components/NextBreadcrumb';
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-dynamic';
 
 async function GroupEditDisplay({ group }: { group: ProblemGroup }) {
     const problems = (await useServerClient(ProblemService)
@@ -51,17 +55,19 @@ async function GroupEditDisplay({ group }: { group: ProblemGroup }) {
                 </CardContent>
             </Card>
         </Stack>
-    )
+    );
 }
 
-
-
 export default async function GroupEditPage({ params }: { params: { groupId: string } }) {
+    console.log(params);
     const group = (await useServerClient(ProblemService)
         .getProblemGroup({
             groupId: params.groupId,
         })
         .catch(err => handleGrpcError(err))) as GetProblemGroupResponse;
+
+    console.log(group.group?.name);
+    console.log('FFFFFFFFFFFFFFFFF');
 
     return (
         <Container>
@@ -71,12 +77,13 @@ export default async function GroupEditPage({ params }: { params: { groupId: str
                     flexDirection: 'column',
                 }}>
                 {group?.group ? (
-                        <Box>
-                            <NextBreadcrumb mappings={new Map<string, string>([[params.groupId, group.group.name]])} />
-                            <GroupEditDisplay group={group.group} />
-                        </Box>
-                    ) : <></>
-                }
+                    <Box>
+                        <NextBreadcrumb mappings={new Map<string, string>([[params.groupId, group.group.name]])} />
+                        <GroupEditDisplay group={group.group} />
+                    </Box>
+                ) : (
+                    <></>
+                )}
             </Box>
         </Container>
     );
