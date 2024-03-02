@@ -70,7 +70,7 @@ export default function TestDataDialog({
                         autoFocus
                         margin="dense"
                         id="arguments"
-                        label="Arguments"
+                        label="Command Line Arguments"
                         type="text"
                         fullWidth
                         variant="standard"
