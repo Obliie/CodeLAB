@@ -10,7 +10,6 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 
 const HistogramChart = ({ data }: { data: any }) => {
-  // Convert your data into the required format
   const xAxisData: string[] = data.map(item => item.name);
   const seriesData: number[] = data.map(item => item.value);
 
@@ -30,8 +29,7 @@ interface Stats {
     mean: number;
     min: number;
     max: number;
-    distribution: Record<string, number>; // key: bin range, value: count
-}
+    distribution: Record<string, number>;
 
 export default function SolutionRuntimeDistributionGraph({ submissions }: { submissions: GetSubmissionResponse[] }) {
     const testRuntimes = submissions.reduce<Record<string, number[]>>((acc, submission) => {
@@ -49,7 +47,6 @@ export default function SolutionRuntimeDistributionGraph({ submissions }: { subm
     const test = testRuntimes[0];
 
     const calculateStats = (runtimes: number[]): Stats => {
-        // Convert runtimes from seconds to milliseconds
         const runtimesInMs = runtimes.map(runtime => runtime * 1000);
 
         runtimesInMs.sort((a, b) => a - b);
@@ -68,7 +65,7 @@ export default function SolutionRuntimeDistributionGraph({ submissions }: { subm
         const mean = filteredRuntimes.reduce((acc, val) => acc + val, 0) / filteredRuntimes.length;
 
         const range = max - min;
-        const numBins = 10;  // Adjust number of bins as needed
+        const numBins = 10;
         const binSize = range / numBins;
 
         const distribution: Record<string, number> = {};
@@ -84,12 +81,9 @@ export default function SolutionRuntimeDistributionGraph({ submissions }: { subm
         return { mean, min, max, distribution };
     };
       
-    // Compute stats for each test ID
     const statsMap: Record<string, Stats> = Object.fromEntries(
         Object.entries(testRuntimes).map(([testId, runtimes]) => [testId, calculateStats(runtimes)])
     );
-
-    console.log("stats", statsMap);
 
     const histogramData = Object.entries(statsMap).map(([testId, { distribution }]) => ({
         testId,
