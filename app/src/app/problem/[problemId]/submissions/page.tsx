@@ -35,20 +35,34 @@ import { OpenInNew } from '@mui/icons-material';
 import { GetProblemSubmissionsResponse, GetSubmissionResponse } from '@/protobufs/services/v1/submission_service_pb';
 import { useSession } from 'next-auth/react';
 import { ProblemSubmissionsDataGrid } from '@/components/ProblemSubmissionsDataGrid';
+import SolutionRuntimeDistributionGraph from '@/components/SolutionRuntimeDistributionGraph';
 
 export const dynamic = 'force-dynamic'
 
 async function ProblemSubmissionDisplay({ problem }: { problem: Problem }) {
+    const submissionService = useServerClient(SubmissionService);
+
+    const problemSubmissions = await submissionService
+        .getProblemSubmissions({problemId: problem.id}) as GetProblemSubmissionsResponse
+
+    let submissions = []
+    for (let submissionId of problemSubmissions.submissionId) {
+        submissions.push(await submissionService
+            .getSubmission({submissionId: submissionId}) as GetSubmissionResponse);
+    }
+    
     return (
         <Stack direction="column" spacing={2} width="100%">
             <Stack direction="row" spacing={2} width="100%">
                 <Card sx={{ overflow: 'auto', width: '50%' }}>
                     <CardContent>
                         <Typography gutterBottom variant="h5" component="div">
-                            Submission Count
+                            Submission Summary
                         </Typography>
 
-                        
+                        <Typography>
+                            Total Submissions: {submissions.length}
+                        </Typography>
                     </CardContent>
                 </Card>
                 <Card sx={{ overflow: 'auto', width: '50%' }}>
@@ -57,7 +71,7 @@ async function ProblemSubmissionDisplay({ problem }: { problem: Problem }) {
                             Solution Runtime Distribution
                         </Typography>
 
-                        
+                        <SolutionRuntimeDistributionGraph submissions={submissions} />
                     </CardContent>
                 </Card>
             </Stack>
@@ -68,7 +82,7 @@ async function ProblemSubmissionDisplay({ problem }: { problem: Problem }) {
                     </Typography>
 
                     <React.Suspense fallback={<Skeleton width="100%" />}>
-                        <ProblemSubmissionsDataGrid problemId={problem.id}/>
+                        <ProblemSubmissionsDataGrid submissions={submissions}/>
                     </React.Suspense>
                 </CardContent>
             </Card>

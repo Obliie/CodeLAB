@@ -98,10 +98,10 @@ async function SubmissionDataGrid() {
                 testsFailed: submission.testResults.filter(result => !result.passed).length,
                 runtime:
                     submission.testResults.length > 0
-                        ? `${submission.testResults
+                        ? `${(submission.testResults
                               .map(result => result.runtime)
                               .reduce((accumulatedRuntime, runtime) => accumulatedRuntime + runtime)
-                              .toPrecision(4)}s`
+                              * 1000).toFixed(2)}ms`
                         : 'N/A',
             };
             rows.push(row);

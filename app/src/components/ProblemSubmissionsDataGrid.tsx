@@ -1,4 +1,4 @@
-"use client"
+'use client';
 import { DeleteProblemRequest } from '@/actions/DeleteProblemRequest';
 import ProblemActions from '@/components/ProblemActions';
 import ProblemDialog from '@/components/ProblemDialog';
@@ -36,14 +36,14 @@ import { OpenInNew } from '@mui/icons-material';
 import { GetProblemSubmissionsResponse, GetSubmissionResponse } from '@/protobufs/services/v1/submission_service_pb';
 import { useSession } from 'next-auth/react';
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-dynamic';
 
-export async function ProblemSubmissionsDataGrid({ problemId }: { problemId: string }) {
+export async function ProblemSubmissionsDataGrid({ submissions }: { submissions: GetSubmissionResponse[] }) {
     const router = useRouter();
     const { data: session } = useSession();
 
     const handleViewClick = (id: GridRowId) => () => {
-        router.push(`submissions/${id}`)
+        router.push(`submissions/${id}`);
     };
 
     const columns: GridColDef[] = [
@@ -67,7 +67,7 @@ export async function ProblemSubmissionsDataGrid({ problemId }: { problemId: str
         {
             field: 'runtime',
             headerName: 'Total Runtime',
-            width: 150
+            width: 150,
         },
         {
             field: 'actions',
@@ -76,36 +76,38 @@ export async function ProblemSubmissionsDataGrid({ problemId }: { problemId: str
             type: 'actions',
             getActions: ({ id }: { id: GridRowId }) => {
                 return [
-                    <GridActionsCellItem 
+                    <GridActionsCellItem
                         key={`view-${id}`}
                         icon={<OpenInNew />}
                         label="open"
                         onClick={handleViewClick(id)}
                         color="inherit"
-                    />
+                    />,
                 ];
-            }
-        }
+            },
+        },
     ];
-
 
     const submissionService: PromiseClient<typeof SubmissionService> = useClient(SubmissionService);
     if (session) {
-        const submissions = await submissionService.getProblemSubmissions({problemId: problemId}) as GetProblemSubmissionsResponse
-
         var rows = [];
-        for (let submissionId of submissions.submissionId) {
-            const submission = await submissionService.getSubmission({submissionId: submissionId}) as GetSubmissionResponse;
+        for (let submission of submissions) {
             const row = {
-                "id": submissionId,
-                "user": submission.userId,
-                "submissionTime": submission.submissionTime.toDate(),
-                "testsPassed": submission.testResults.filter(result => result.passed).length,
-                "testsFailed": submission.testResults.filter(result => !result.passed).length,
-                "runtime": submission.testResults.length > 0 ? `${submission.testResults.map(result => result.runtime).reduce((accumulatedRuntime, runtime) => accumulatedRuntime + runtime).toPrecision(4)}s` : 'N/A'
-            }
+                id: submission.submissionId,
+                user: submission.userId,
+                submissionTime: new Date(submission.submissionTime),
+                testsPassed: submission.testResults.filter(result => result.passed).length,
+                testsFailed: submission.testResults.filter(result => !result.passed).length,
+                runtime:
+                    submission.testResults.length > 0
+                        ? `${(submission.testResults
+                              .map(result => result.runtime)
+                              .reduce((accumulatedRuntime, runtime) => accumulatedRuntime + runtime)
+                              * 1000).toFixed(2)}ms`
+                        : 'N/A',
+            };
             rows.push(row);
-        };
+        }
 
         return (
             <DataGrid
@@ -122,9 +124,7 @@ export async function ProblemSubmissionsDataGrid({ problemId }: { problemId: str
                 disableRowSelectionOnClick
                 slots={{ toolbar: GridToolbar }}
             />
-        )
+        );
     }
-    return (
-        <Typography>Not logged in...</Typography>
-    )
+    return <Typography>Not logged in...</Typography>;
 }
