@@ -30,6 +30,7 @@ interface Stats {
     min: number;
     max: number;
     distribution: Record<string, number>;
+}
 
 export default function SolutionRuntimeDistributionGraph({ submissions }: { submissions: GetSubmissionResponse[] }) {
     const testRuntimes = submissions.reduce<Record<string, number[]>>((acc, submission) => {
@@ -43,8 +44,6 @@ export default function SolutionRuntimeDistributionGraph({ submissions }: { subm
 
         return acc;
     }, {});
-
-    const test = testRuntimes[0];
 
     const calculateStats = (runtimes: number[]): Stats => {
         const runtimesInMs = runtimes.map(runtime => runtime * 1000);
