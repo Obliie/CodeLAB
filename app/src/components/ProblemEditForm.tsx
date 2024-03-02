@@ -107,15 +107,17 @@ export default function ProblemEditForm({
         problem.description = problemState.description.value;
         problem.supportedLanguages = problemState.supportedLanguages.value;
         problem.displayTestData = problemState.displayTestData;
-        problem.runTimeout = problemState.runTimeout.value;
-        problem.runMaxMemory = problemState.runMaxMemory.value;
+        problem.runTimeout = Number(problemState.runTimeout.value);
+        problem.runMaxMemory = Number(problemState.runMaxMemory.value);
 
         if (update) {
-            const response = (await problemServiceClient
-                .updateProblem({
-                    problem: problem,
-                })
-                .catch(err => handleGrpcError(err))) as UpdateProblemResponse;
+            await fetch("/api/auth/token").then(res => res.json()).then(async res => {
+                const response = (await problemServiceClient
+                    .updateProblem({
+                        problem: problem,
+                    }, { headers: { "Authorization": `Bearer ${res.token}`}})
+                    .catch(err => handleGrpcError(err))) as UpdateProblemResponse;
+            });
 
             setSubmitLoading(false);
             setOpen(true);

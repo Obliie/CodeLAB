@@ -11,8 +11,8 @@ message Problem {
     repeated TestData tests = 4;
     repeated common.v1.ProgrammingLanguage supported_languages = 5;
     bool display_test_data = 6;
-    int32 run_timeout = 7;
-    int32 run_max_memory = 8;
+    uint32 run_timeout = 7;
+    uint32 run_max_memory = 8;
     string owner = 9;
     repeated string members = 10;
 

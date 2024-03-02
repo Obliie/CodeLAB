@@ -13,6 +13,7 @@ from protobufs.common.v1 import problem_pb2
 
 from common.config import Config
 from common.service_logging import init_logging, log_and_flush
+from common.jwt import decrypt_jwt
 from pymongo import MongoClient
 
 DATABASE_USERNAME_FILE = "/run/secrets/problemdb-root-username"
@@ -167,6 +168,25 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
 
         # Artificial slowdown for frontend astethics
         time.sleep(1)
+
+        # TODO Validate JWT Token
+        metadata = dict(context.invocation_metadata())
+        token = metadata.get('authorization', [b''])
+        dtoken = decrypt_jwt(token, "CTOqDibU/uVhOl1Ph4q1PjzoyEimfH7zTeq5EY5okiw=")
+        log_and_flush(logging.INFO, f"Token: {token}")
+        log_and_flush(logging.INFO, f"Dec Token: {dtoken}")
+        # Validate the token
+        """    try:
+            decoded_token = jwt.decode(token, 'secret-key', algorithms=['HS256'])
+            # Process the decoded token as needed
+            user_id = decoded_token['user_id']
+            # Perform other logic...
+        except jwt.ExpiredSignatureError:
+            # Handle token expiration
+            pass
+        except jwt.InvalidTokenError:
+            # Handle invalid token
+            pass"""
 
         result = (
             self.client[self.DATABASE_NAME]
