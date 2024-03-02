@@ -37,20 +37,23 @@ import { useSession } from 'next-auth/react';
 import { ProblemSubmissionsDataGrid } from '@/components/ProblemSubmissionsDataGrid';
 import SolutionRuntimeDistributionGraph from '@/components/SolutionRuntimeDistributionGraph';
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-dynamic';
 
 async function ProblemSubmissionDisplay({ problem }: { problem: Problem }) {
     const submissionService = useServerClient(SubmissionService);
 
-    const problemSubmissions = await submissionService
-        .getProblemSubmissions({problemId: problem.id}) as GetProblemSubmissionsResponse
+    const problemSubmissions = (await submissionService.getProblemSubmissions({
+        problemId: problem.id,
+    })) as GetProblemSubmissionsResponse;
 
-    let submissions = []
+    let submissions = [];
     for (let submissionId of problemSubmissions.submissionId) {
-        submissions.push(await submissionService
-            .getSubmission({submissionId: submissionId}) as GetSubmissionResponse);
+        submissions.push(
+            (await submissionService.getSubmission({ submissionId: submissionId })) as GetSubmissionResponse,
+        );
     }
-    
+
+    console.log(`we gpt ${submissions[0].testResults.length}`);
     return (
         <Stack direction="column" spacing={2} width="100%">
             <Stack direction="row" spacing={2} width="100%">
@@ -60,9 +63,7 @@ async function ProblemSubmissionDisplay({ problem }: { problem: Problem }) {
                             Submission Summary
                         </Typography>
 
-                        <Typography>
-                            Total Submissions: {submissions.length}
-                        </Typography>
+                        <Typography>Total Submissions: {submissions.length}</Typography>
                     </CardContent>
                 </Card>
                 <Card sx={{ overflow: 'auto', width: '50%' }}>
@@ -71,7 +72,11 @@ async function ProblemSubmissionDisplay({ problem }: { problem: Problem }) {
                             Solution Runtime Distribution
                         </Typography>
 
-                        <SolutionRuntimeDistributionGraph submissions={submissions} />
+                        {submissions[0].testResults.length > 0 ? (
+                            <SolutionRuntimeDistributionGraph submissions={submissions} />
+                        ) : (
+                            <Typography>No solution test results...</Typography>
+                        )}
                     </CardContent>
                 </Card>
             </Stack>
@@ -82,15 +87,13 @@ async function ProblemSubmissionDisplay({ problem }: { problem: Problem }) {
                     </Typography>
 
                     <React.Suspense fallback={<Skeleton width="100%" />}>
-                        <ProblemSubmissionsDataGrid submissions={submissions}/>
+                        <ProblemSubmissionsDataGrid submissions={submissions} />
                     </React.Suspense>
                 </CardContent>
             </Card>
         </Stack>
-    )
+    );
 }
-
-
 
 export default async function ProblemSubmissionsPage({ params }: { params: { problemId: string } }) {
     const problem = (await useServerClient(ProblemService)
@@ -108,11 +111,14 @@ export default async function ProblemSubmissionsPage({ params }: { params: { pro
                 }}>
                 {problem?.problem ? (
                     <Box>
-                        <NextBreadcrumb mappings={new Map<string, string>([[params.problemId, problem.problem.title]])} />
+                        <NextBreadcrumb
+                            mappings={new Map<string, string>([[params.problemId, problem.problem.title]])}
+                        />
                         <ProblemSubmissionDisplay problem={problem.problem} />
                     </Box>
-                    ) : <></>
-                }
+                ) : (
+                    <></>
+                )}
             </Box>
         </Container>
     );

@@ -88,7 +88,6 @@ export async function ProblemSubmissionsDataGrid({ submissions }: { submissions:
         },
     ];
 
-    const submissionService: PromiseClient<typeof SubmissionService> = useClient(SubmissionService);
     if (session) {
         var rows = [];
         for (let submission of submissions) {
