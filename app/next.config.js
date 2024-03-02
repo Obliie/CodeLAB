@@ -37,6 +37,10 @@ const nextConfig = {
                 destination: '/submission/list',
             },
             {
+                source: '/problem/:problemId/submissions/:submissionId',
+                destination: '/submission/:submissionId',
+            },
+            {
                 source: '/group/:groupId/edit',
                 destination: '/group/:groupId/edit',
             },
@@ -47,6 +51,14 @@ const nextConfig = {
             {
                 source: '/group/:groupId/:problemId/edit',
                 destination: '/problem/:problemId/edit',
+            },
+            {
+                source: '/group/:groupId/:problemId/submissions',
+                destination: '/problem/:problemId/submissions',
+            },
+            {
+                source: '/group/:groupId/:problemId/submissions/:submissionId',
+                destination: '/submission/:submissionId',
             },
         ];
     },

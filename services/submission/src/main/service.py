@@ -236,7 +236,17 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
         request: submission_service_pb2.GetProblemSubmissionsRequest,
         context: grpc.ServicerContext,
     ) -> submission_service_pb2.GetProblemSubmissionsResponse:
-        return
+        submissions = (
+            self.client[self.DATABASE_NAME]
+            .get_collection(SUBMISSIONS_COLLECTION_NAME)
+            .find({"problem_id": request.problem_id})
+        )
+
+        resp = submission_service_pb2.GetProblemSubmissionsResponse()
+        for submission in submissions:
+            resp.submission_id.append(str(submission["_id"]))
+
+        return resp
 
 
 def serve() -> None:

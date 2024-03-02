@@ -1,4 +1,4 @@
-"use client"
+'use client';
 import { useClient } from '@/lib/connect';
 import { ProblemService } from '@/protobufs/services/v1/problem_service_connect';
 import { GetProblemResponse } from '@/protobufs/services/v1/problem_service_pb';
@@ -12,7 +12,15 @@ import CardContent from '@mui/material/CardContent';
 import Container from '@mui/material/Container';
 import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
-import { DataGrid, GridActionsCellItem, GridColDef, GridRowId, GridRowParams, GridToolbar, GridValueGetterParams } from '@mui/x-data-grid';
+import {
+    DataGrid,
+    GridActionsCellItem,
+    GridColDef,
+    GridRowId,
+    GridRowParams,
+    GridToolbar,
+    GridValueGetterParams,
+} from '@mui/x-data-grid';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import React from 'react';
@@ -20,9 +28,9 @@ import React from 'react';
 async function SubmissionDataGrid() {
     const { data: session } = useSession();
     const router = useRouter();
-    
+
     const handleViewClick = (id: GridRowId) => () => {
-        router.push(`/submission/${id}`)
+        router.push(`/submission/${id}`);
     };
 
     const columns: GridColDef[] = [
@@ -46,7 +54,7 @@ async function SubmissionDataGrid() {
         {
             field: 'runtime',
             headerName: 'Total Runtime',
-            width: 150
+            width: 150,
         },
         {
             field: 'actions',
@@ -55,38 +63,49 @@ async function SubmissionDataGrid() {
             type: 'actions',
             getActions: ({ id }: { id: GridRowId }) => {
                 return [
-                    <GridActionsCellItem 
+                    <GridActionsCellItem
                         key={`view-${id}`}
                         icon={<OpenInNew />}
                         label="open"
                         onClick={handleViewClick(id)}
                         color="inherit"
-                    />
+                    />,
                 ];
-            }
-        }
+            },
+        },
     ];
-
 
     const submissionService: PromiseClient<typeof SubmissionService> = useClient(SubmissionService);
     const problemService: PromiseClient<typeof ProblemService> = useClient(ProblemService);
     if (session) {
-        const submissions = await submissionService.getUserSubmissions({userId: session.user.id}) as GetUserSubmissionsResponse
+        const submissions = (await submissionService.getUserSubmissions({
+            userId: session.user.id,
+        })) as GetUserSubmissionsResponse;
 
         var rows = [];
         for (let submissionId of submissions.submissionId) {
-            const submission = await submissionService.getSubmission({submissionId: submissionId}) as GetSubmissionResponse;
-            const problem = await problemService.getProblem({problemId: submission.problemId}) as GetProblemResponse
+            const submission = (await submissionService.getSubmission({
+                submissionId: submissionId,
+            })) as GetSubmissionResponse;
+            const problem = (await problemService.getProblem({
+                problemId: submission.problemId,
+            })) as GetProblemResponse;
             const row = {
-                "id": submissionId,
-                "submissionTime": submission.submissionTime.toDate(),
-                "problem": problem.problem?.title,
-                "testsPassed": submission.testResults.filter(result => result.passed).length,
-                "testsFailed": submission.testResults.filter(result => !result.passed).length,
-                "runtime": submission.testResults.length > 0 ? `${submission.testResults.map(result => result.runtime).reduce((accumulatedRuntime, runtime) => accumulatedRuntime + runtime).toPrecision(4)}s` : 'N/A'
-            }
+                id: submissionId,
+                submissionTime: submission.submissionTime.toDate(),
+                problem: problem.problem ? problem.problem?.title : 'Deleted problem.',
+                testsPassed: submission.testResults.filter(result => result.passed).length,
+                testsFailed: submission.testResults.filter(result => !result.passed).length,
+                runtime:
+                    submission.testResults.length > 0
+                        ? `${submission.testResults
+                              .map(result => result.runtime)
+                              .reduce((accumulatedRuntime, runtime) => accumulatedRuntime + runtime)
+                              .toPrecision(4)}s`
+                        : 'N/A',
+            };
             rows.push(row);
-        };
+        }
 
         return (
             <DataGrid
@@ -103,11 +122,9 @@ async function SubmissionDataGrid() {
                 disableRowSelectionOnClick
                 slots={{ toolbar: GridToolbar }}
             />
-        )
+        );
     }
-    return (
-        <Typography>Not logged in...</Typography>
-    )
+    return <Typography>Not logged in...</Typography>;
 }
 
 export default function SubmissionsListPage() {
@@ -120,7 +137,9 @@ export default function SubmissionsListPage() {
                 }}>
                 <Card>
                     <CardContent>
-                        <Typography gutterBottom variant="h5" component="div">Your Submissions</Typography>
+                        <Typography gutterBottom variant="h5" component="div">
+                            Your Submissions
+                        </Typography>
                         <React.Suspense fallback={<Skeleton width="100%" />}>
                             <SubmissionDataGrid />
                         </React.Suspense>

@@ -135,7 +135,8 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
         )
 
         resp = problem_service_pb2.GetProblemResponse()
-        resp.problem.CopyFrom(self._problem_document_to_problem(problem_document))
+        if problem_document:
+            resp.problem.CopyFrom(self._problem_document_to_problem(problem_document))
 
         return resp
 
