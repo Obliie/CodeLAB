@@ -14,38 +14,45 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Problem } from '@/protobufs/common/v1/problem_pb';
 import { useSession } from 'next-auth/react';
+import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
 
 async function ProblemDisplay({ problem }: { problem: Problem }) {
 
     return (
-        <Stack direction="row" spacing={2} width="100%" minHeight='100%'>
-            <CodeSubmitter problem={problem}/>
+        <Grid container spacing={2}>
+            <Grid xs>
+                <CodeSubmitter problem={problem}/>
+            </Grid>
 
-            <Stack direction="column" spacing={2} width="100%" minHeight='100%' display='flex'>
-                <Card sx={{ minWidth: '50%', minHeight: problem.displayTestData ? "50%" : "100%", overflow: 'auto' }}>
-                    <CardContent>
-                        <Typography gutterBottom variant="h5" component="div">
-                            {problem.title}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            {problem.description}
-                        </Typography>
-                    </CardContent>
-                </Card>
-                {problem.displayTestData ? (
-                    <Card sx={{ minWidth: '50%', minHeight: "48.4%" }}>
-                        <CardContent sx={{ height: '100%' }}>
+            <Grid container xs direction={"column"}>
+                <Grid xs>
+                    <Card sx={{height: '100%'}}>
+                        <CardContent>
                             <Typography gutterBottom variant="h5" component="div">
-                                Test Data
+                                {problem.title}
                             </Typography>
-                            
-                            {problem.tests ? (<ProblemTestData testData={problem.tests} />) : (<></>)}
+                            <Typography variant="body2" color="text.secondary">
+                                {problem.description}
+                            </Typography>
                         </CardContent>
-                    </Card>)
+                    </Card>
+                </Grid>
+                {problem.displayTestData ? (
+                    <Grid xs>
+                        <Card sx={{height: '100%'}}>
+                            <CardContent sx={{height: '100%'}}>
+                                <Typography gutterBottom variant="h5" component="div">
+                                    Test Data
+                                </Typography>
+                                
+                                {problem.tests ? (<ProblemTestData testData={problem.tests} />) : (<></>)}
+                            </CardContent>
+                        </Card>
+                    </Grid>)
                 : <></>
                 }
-            </Stack>
-        </Stack>
+            </Grid>
+        </Grid>
     )
 }
 

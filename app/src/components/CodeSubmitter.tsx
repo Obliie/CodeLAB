@@ -14,6 +14,7 @@ import InputLabel from '@mui/material/InputLabel';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { useSession } from 'next-auth/react';
+import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
 
 function getLanguageDisplayName(language: string) {
     switch (language) {
@@ -71,34 +72,38 @@ export default function CodeSubmitter({ problem }: { problem: Problem }) {
     const [language, setLanguage] = useState(problem.supportedLanguages[0]);
 
     return session ? (
-        <Stack direction="column" spacing={2} width="100%" display='flex'>
-            <Card sx={{ width: '100%', minHeight: '70%' }}>
-                <CardContent>
-                    <Typography gutterBottom variant="h5" component="div">
-                        Solution
-                    </Typography>
-                    {language ? (
-                        <Box>
-                            <LangageSelector
-                                languages={problem.supportedLanguages}
-                                curLanguage={language}
-                                setLanguage={setLanguage}
-                            />
-                            <CodeEditor
-                                code={undefined}
-                                setCode={setCode}
-                                language={getLanguage(language)}
-                                readOnly={false}
-                            />
-                        </Box>
-                    ) : (
-                        <Typography>The problem author has not selected any supported languages...</Typography>
-                    )}
-                </CardContent>
-            </Card>
+        <Grid container spacing={2} direction="column">
+            <Grid xs>
+                <Card>
+                    <CardContent>
+                        <Typography gutterBottom variant="h5" component="div">
+                            Solution
+                        </Typography>
+                        {language ? (
+                            <Box>
+                                <LangageSelector
+                                    languages={problem.supportedLanguages}
+                                    curLanguage={language}
+                                    setLanguage={setLanguage}
+                                />
+                                <CodeEditor
+                                    code={undefined}
+                                    setCode={setCode}
+                                    language={getLanguage(language)}
+                                    readOnly={false}
+                                />
+                            </Box>
+                        ) : (
+                            <Typography>The problem author has not selected any supported languages...</Typography>
+                        )}
+                    </CardContent>
+                </Card>
+            </Grid>
 
-            <CodeOutput code={code} language={getLanguage(language)} problem={problem} />
-        </Stack>
+            <Grid xs>
+                <CodeOutput code={code} language={getLanguage(language)} problem={problem} />
+            </Grid>
+        </Grid>
     ) : (
         <Card sx={{ minHeight: '100%' }}>
             <CardContent>
