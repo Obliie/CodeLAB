@@ -7,7 +7,7 @@ import TestDataDialog from '@/components/TestDataDialog';
 import { useClient, useServerClient } from '@/lib/connect';
 import { handleGrpcError } from '@/lib/error';
 import { ProblemService } from '@/protobufs/services/v1/problem_service_connect';
-import { GetProblemGroupListResponse } from '@/protobufs/services/v1/problem_service_pb';
+import { GetProblemGroupListResponse, GetProblemSummariesResponse } from '@/protobufs/services/v1/problem_service_pb';
 import { CardActionArea, CardActions } from '@mui/material';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -48,10 +48,14 @@ async function GroupsList() {
     );
 }
 
-export default function GroupsListPage() {
+export default async function GroupsListPage() {
+    const problems = (await useServerClient(ProblemService)
+        .getProblemSummaries({})
+        .catch(err => handleGrpcError(err))) as GetProblemSummariesResponse;
+
     return (
         <Container>
-            <GroupDialog group={undefined} />
+            <GroupDialog group={undefined} problems={problems.problemSummaries}/>
             <Box
                 sx={{
                     display: 'flex',

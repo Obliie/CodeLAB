@@ -16,10 +16,12 @@ export default function MultiProblemSelect({
     selectedProblems,
     setSelectedProblems,
     problems,
+    setEdited,
 }: {
     selectedProblems: ProblemSummary[];
     setSelectedProblems: Function;
     problems: ProblemSummary[];
+    setEdited: Function
 }) {
     return problems ? (
         <Autocomplete
@@ -52,6 +54,10 @@ export default function MultiProblemSelect({
                     reason === 'removeOption'
                 ) {
                     return;
+                }
+
+                if (setEdited) {
+                    setEdited(true);
                 }
 
                 setSelectedProblems(newValue);

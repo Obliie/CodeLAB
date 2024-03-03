@@ -51,7 +51,7 @@ async function GroupEditDisplay({ group }: { group: ProblemGroup }) {
                         Group
                     </Typography>
 
-                    <GroupEditForm group={group} problems={problems?.problemSummaries} />
+                    <GroupEditForm group={group} problems={problems?.problemSummaries} update={true} close={undefined} />
                 </CardContent>
             </Card>
         </Stack>
