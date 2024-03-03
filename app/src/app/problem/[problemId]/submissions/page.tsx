@@ -53,7 +53,7 @@ async function ProblemSubmissionDisplay({ problem }: { problem: Problem }) {
         );
     }
 
-    console.log(`we gpt ${submissions[0].testResults.length}`);
+    const testCount = submissions.length > 0 ? submissions[0].testResults.length : 0;
     return (
         <Stack direction="column" spacing={2} width="100%">
             <Stack direction="row" spacing={2} width="100%">
@@ -72,7 +72,7 @@ async function ProblemSubmissionDisplay({ problem }: { problem: Problem }) {
                             Solution Runtime Distribution
                         </Typography>
 
-                        {submissions[0].testResults.length > 0 ? (
+                        {testCount > 0 ? (
                             <SolutionRuntimeDistributionGraph submissions={submissions} />
                         ) : (
                             <Typography>No solution test results...</Typography>
