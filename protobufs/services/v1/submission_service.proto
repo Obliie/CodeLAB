@@ -17,6 +17,10 @@ service SubmissionService {
     rpc GetUserSubmissions(GetUserSubmissionsRequest) returns (GetUserSubmissionsResponse) { }
     // Get all submissions for a problem.
     rpc GetProblemSubmissions(GetProblemSubmissionsRequest) returns (GetProblemSubmissionsResponse) { }
+    // Get progress of a submission
+    rpc GetSubmissionProgress(GetSubmissionProgressRequest) returns (GetSubmissionProgressResponse) { }
+    // Update progress of a submission
+    rpc UpdateSubmissionProgress(UpdateSubmissionProgressRequest) returns (UpdateSubmissionProgressResponse) { }
 }
 
 message SubmitCodeRequest {
@@ -58,6 +62,26 @@ message GetProblemSubmissionsRequest {
 
 message GetProblemSubmissionsResponse {
     repeated string submission_id = 1;
+}
+
+message GetSubmissionProgressRequest {
+    string problem_id = 1;
+    string user_id = 2;
+}
+
+message GetSubmissionProgressResponse {
+    bytes data = 1;
+    google.protobuf.Timestamp last_updated = 2;
+}
+
+message UpdateSubmissionProgressRequest {
+    string problem_id = 1;
+    string user_id = 2;
+    bytes data = 3;
+}
+
+message UpdateSubmissionProgressResponse {
+    bool success = 1;
 }
 
 message SubmissionStatusEvent {

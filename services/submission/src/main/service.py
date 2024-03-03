@@ -27,6 +27,7 @@ DATABASE_USERNAME_FILE = "/run/secrets/submissiondb-root-username"
 DATABASE_PASSWORD_FILE = "/run/secrets/submissiondb-root-password"
 
 SUBMISSIONS_COLLECTION_NAME = "submissions"
+SUBMISSION_PROGRESS_COLLECTION_NAME = "progress"
 
 class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
     DATABASE_HOST = Config.CONFIG["services"]["submission"]["database"]["host"]
@@ -246,6 +247,49 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
         resp = submission_service_pb2.GetProblemSubmissionsResponse()
         for submission in submissions:
             resp.submission_id.append(str(submission["_id"]))
+
+        return resp
+
+    def GetSubmissionProgress(self,
+        request: submission_service_pb2.GetSubmissionProgressRequest,
+        context: grpc.ServicerContext,
+    ) -> submission_service_pb2.GetSubmissionProgressResponse:
+        progress_document = (
+            self.client[self.DATABASE_NAME]
+            .get_collection(SUBMISSION_PROGRESS_COLLECTION_NAME)
+            .find_one({"problem_id": request.problem_id, "user_id": request.user_id})
+        )
+                
+        resp = submission_service_pb2.GetSubmissionProgressResponse()
+        if progress_document and 'data' in progress_document.keys():
+            resp.data = base64.b64decode(progress_document['data'])
+
+            last_updated_time = Timestamp()
+            last_updated_time.FromDatetime(datetime.datetime.fromisoformat(progress_document["last_updated"]))
+            resp.last_updated.CopyFrom(last_updated_time)
+        
+        return resp
+
+    def UpdateSubmissionProgress(self,
+        request: submission_service_pb2.UpdateSubmissionProgressRequest,
+        context: grpc.ServicerContext,
+    ) -> submission_service_pb2.UpdateSubmissionProgressResponse:
+        response = (
+            self.client[self.DATABASE_NAME]
+            .get_collection(SUBMISSION_PROGRESS_COLLECTION_NAME)
+            .update_one({"problem_id": request.problem_id, "user_id": request.user_id},
+                        {'$setOnInsert': {
+                            "problem_id": request.problem_id,
+                            "user_id": request.user_id
+                        },
+                        "$set": {
+                            "data": base64.b64encode(request.data),
+                            "last_updated": datetime.datetime.utcnow().isoformat()
+                        }}, upsert=True)
+        )
+
+        resp = submission_service_pb2.UpdateSubmissionProgressResponse()
+        resp.success = response.acknowledged
 
         return resp
 

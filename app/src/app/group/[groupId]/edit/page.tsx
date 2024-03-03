@@ -59,15 +59,11 @@ async function GroupEditDisplay({ group }: { group: ProblemGroup }) {
 }
 
 export default async function GroupEditPage({ params }: { params: { groupId: string } }) {
-    console.log(params);
     const group = (await useServerClient(ProblemService)
         .getProblemGroup({
             groupId: params.groupId,
         })
         .catch(err => handleGrpcError(err))) as GetProblemGroupResponse;
-
-    console.log(group.group?.name);
-    console.log('FFFFFFFFFFFFFFFFF');
 
     return (
         <Container>

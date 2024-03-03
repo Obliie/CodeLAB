@@ -23,17 +23,6 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { LinearProgress, Box } from '@mui/material';
 
-function getMainFileName(language: ProgrammingLanguage) {
-    switch (language) {
-        case ProgrammingLanguage.PYTHON:
-            return 'main.py';
-        case ProgrammingLanguage.PROLOG:
-            return 'main.pl';
-    }
-
-    return 'main';
-}
-
 function getProgressColor(state: SubmissionStatus): string {
     const colorMap: { [key in SubmissionStatus]: string } = {
         [SubmissionStatus.UNSPECIFIED]: 'inherit',
@@ -134,59 +123,13 @@ function ProgressComponent({ streamData, testCount }: { streamData: SubmissionSt
     );
 }
 
-async function onCodeSubmit(
-    userId: string | undefined,
-    code: string,
-    data: SubmissionStatusEvent[],
-    setData: Function,
-    submissionService: PromiseClient<typeof SubmissionService>,
-    statusService: PromiseClient<typeof StatusService>,
-    problem: Problem,
-    language: ProgrammingLanguage,
-    setSubmitLoading: Function,
-) {
-    setSubmitLoading(true);
-    const mainFile: SolutionFile = new SolutionFile();
-    mainFile.entry = true;
-    mainFile.path = getMainFileName(language);
-
-    const encoder = new TextEncoder();
-    mainFile.data = encoder.encode(code);
-
-    setData([]);
-    const submissionResponse = (await submissionService.submitCode({
-        files: [mainFile],
-        problemId: problem.id,
-        userId: userId ?? 'none',
-        language: language,
-    })) as SubmitCodeResponse;
-
-    for await (const response of statusService.subscribeStatusEvents({
-        eventGroup: submissionResponse.submissionId,
-        requestAll: true,
-    })) {
-        const event = SubmissionStatusEvent.fromJsonString(response.event);
-        if (event && event.state) {
-            setData((oldData: string[]) => [...oldData, event]);
-        }
-    }
-
-    setSubmitLoading(false);
-}
-
 export default function CodeOutput({
-    code,
-    language,
+    data,
     problem,
 }: {
-    code: string;
-    language: ProgrammingLanguage;
+    data: SubmissionStatusEvent[]
     problem: Problem;
 }) {
-    const [data, setData] = useState<SubmissionStatusEvent[]>([]);
-    const submissionService: PromiseClient<typeof SubmissionService> = useClient(SubmissionService);
-    const statusService: PromiseClient<typeof StatusService> = useClient(StatusService);
-    const [submitLoading, setSubmitLoading] = useState(false);
     const { data: session } = useSession();
 
     return session ? (
@@ -199,28 +142,7 @@ export default function CodeOutput({
             </CardContent>
 
             <CardActions sx={{ display: 'flex', flexDirection: 'row-reverse' }}>
-                {submitLoading ? (
-                    <LoadingButton loading variant="contained" size="medium" sx={{ padding: '19px' }}></LoadingButton>
-                ) : (
-                    <Button
-                        sx={{ margin: '0px 10px', marginBottom: '10px' }}
-                        variant="outlined"
-                        onClick={() =>
-                            onCodeSubmit(
-                                session?.user.id,
-                                code,
-                                data,
-                                setData,
-                                submissionService,
-                                statusService,
-                                problem,
-                                language,
-                                setSubmitLoading,
-                            )
-                        }>
-                        Submit
-                    </Button>
-                )}
+                
             </CardActions>
         </Card>
     ) : (

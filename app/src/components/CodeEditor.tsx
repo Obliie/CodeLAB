@@ -17,7 +17,7 @@ export default function CodeEditor({ code, setCode, language, readOnly }: { code
         <Editor
             height="50vh"
             defaultLanguage={getEditorLanguage(language)}
-            defaultValue={code ? code : "# Your code here..."}
+            value={code}
             theme="vs-dark"
             options={{
                 minimap: {

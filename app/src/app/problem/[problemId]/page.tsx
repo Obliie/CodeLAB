@@ -15,13 +15,29 @@ import Typography from '@mui/material/Typography';
 import { Problem } from '@/protobufs/common/v1/problem_pb';
 import { useSession } from 'next-auth/react';
 import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
+import { SubmissionService } from '@/protobufs/services/v1/submission_service_connect';
+import { getServerSession } from 'next-auth';
+import { GetSubmissionProgressResponse } from '@/protobufs/services/v1/submission_service_pb';
 
 async function ProblemDisplay({ problem }: { problem: Problem }) {
+    const session = await getServerSession();
+    const submissionService = useServerClient(SubmissionService);
+
+    let currentCode = undefined;
+    if (session) {
+        const resp = await submissionService.getSubmissionProgress({
+            problemId: problem.id,
+            userId: session.user.email
+        }).catch(err => handleGrpcError(err)) as GetSubmissionProgressResponse;
+
+        const decoder = new TextDecoder();
+        currentCode = decoder.decode(resp.data);
+    }    
 
     return (
         <Grid container spacing={2}>
             <Grid xs>
-                <CodeSubmitter problem={problem}/>
+                <CodeSubmitter problem={problem} currentCode={currentCode}/>
             </Grid>
 
             <Grid container xs direction={"column"}>
