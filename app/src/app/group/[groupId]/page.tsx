@@ -1,4 +1,5 @@
 import { DeleteProblemRequest } from '@/actions/DeleteProblemRequest';
+import CircularProgressWithLabel from '@/components/CircularProgressWithLabel';
 import CodeSubmitter from '@/components/CodeSubmitter';
 import NextBreadcrumb from '@/components/NextBreadcrumb';
 import ProblemSummaryAccordion from '@/components/ProblemSummaryAccordion';
@@ -16,6 +17,7 @@ import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import Grid from '@mui/material/Unstable_Grid2'
 
 async function Group({ group }: { group: ProblemGroup }) {
     const problemSummaries = (await useServerClient(ProblemService)
@@ -26,29 +28,37 @@ async function Group({ group }: { group: ProblemGroup }) {
 
     return (
         <Box>
-            <Stack direction="row" spacing={2} width="100%">
-                <Card sx={{ width: '35vw', height: '30vh', overflow: 'auto' }}>
-                    <CardContent>
-                        <Typography gutterBottom variant="h5" component="div">
-                            {group.name}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            {group.description}
-                        </Typography>
-                    </CardContent>
-                </Card>
-                <Card sx={{ width: '35vw', height: '30vh' }}>
-                    <CardContent sx={{ height: '90%' }}>
-                        <Typography gutterBottom variant="h5" component="div">
-                            Progress
-                        </Typography>
+            <Grid container direction={"row"} spacing={2}>
+                <Grid xs>
+                    <Card sx={{ overflow: 'auto', height: '100%' }}>
+                        <CardContent>
+                            <Typography gutterBottom variant="h5" component="div">
+                                {group.name}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                {group.description}
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                </Grid>
+                <Grid xs>
+                    <Card>
+                        <CardContent sx={{ height: '90%' }}>
+                            <Typography gutterBottom variant="h5" component="div">
+                                Progress
+                            </Typography>
 
-                        <Typography variant="body2" color="text.secondary">
-                            Not implemented...
-                        </Typography>
-                    </CardContent>
-                </Card>
-            </Stack>
+                            <Box sx={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignContent: 'center',
+                            }}>
+                                <CircularProgressWithLabel label={`X/${group.problemIds.length}`} value={70} sx={{height: '100%'}}/>
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Grid>
+            </Grid>
 
             <Divider sx={{ marginTop: '20px', marginBottom: '12px' }}></Divider>
             <Typography gutterBottom variant="h5" component="div">
