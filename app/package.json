@@ -22,6 +22,8 @@
         "@mui/material": "^5.14.13",
         "@mui/x-charts": "^6.19.5",
         "@mui/x-data-grid": "^6.18.2",
+        "@types/jszip": "^3.4.1",
+        "jszip": "^3.10.1",
         "mongodb": "^6.3.0",
         "next": "^14.0.1",
         "next-auth": "^4.24.4",
