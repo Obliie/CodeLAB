@@ -21,7 +21,7 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { LinearProgress, Box } from '@mui/material';
+import { LinearProgress, Box, Chip } from '@mui/material';
 
 function getProgressColor(state: SubmissionStatus): string {
     const colorMap: { [key in SubmissionStatus]: string } = {
@@ -50,8 +50,7 @@ function ExecutionDetails({ result }: { result: SubmissionTestResult }) {
     return (
         <Card variant="outlined" sx={{ mb: 2 }}>
             <CardContent>
-                <Typography variant="body2">Test ID: {result.testId}</Typography>
-                <Typography variant="body2">Passed: {result.passed ? 'Yes' : 'No'}</Typography>
+                <Typography variant="body2">Test ID: {result.testId} {result.passed ? <Chip label="pass" color="success" variant="outlined" /> : <Chip label="fail" color="error" variant="outlined" />}</Typography>
                 <Typography variant="body2">Output: {result.output}</Typography>
                 <Typography variant="body2">Runtime: {result.runtime * 1000}ms</Typography>
             </CardContent>
