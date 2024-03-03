@@ -38,7 +38,7 @@ async function GroupsList() {
                         <Typography>Contains {group.problemIds.length} problems</Typography>
                     </CardContent>
                     <CardActions sx={{justifyContent: 'flex-end', marginBottom: '10px', gap: '5px', marginRight: '10px'}}>
-                        <ProblemGroupActions groupId={group.id} deleteAction={DeleteProblemGroupRequest} />
+                        <ProblemGroupActions groupId={group.id} deleteAction={DeleteProblemGroupRequest} owner={group.owner}/>
                     </CardActions>
                 </Card>
             ))}
