@@ -132,7 +132,8 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
                 if test_result_response.timeout:
                     failed = True
                     self._send_status_update_event(submission_id, status_pb2.SUBMISSION_STATUS_COMPLETE_TIMEOUT)
-                    break
+                    self._signal_event_stream_end(submission_id)
+                    return
 
                 self._save_test_result(submission_id, test_result_response)
                 self._send_test_result_event(submission_id, test_result_response)
