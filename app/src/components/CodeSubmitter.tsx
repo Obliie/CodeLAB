@@ -97,7 +97,7 @@ function getMainFileName(language: ProgrammingLanguage) {
 
 async function onCodeSubmit(
     handleSaveCode: Function,
-    userId: string | undefined,
+    userId: string | null | undefined,
     code: string,
     setData: Function,
     submissionService: PromiseClient<typeof SubmissionService>,
@@ -202,7 +202,7 @@ export default function CodeSubmitter({ problem, currentCode }: { problem: Probl
                                 onClick={() =>
                                     onCodeSubmit(
                                         handleSaveCode,
-                                        session?.user.id,
+                                        session?.user.email,
                                         code,
                                         setData,
                                         submissionService,

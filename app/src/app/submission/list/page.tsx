@@ -79,7 +79,7 @@ async function SubmissionDataGrid() {
     const problemService: PromiseClient<typeof ProblemService> = useClient(ProblemService);
     if (session) {
         const submissions = (await submissionService.getUserSubmissions({
-            userId: session.user.id,
+            userId: session.user.email,
         })) as GetUserSubmissionsResponse;
 
         var rows = [];
