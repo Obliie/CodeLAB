@@ -6,6 +6,7 @@ import Tabs from '@mui/material/Tabs';
 import Typography from '@mui/material/Typography';
 import React from 'react';
 import { SubmissionTestResult } from '@/protobufs/services/v1/submission_service_pb';
+import Chip from '@mui/material/Chip';
 
 export default function SubmissionTestData({ testData }: { testData: SubmissionTestResult[] }) {
     const [value, setValue] = React.useState(0);
@@ -25,7 +26,7 @@ export default function SubmissionTestData({ testData }: { testData: SubmissionT
                 aria-label="test data"
                 sx={{ borderRight: 1, borderColor: 'divider' }}>
                 {testData.map((data, i) => (
-                    <Tab key={i} label={`Test ${i + 1}`} {...a11yProps(i)} />
+                    <Tab key={i} label={`Test ${i + 1} | ${data.passed ? "✔" : "✖"}`} {...a11yProps(i)} />
                 ))}
             </Tabs>
             {testData.map((data, i) => (
@@ -53,7 +54,7 @@ function SubmissionTestDataTab({ testData, value, index }: { testData: Submissio
                 <Box sx={{ p: 3, width: '100%' }}>
                     <Box sx={{ marginBottom: '16px' }}>
                         <Typography variant="h6">Passed</Typography>
-                        <Typography>{testData.passed ? "True" : "False"}</Typography>
+                        {testData.passed ? <Chip label="pass" color="success" variant="outlined" /> : <Chip label="fail" color="error" variant="outlined" />}
                     </Box>
                     <Box sx={{ marginBottom: '16px' }}>
                         <Typography variant="h6">Output</Typography>
