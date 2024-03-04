@@ -42,12 +42,17 @@ export default function ProblemTestDataGrid({ problem }: { problem: Problem }) {
         {
             field: 'arguments',
             headerName: 'Arguments',
-            width: 400,
+            width: 280,
+        },
+        {
+            field: 'stdin',
+            headerName: 'Stdin',
+            width: 280,
         },
         {
             field: 'expectedStdout',
             headerName: 'Expected Stdout',
-            width: 400,
+            width: 280,
         },
     ];
 
@@ -56,6 +61,7 @@ export default function ProblemTestDataGrid({ problem }: { problem: Problem }) {
         const row = {
             id: testData.id,
             arguments: testData.arguments,
+            stdin: testData.stdin ? testData.stdin.replace(/\n/g, '\\n').replace(/\r/g, '\\r') : '',
             expectedStdout: testData.expectedStdout,
         };
         rows.push(row);

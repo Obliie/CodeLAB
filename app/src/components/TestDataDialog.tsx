@@ -30,6 +30,7 @@ export default function TestDataDialog({
     const [open, setOpen] = React.useState(false);
     const [args, setArgs] = React.useState('');
     const [expectedStdout, setExpectedStdout] = React.useState('');
+    const [stdin, setStdin] = React.useState('');
     const problemServiceClient = useClient(ProblemService);
     const [importLoading, setImportLoading] = React.useState(false);
     const router = useRouter();
@@ -44,16 +45,17 @@ export default function TestDataDialog({
     };
 
     const handleSubmit = async () => {
-        uploadProblemTest(args, expectedStdout);
+        uploadProblemTest(args, expectedStdout, stdin);
 
         router.refresh();
         setOpen(false);
     };
 
-    const uploadProblemTest = async (args: string, expectedStdout: string) => {
+    const uploadProblemTest = async (args: string, expectedStdout: string, stdin: string) => {
         const testData = new Problem_TestData();
         testData.arguments = args;
         testData.expectedStdout = expectedStdout;
+        testData.stdin = stdin;
 
         (await problemServiceClient
             .addTestData({
@@ -109,7 +111,7 @@ export default function TestDataDialog({
 
         for (const [key, value] of Object.entries(loadedTests)) {
             if (value.in && value.out) {
-                await uploadProblemTest(value.in, value.out);
+                await uploadProblemTest('', value.out, value.in);
             } else {
                 console.warn(`Incomplete test data for ${key}, skipping upload.`);
             }
@@ -178,6 +180,19 @@ export default function TestDataDialog({
                         variant="standard"
                         onChange={event => {
                             setExpectedStdout(event.target.value);
+                        }}
+                    />
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id="stdin"
+                        label="Stdin"
+                        type="text"
+                        multiline
+                        fullWidth
+                        variant="standard"
+                        onChange={event => {
+                            setStdin(event.target.value);
                         }}
                     />
                 </DialogContent>

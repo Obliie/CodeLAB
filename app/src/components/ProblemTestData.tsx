@@ -50,13 +50,21 @@ function TestDataTab({ testData, value, index }: { testData: Problem_TestData; v
             aria-labelledby={`vertical-tab-${index}`}>
             {value === index && (
                 <Box sx={{ p: 3, width: '100%', display: 'flex', flexDirection: 'column', height: '100%' }}>
+                    {testData.arguments ?
                     <Box sx={{ marginBottom: '16px' }}>
                         <Typography variant="h6">Command Line Arguments</Typography>
                         <Typography>{testData.arguments}</Typography>
                     </Box>
+                    : <></>}
+                    {testData.stdin ?
+                    <Box sx={{ marginBottom: '16px' }}>
+                        <Typography variant="h6">Stdin</Typography>
+                        <Box sx={{ whiteSpace: "pre-wrap" }}>{testData.stdin}</Box>
+                    </Box>
+                    : <></>}
                     <Box sx={{ marginBottom: '16px' }}>
                         <Typography variant="h6">Expected Output</Typography>
-                        <Typography>{testData.expectedStdout}</Typography>
+                        <Typography>{testData.expectedStdout ? testData.expectedStdout : "No output expected."}</Typography>
                     </Box>
                     {testData.expectedFiles.length > 0 ? (
                         <Box>

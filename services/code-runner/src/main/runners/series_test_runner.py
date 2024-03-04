@@ -12,19 +12,24 @@ from runners.test_runner import BaseTestRunner
 
 EXIT_CODE_KEY = "exit_code"
 OUTPUT_KEY = "output"
+DEFAULT_STORAGE_PATH = "/tmp/code-runner"
 
 class SeriesTestRunner(BaseTestRunner):
 
     def __init__(self, container_controller: ContainerController, solution_files: List[solution_pb2.SolutionFile], tests: problem_pb2.Problem.TestData, language: language_pb2.ProgrammingLanguage, run_timeout: int, run_max_memory: int, config: Dict[Any, Any]):
         super(SeriesTestRunner, self).__init__(container_controller, solution_files, language, run_timeout, run_max_memory, config)
+        self.container_controller = container_controller
         self.tests = tests
         self.config = config
         self.run_timeout = run_timeout
         self.run_max_memory = run_max_memory
 
-    def exec_run_with_timeout(self, container: Container, command: str, timeout: int):
+    def exec_run_with_timeout(self, container: Container, command: str, timeout: int, stdin: str):
         def exec(self, results):
-            exit_code, output = container.exec_run(command)
+            self.container_controller._copy_bytes_to_container(container, stdin.encode(), DEFAULT_STORAGE_PATH, "/test.in")
+            piped_command = f"bash -c 'cat {DEFAULT_STORAGE_PATH}/test.in | {command}'"
+            log_and_flush(logging.INFO, f"cmd: {piped_command}")
+            exit_code, output = container.exec_run(piped_command)
 
             results[EXIT_CODE_KEY] = exit_code
             results[OUTPUT_KEY] = output
@@ -44,10 +49,10 @@ class SeriesTestRunner(BaseTestRunner):
     def run_tests(self) -> Any:
         for test in self.tests:
             container: Container = self.container_controller._get_container(self.container_id)
-            command = self.config["run-command"].format(FILE=f"{self.DEFAULT_STORAGE_PATH}/{self.config['main-file']}", ARGS=test.arguments)
+            command = self.config["run-command"].format(FILE=f"{self.DEFAULT_STORAGE_PATH}/{self.config['main-file']}", ARGS=test.arguments.replace('\n', ' ').replace('\r', ''))
             
             start_time = time.time()
-            exit_code, output = self.exec_run_with_timeout(container, command, self.run_timeout)
+            exit_code, output = self.exec_run_with_timeout(container, command, self.run_timeout, test.stdin)
             run_time = round(time.time() - start_time, 3)
 
             if exit_code is None:
