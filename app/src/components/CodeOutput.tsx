@@ -37,7 +37,10 @@ function getProgressColor(state: SubmissionStatus): string {
 }
 
 function StateProgress({ state, progress }: { state: SubmissionStatus; progress: number }) {
-    const stateLabel = state !== SubmissionStatus.UNSPECIFIED ? SubmissionStatus[state].replace('SUBMISSION_STATUS_', '').replace(/_/g, ' ') : "";
+    const stateLabel =
+        state !== SubmissionStatus.UNSPECIFIED
+            ? SubmissionStatus[state].replace('SUBMISSION_STATUS_', '').replace(/_/g, ' ')
+            : '';
     return (
         <Box sx={{ width: '100%', mb: 2 }}>
             <Typography variant="h6">{stateLabel}</Typography>
@@ -46,19 +49,37 @@ function StateProgress({ state, progress }: { state: SubmissionStatus; progress:
     );
 }
 
-function ExecutionDetails({ result }: { result: SubmissionTestResult }) {
+function ExecutionDetails({ result, testNo }: { result: SubmissionTestResult; testNo: number }) {
     return (
         <Card variant="outlined" sx={{ mb: 2 }}>
             <CardContent>
-                <Typography variant="body2">Test ID: {result.testId} {result.passed ? <Chip label="pass" color="success" variant="outlined" /> : <Chip label="fail" color="error" variant="outlined" />}</Typography>
-                <Typography variant="body2">Output: {result.output ? result.output.replace(/\n/g, '\\n').replace(/\r/g, '\\r') : ''}</Typography>
+                <Typography
+                    variant="body1"
+                    sx={{
+                        fontWeight: 'bold',
+                        paddingBottom: '10px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                    }}>
+                    Test {testNo + 1}
+                    {'   '}
+                    {result.passed ? (
+                        <Chip label="pass" color="success" variant="outlined" />
+                    ) : (
+                        <Chip label="fail" color="error" variant="outlined" />
+                    )}
+                </Typography>
+                <Typography variant="body2">
+                    Output: {result.output ? result.output.replace(/\n/g, '\\n').replace(/\r/g, '\\r') : ''}
+                </Typography>
                 <Typography variant="body2">Runtime: {result.runtime * 1000}ms</Typography>
             </CardContent>
         </Card>
     );
 }
 
-function ProgressComponent({ streamData, testCount }: { streamData: SubmissionStatusEvent[], testCount: number }) {
+function ProgressComponent({ streamData, testCount }: { streamData: SubmissionStatusEvent[]; testCount: number }) {
     const [currentState, setCurrentState] = useState<SubmissionStatus>(SubmissionStatus.UNSPECIFIED);
     const [executions, setExecutions] = useState<SubmissionTestResult[]>([]);
 
@@ -88,13 +109,13 @@ function ProgressComponent({ streamData, testCount }: { streamData: SubmissionSt
     }, [streamData]);
 
     var progress = 0;
-    switch(currentState) {
+    switch (currentState) {
         case SubmissionStatus.RECEIVED:
             progress = 20;
             break;
         case SubmissionStatus.EXECUTING:
             // 60% dedicated to execution
-            progress = 20 + (executions.length / testCount * 60)
+            progress = 20 + (executions.length / testCount) * 60;
             break;
         case SubmissionStatus.COMPLETE_FAIL:
         case SubmissionStatus.COMPLETE_PASS:
@@ -106,29 +127,22 @@ function ProgressComponent({ streamData, testCount }: { streamData: SubmissionSt
     return (
         <Box>
             <StateProgress state={currentState} progress={progress} />
-            <Box sx={{
-                maxHeight: '200px',
-                overflowY: 'auto',
-            }}>
+            <Box
+                sx={{
+                    maxHeight: '200px',
+                    overflowY: 'auto',
+                }}>
                 {(currentState === SubmissionStatus.EXECUTING ||
                     currentState === SubmissionStatus.COMPLETE_PASS ||
                     currentState === SubmissionStatus.COMPLETE_FAIL ||
                     currentState === SubmissionStatus.COMPLETE_TIMEOUT) &&
-                    executions.map((exec, index) => (
-                        <ExecutionDetails key={index} result={exec} />
-                ))}
+                    executions.map((exec, index) => <ExecutionDetails key={index} result={exec} testNo={index} />)}
             </Box>
         </Box>
     );
 }
 
-export default function CodeOutput({
-    data,
-    problem,
-}: {
-    data: SubmissionStatusEvent[]
-    problem: Problem;
-}) {
+export default function CodeOutput({ data, problem }: { data: SubmissionStatusEvent[]; problem: Problem }) {
     const { data: session } = useSession();
 
     return session ? (
@@ -140,9 +154,7 @@ export default function CodeOutput({
                 <ProgressComponent streamData={data} testCount={problem.tests.length} />
             </CardContent>
 
-            <CardActions sx={{ display: 'flex', flexDirection: 'row-reverse' }}>
-                
-            </CardActions>
+            <CardActions sx={{ display: 'flex', flexDirection: 'row-reverse' }}></CardActions>
         </Card>
     ) : (
         <Card>
