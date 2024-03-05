@@ -19,6 +19,11 @@ import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import { GetServerSidePropsContext } from 'next';
+import { useParams, useSearchParams } from 'next/navigation';
+import { ParsedUrlQuery } from 'querystring';
+import { LoaderArgs } from 'next/navigation';
+import { NextRequest } from 'next/server';
 
 async function Submission({ submission }: { submission: GetSubmissionResponse }) {
     const decoder = new TextDecoder();
@@ -49,12 +54,35 @@ async function Submission({ submission }: { submission: GetSubmissionResponse })
     );
 }
 
-export default async function SubmissionPage({ params }: { params: { submissionId: string } }) {
+export default async function SubmissionPage({ params }: { params: { submissionId: string, problemId: string, groupId: string } }) {
+    const problemService = useServerClient(ProblemService);
     const submission = (await useServerClient(SubmissionService)
         .getSubmission({
             submissionId: params.submissionId
         })
         .catch(err => handleGrpcError(err))) as GetSubmissionResponse;
+
+    const mappings = new Map<string, string>([[params.submissionId, params.submissionId]]);
+
+    if (params.problemId) {
+        const problem = (await problemService
+            .getProblem({
+                problemId: params.problemId,
+            })
+            .catch(err => handleGrpcError(err))) as GetProblemResponse;
+
+        mappings.set(params.problemId, problem.problem?.title)
+    }
+
+    if (params.groupId) {
+        const group = (await problemService
+            .getProblemGroup({
+                groupId: params.groupId,
+            })
+            .catch(err => handleGrpcError(err))) as GetProblemGroupResponse;
+
+        mappings.set(params.groupId, group.group?.name)
+    }
 
     return (
         <Container>
@@ -65,7 +93,7 @@ export default async function SubmissionPage({ params }: { params: { submissionI
                 }}>
                 {submission ? (
                         <Box>
-                            <NextBreadcrumb mappings={new Map<string, string>([[params.submissionId, params.submissionId]])} />
+                            <NextBreadcrumb mappings={mappings} />
                             <Submission submission={submission} />
                         </Box>
                     ) : <></>

@@ -5,7 +5,7 @@ import TestDataDialog from '@/components/TestDataDialog';
 import { useClient, useServerClient } from '@/lib/connect';
 import { handleGrpcError } from '@/lib/error';
 import { ProblemService } from '@/protobufs/services/v1/problem_service_connect';
-import { GetProblemResponse } from '@/protobufs/services/v1/problem_service_pb';
+import { GetProblemGroupResponse, GetProblemResponse } from '@/protobufs/services/v1/problem_service_pb';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -26,24 +26,26 @@ async function ProblemDisplay({ problem }: { problem: Problem }) {
 
     let currentCode = undefined;
     if (session) {
-        const resp = await submissionService.getSubmissionProgress({
-            problemId: problem.id,
-            userId: session.user.email
-        }).catch(err => handleGrpcError(err)) as GetSubmissionProgressResponse;
+        const resp = (await submissionService
+            .getSubmissionProgress({
+                problemId: problem.id,
+                userId: session.user.email,
+            })
+            .catch(err => handleGrpcError(err))) as GetSubmissionProgressResponse;
 
         const decoder = new TextDecoder();
         currentCode = decoder.decode(resp.data);
-    }    
+    }
 
     return (
         <Grid container spacing={2}>
             <Grid xs>
-                <CodeSubmitter problem={problem} currentCode={currentCode}/>
+                <CodeSubmitter problem={problem} currentCode={currentCode} />
             </Grid>
 
-            <Grid container xs direction={"column"}>
+            <Grid container xs direction={'column'}>
                 <Grid xs>
-                    <Card sx={{height: '100%'}}>
+                    <Card sx={{ height: '100%' }}>
                         <CardContent>
                             <Typography gutterBottom variant="h5" component="div">
                                 {problem.title}
@@ -56,54 +58,74 @@ async function ProblemDisplay({ problem }: { problem: Problem }) {
                 </Grid>
                 {problem.displayTestData ? (
                     <Grid xs>
-                        <Card sx={{height: '100%'}}>
-                            <CardContent sx={{height: '100%'}}>
+                        <Card sx={{ height: '100%' }}>
+                            <CardContent sx={{ height: '100%' }}>
                                 <Typography gutterBottom variant="h5" component="div">
                                     Test Data
                                 </Typography>
-                                
-                                {problem.tests ? (<ProblemTestData testData={problem.tests} />) : (<></>)}
+
+                                {problem.tests ? <ProblemTestData testData={problem.tests} /> : <></>}
                             </CardContent>
                         </Card>
-                    </Grid>)
-                : <></>
-                }
+                    </Grid>
+                ) : (
+                    <></>
+                )}
             </Grid>
         </Grid>
-    )
+    );
 }
 
-export default async function ProblemPage({ params }: { params: { problemId: string } }) {
+export default async function ProblemPage({ params }: { params: { problemId: string; groupId: string } }) {
     const session = await getServerSession();
-    const problem = (await useServerClient(ProblemService)
+    const problemService = useServerClient(ProblemService);
+    const problem = (await problemService
         .getProblem({
             problemId: params.problemId,
         })
         .catch(err => handleGrpcError(err))) as GetProblemResponse;
 
-    if (problem && !problem.problem?.public && (!session || !problem.problem?.members.includes(session.user.email ?? "none"))) {
-        return (<Unauthorized />)
+    if (
+        problem &&
+        !problem.problem?.public &&
+        (!session || !problem.problem?.members.includes(session.user.email ?? 'none'))
+    ) {
+        return <Unauthorized />;
+    }
+
+    const mappings = new Map<string, string>([[params.problemId, problem.problem.title]]);
+
+    if (params.groupId) {
+        const group = (await problemService
+            .getProblemGroup({
+                groupId: params.groupId,
+            })
+            .catch(err => handleGrpcError(err))) as GetProblemGroupResponse;
+
+        mappings.set(params.groupId, group.group?.name)
     }
 
     return (
-        <Container sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            height: '100%'
-        }}>
+        <Container
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%',
+            }}>
             <Box
                 sx={{
                     display: 'flex',
                     flexDirection: 'column',
-                    height: '100%'
+                    height: '100%',
                 }}>
                 {problem?.problem ? (
                     <Box>
-                        <NextBreadcrumb mappings={new Map<string, string>([[params.problemId, problem.problem.title]])} />
+                        <NextBreadcrumb mappings={mappings} />
                         <ProblemDisplay problem={problem.problem} />
                     </Box>
-                    ) : <></>
-                }
+                ) : (
+                    <></>
+                )}
             </Box>
         </Container>
     );

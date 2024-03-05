@@ -99,7 +99,7 @@ export default function SolutionRuntimeDistributionGraph({ submissions }: { subm
     };
 
     const selectedData = histogramData.find(data => data.testId === selectedTestId)?.data ?? [];
-
+    var count = 1;
     return (
         <Box>
             <FormControl fullWidth>
@@ -110,9 +110,9 @@ export default function SolutionRuntimeDistributionGraph({ submissions }: { subm
                     label="Test ID"
                     onChange={handleChange}
                 >
-                {histogramData.map(({ testId }) => (
+                {histogramData.map(({ testId, data }) => (
                     <MenuItem key={testId} value={testId}>
-                        {testId}
+                        Test {count++}
                     </MenuItem>
                 ))}
                 </Select>

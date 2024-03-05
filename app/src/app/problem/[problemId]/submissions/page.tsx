@@ -5,7 +5,7 @@ import { useClient, useServerClient } from '@/lib/connect';
 import { handleGrpcError } from '@/lib/error';
 import { RunCodeRequest } from '@/protobufs/services/v1/code_runner_service_pb';
 import { ProblemService } from '@/protobufs/services/v1/problem_service_connect';
-import { GetProblemResponse, GetProblemSummariesResponse } from '@/protobufs/services/v1/problem_service_pb';
+import { GetProblemGroupResponse, GetProblemResponse, GetProblemSummariesResponse } from '@/protobufs/services/v1/problem_service_pb';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Accordion from '@mui/material/Accordion';
 import AccordionActions from '@mui/material/AccordionActions';
@@ -97,9 +97,10 @@ async function ProblemSubmissionDisplay({ problem }: { problem: Problem }) {
     );
 }
 
-export default async function ProblemSubmissionsPage({ params }: { params: { problemId: string } }) {
+export default async function ProblemSubmissionsPage({ params }: { params: { groupId: string, problemId: string } }) {
     const session = await getServerSession();
-    const problem = (await useServerClient(ProblemService)
+    const problemService = useServerClient(ProblemService);
+    const problem = (await problemService
         .getProblem({
             problemId: params.problemId,
         })
@@ -107,6 +108,18 @@ export default async function ProblemSubmissionsPage({ params }: { params: { pro
 
     if (problem && (!session || session.user.email != problem.problem?.owner)) {
         return (<Unauthorized />)
+    }
+
+    const mappings = new Map<string, string>([[params.problemId, problem.problem.title]]);
+
+    if (params.groupId) {
+        const group = (await problemService
+            .getProblemGroup({
+                groupId: params.groupId,
+            })
+            .catch(err => handleGrpcError(err))) as GetProblemGroupResponse;
+
+        mappings.set(params.groupId, group.group?.name)
     }
 
     return (
@@ -119,7 +132,7 @@ export default async function ProblemSubmissionsPage({ params }: { params: { pro
                 {problem?.problem ? (
                     <Box>
                         <NextBreadcrumb
-                            mappings={new Map<string, string>([[params.problemId, problem.problem.title]])}
+                            mappings={mappings}
                         />
                         <ProblemSubmissionDisplay problem={problem.problem} />
                     </Box>
