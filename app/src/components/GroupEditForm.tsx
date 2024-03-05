@@ -93,7 +93,7 @@ export default function GroupEditForm({ group, problems, update, close }: { grou
             setSubmitLoading(false);
             setOpen(true);
         } else {
-            group.owner = session.user.id
+            group.owner = session.user.email
             const response = await problemServiceClient.createProblemGroup({
                 group: group
             })

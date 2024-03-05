@@ -28,7 +28,7 @@ export default function ProblemGroupActions({
         setAnchorEl(null);
     };
 
-    const isOwner = session ? (session?.user.id === owner) : false;
+    const isOwner = session ? (session?.user.email === owner) : false;
     return (
         <React.Fragment>
             {isOwner ? (

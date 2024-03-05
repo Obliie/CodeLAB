@@ -36,6 +36,8 @@ import { GetProblemSubmissionsResponse, GetSubmissionResponse } from '@/protobuf
 import { useSession } from 'next-auth/react';
 import { ProblemSubmissionsDataGrid } from '@/components/ProblemSubmissionsDataGrid';
 import SolutionRuntimeDistributionGraph from '@/components/SolutionRuntimeDistributionGraph';
+import Unauthorized from '@/components/Unauthorized';
+import { getServerSession } from 'next-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -96,11 +98,16 @@ async function ProblemSubmissionDisplay({ problem }: { problem: Problem }) {
 }
 
 export default async function ProblemSubmissionsPage({ params }: { params: { problemId: string } }) {
+    const session = await getServerSession();
     const problem = (await useServerClient(ProblemService)
         .getProblem({
             problemId: params.problemId,
         })
         .catch(err => handleGrpcError(err))) as GetProblemResponse;
+
+    if (problem && (!session || session.user.email != problem.problem?.owner)) {
+        return (<Unauthorized />)
+    }
 
     return (
         <Container>

@@ -136,7 +136,7 @@ export default function ProblemEditForm({
             setSubmitLoading(false);
             setOpen(true);
         } else {
-            problem.owner = session.user.id;
+            problem.owner = session.user.email;
             const response = (await problemServiceClient
                 .createProblem({
                     problem: problem,

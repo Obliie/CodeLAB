@@ -5,6 +5,7 @@ import NextBreadcrumb from '@/components/NextBreadcrumb';
 import ProblemSummaryAccordion from '@/components/ProblemSummaryAccordion';
 import ProblemTestData from '@/components/ProblemTestData';
 import TestDataDialog from '@/components/TestDataDialog';
+import Unauthorized from '@/components/Unauthorized';
 import { useClient, useServerClient } from '@/lib/connect';
 import { handleGrpcError } from '@/lib/error';
 import { ProblemGroup, ProblemSummary } from '@/protobufs/common/v1/problem_pb';
@@ -18,6 +19,7 @@ import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Unstable_Grid2'
+import { getServerSession } from 'next-auth';
 
 async function Group({ group }: { group: ProblemGroup }) {
     const problemSummaries = (await useServerClient(ProblemService)
@@ -73,11 +75,16 @@ async function Group({ group }: { group: ProblemGroup }) {
 }
 
 export default async function GroupPage({ params }: { params: { groupId: string } }) {
+    const session = await getServerSession();
     const group = (await useServerClient(ProblemService)
         .getProblemGroup({
             groupId: params.groupId,
         })
         .catch(err => handleGrpcError(err))) as GetProblemGroupResponse;
+
+    if (group && !group.group?.public && (!session || !group.group?.members.includes(session.user.email ?? "none"))) {
+        return (<Unauthorized />)
+    }
 
     return (
         <Container>

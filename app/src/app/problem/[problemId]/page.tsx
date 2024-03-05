@@ -18,6 +18,7 @@ import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
 import { SubmissionService } from '@/protobufs/services/v1/submission_service_connect';
 import { getServerSession } from 'next-auth';
 import { GetSubmissionProgressResponse } from '@/protobufs/services/v1/submission_service_pb';
+import Unauthorized from '@/components/Unauthorized';
 
 async function ProblemDisplay({ problem }: { problem: Problem }) {
     const session = await getServerSession();
@@ -73,11 +74,16 @@ async function ProblemDisplay({ problem }: { problem: Problem }) {
 }
 
 export default async function ProblemPage({ params }: { params: { problemId: string } }) {
+    const session = await getServerSession();
     const problem = (await useServerClient(ProblemService)
         .getProblem({
             problemId: params.problemId,
         })
         .catch(err => handleGrpcError(err))) as GetProblemResponse;
+
+    if (problem && !problem.problem?.public && (!session || !problem.problem?.members.includes(session.user.email ?? "none"))) {
+        return (<Unauthorized />)
+    }
 
     return (
         <Container sx={{

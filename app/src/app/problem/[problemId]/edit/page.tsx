@@ -29,6 +29,9 @@ import { Problem } from '@/protobufs/common/v1/problem_pb';
 import ProblemTestDataGrid from '@/components/ProblemTestDataGrid';
 import TestDataDialog from '@/components/TestDataDialog';
 import NextBreadcrumb from '@/components/NextBreadcrumb';
+import { getServerSession } from 'next-auth';
+import { GetServerSidePropsContext } from 'next/types';
+import Unauthorized from '@/components/Unauthorized';
 
 export const dynamic = 'force-dynamic'
 
@@ -59,14 +62,17 @@ async function ProblemEditDisplay({ problem }: { problem: Problem }) {
     )
 }
 
-
-
 export default async function ProblemEditPage({ params }: { params: { problemId: string } }) {
+    const session = await getServerSession();
     const problem = (await useServerClient(ProblemService)
         .getProblem({
             problemId: params.problemId,
         })
         .catch(err => handleGrpcError(err))) as GetProblemResponse;
+
+    if (problem && (!session || session.user.email != problem.problem?.owner)) {
+        return (<Unauthorized />)
+    }
 
     return (
         <Container>

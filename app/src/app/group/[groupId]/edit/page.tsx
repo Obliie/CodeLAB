@@ -36,6 +36,7 @@ import GroupEditForm from '@/components/GroupEditForm';
 import { UpdateProblemGroupRequest } from '@/actions/UpdateProblemGroupRequest';
 import NextBreadcrumb from '@/components/NextBreadcrumb';
 import { getServerSession } from 'next-auth';
+import Unauthorized from '@/components/Unauthorized';
 
 export const dynamic = 'force-dynamic';
 
@@ -62,11 +63,16 @@ async function GroupEditDisplay({ group }: { group: ProblemGroup }) {
 }
 
 export default async function GroupEditPage({ params }: { params: { groupId: string } }) {
+    const session = await getServerSession();
     const group = (await useServerClient(ProblemService)
         .getProblemGroup({
             groupId: params.groupId,
         })
         .catch(err => handleGrpcError(err))) as GetProblemGroupResponse;
+
+    if (group && (!session || session.user.email != group.group?.owner)) {
+        return (<Unauthorized />)
+    }
 
     return (
         <Container>
