@@ -1,6 +1,7 @@
 import { DeleteProblemGroupRequest } from '@/actions/DeleteProblemGroupRequest';
 import CodeSubmitter from '@/components/CodeSubmitter';
 import GroupDialog from '@/components/GroupDialog';
+import GroupsList from '@/components/GroupsList';
 import ProblemGroupActions from '@/components/ProblemGroupActions';
 import ProblemTestData from '@/components/ProblemTestData';
 import TestDataDialog from '@/components/TestDataDialog';
@@ -23,40 +24,16 @@ import React from 'react';
 // Opt out of caching for all data requests in the route segment
 export const dynamic = 'force-dynamic'
 
-async function GroupsList() {
-    const session = await getServerSession();
-
-    const groups = (await useServerClient(ProblemService)
-        .getProblemGroupList(session && session.user.email ? { userId: session.user.email } : {})
-        .catch(err => handleGrpcError(err))) as GetProblemGroupListResponse;
-
-    return groups && groups.groups.length > 0 ? (
-        <Box width="100%" paddingTop="10px">
-            {groups.groups.map(group => (
-                <Card key={group.id} sx={{ marginBottom: '10px' }}>
-                    <CardContent>
-                        <Typography gutterBottom variant="h5" component="div">
-                            {group.name}
-                        </Typography>
-                        <Typography>Contains {group.problemIds.length} problems</Typography>
-                    </CardContent>
-                    <CardActions sx={{justifyContent: 'flex-end', marginBottom: '10px', gap: '5px', marginRight: '10px'}}>
-                        <ProblemGroupActions groupId={group.id} deleteAction={DeleteProblemGroupRequest} owner={group.owner}/>
-                    </CardActions>
-                </Card>
-            ))}
-        </Box>
-    ) : (
-        <Typography>No groups found</Typography>
-    );
-}
-
 export default async function GroupsListPage() {
     const session = await getServerSession();
 
     const problems = (await useServerClient(ProblemService)
         .getProblemSummaries(session && session.user.email ? { userId: session.user.email } : {})
         .catch(err => handleGrpcError(err))) as GetProblemSummariesResponse;
+
+    const groups = (await useServerClient(ProblemService)
+        .getProblemGroupList(session && session.user.email ? { userId: session.user.email } : {})
+        .catch(err => handleGrpcError(err))) as GetProblemGroupListResponse;
 
     return (
         <Container>
@@ -69,7 +46,9 @@ export default async function GroupsListPage() {
                     alignItems: 'center',
                 }}>
                 <React.Suspense fallback={<Skeleton width="100%" />}>
-                    <GroupsList />
+                    { groups.groups && groups.groups.length > 0 ? <GroupsList groups={groups.groups} deleteGroup={DeleteProblemGroupRequest} /> : (
+                        <Typography>No groups found</Typography>
+                    )}
                 </React.Suspense>
             </Box>
         </Container>

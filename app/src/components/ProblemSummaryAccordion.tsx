@@ -18,8 +18,6 @@ export default function ProblemSummaryAccordion({ problemSummaries, deleteProble
     const [filteredSummaries, setFilteredSummaries] = useState(problemSummaries)
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        console.log("val", event.target.value);
-
         setFilteredSummaries([...problemSummaries.filter(summary => summary.title.toLowerCase().includes(event.target.value.toLowerCase()))])
     }
 
