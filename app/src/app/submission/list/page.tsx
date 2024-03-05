@@ -9,6 +9,7 @@ import { OpenInNew } from '@mui/icons-material';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
+import Chip from '@mui/material/Chip';
 import Container from '@mui/material/Container';
 import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
@@ -38,9 +39,19 @@ async function SubmissionDataGrid() {
             field: 'submissionTime',
             headerName: 'Submission Time',
             type: 'dateTime',
-            width: 250,
+            width: 200,
         },
         { field: 'problem', headerName: 'Problem', width: 250 },
+        {
+            field: 'passed',
+            headerName: 'Passed',
+            width: 100,
+            renderCell: (params) => {
+                return (
+                    params.row.passed ? <Chip label="pass" color="success" variant="outlined" /> : <Chip label="fail" color="error" variant="outlined" />
+                )
+            }
+        },
         {
             field: 'testsPassed',
             headerName: 'Tests Passed',
@@ -94,6 +105,7 @@ async function SubmissionDataGrid() {
                 id: submissionId,
                 submissionTime: submission.submissionTime.toDate(),
                 problem: problem.problem ? problem.problem?.title : 'Deleted problem.',
+                passed: submission.testResults.filter(result => result.passed).length == submission.testResults.length,
                 testsPassed: submission.testResults.filter(result => result.passed).length,
                 testsFailed: submission.testResults.filter(result => !result.passed).length,
                 runtime:

@@ -35,6 +35,7 @@ import { SubmissionService } from '@/protobufs/services/v1/submission_service_co
 import { OpenInNew } from '@mui/icons-material';
 import { GetProblemSubmissionsResponse, GetSubmissionResponse } from '@/protobufs/services/v1/submission_service_pb';
 import { useSession } from 'next-auth/react';
+import Chip from '@mui/material/Chip';
 
 export const dynamic = 'force-dynamic';
 
@@ -52,7 +53,17 @@ export async function ProblemSubmissionsDataGrid({ submissions }: { submissions:
             field: 'submissionTime',
             headerName: 'Submission Time',
             type: 'dateTime',
-            width: 250,
+            width: 200,
+        },
+        {
+            field: 'passed',
+            headerName: 'Passed',
+            width: 100,
+            renderCell: (params) => {
+                return (
+                    params.row.passed ? <Chip label="pass" color="success" variant="outlined" /> : <Chip label="fail" color="error" variant="outlined" />
+                )
+            }
         },
         {
             field: 'testsPassed',
@@ -95,6 +106,7 @@ export async function ProblemSubmissionsDataGrid({ submissions }: { submissions:
                 id: submission.submissionId,
                 user: submission.userId,
                 submissionTime: new Date(submission.submissionTime),
+                passed: submission.testResults.filter(result => result.passed).length == submission.testResults.length,
                 testsPassed: submission.testResults.filter(result => result.passed).length,
                 testsFailed: submission.testResults.filter(result => !result.passed).length,
                 runtime:
