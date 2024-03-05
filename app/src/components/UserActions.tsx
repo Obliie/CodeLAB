@@ -18,13 +18,15 @@ import * as React from 'react';
 import { Button } from '@mui/material';
 
 import { SessionProvider, signIn, signOut, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 function signInClicked() {
     signIn('google')
 }
 
 function signOutClicked() {
-    signOut();
+    signOut({callbackUrl: '/problem'});
 }
 
 export default function UserActions() {

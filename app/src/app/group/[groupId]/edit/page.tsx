@@ -35,12 +35,15 @@ import TestDataDialog from '@/components/TestDataDialog';
 import GroupEditForm from '@/components/GroupEditForm';
 import { UpdateProblemGroupRequest } from '@/actions/UpdateProblemGroupRequest';
 import NextBreadcrumb from '@/components/NextBreadcrumb';
+import { getServerSession } from 'next-auth';
 
 export const dynamic = 'force-dynamic';
 
 async function GroupEditDisplay({ group }: { group: ProblemGroup }) {
+    const session = await getServerSession();
+
     const problems = (await useServerClient(ProblemService)
-        .getProblemSummaries({})
+        .getProblemSummaries(session && session.user.email ? { userId: session.user.email } : {})
         .catch(err => handleGrpcError(err))) as GetProblemSummariesResponse;
 
     return (

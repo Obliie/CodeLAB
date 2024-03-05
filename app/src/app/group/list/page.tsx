@@ -16,6 +16,7 @@ import Container from '@mui/material/Container';
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import { getServerSession } from 'next-auth';
 import { useSession } from 'next-auth/react';
 import React from 'react';
 
@@ -23,11 +24,13 @@ import React from 'react';
 export const dynamic = 'force-dynamic'
 
 async function GroupsList() {
+    const session = await getServerSession();
+
     const groups = (await useServerClient(ProblemService)
-        .getProblemGroupList({})
+        .getProblemGroupList(session && session.user.email ? { userId: session.user.email } : {})
         .catch(err => handleGrpcError(err))) as GetProblemGroupListResponse;
 
-    return groups ? (
+    return groups && groups.groups.length > 0 ? (
         <Box width="100%" paddingTop="10px">
             {groups.groups.map(group => (
                 <Card key={group.id} sx={{ marginBottom: '10px' }}>
@@ -49,8 +52,10 @@ async function GroupsList() {
 }
 
 export default async function GroupsListPage() {
+    const session = await getServerSession();
+
     const problems = (await useServerClient(ProblemService)
-        .getProblemSummaries({})
+        .getProblemSummaries(session && session.user.email ? { userId: session.user.email } : {})
         .catch(err => handleGrpcError(err))) as GetProblemSummariesResponse;
 
     return (

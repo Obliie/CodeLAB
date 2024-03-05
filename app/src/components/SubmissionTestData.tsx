@@ -58,7 +58,7 @@ function SubmissionTestDataTab({ testData, value, index }: { testData: Submissio
                     </Box>
                     <Box sx={{ marginBottom: '16px' }}>
                         <Typography variant="h6">Output</Typography>
-                        <Typography>{testData.output}</Typography>
+                        <Box sx={{ whiteSpace: "pre-wrap" }}>{testData.output}</Box>
                     </Box>
                     <Box sx={{ marginBottom: '16px' }}>
                         <Typography variant="h6">Runtime</Typography>

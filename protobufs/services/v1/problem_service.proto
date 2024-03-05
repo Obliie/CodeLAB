@@ -32,6 +32,7 @@ service ProblemService {
 message GetProblemSummariesRequest {
     uint32 limit = 1;
     repeated string id_filter = 2;
+    string user_id = 3;
 }
 
 message GetProblemSummariesResponse {
@@ -73,6 +74,7 @@ message DeleteProblemResponse {
 
 message GetProblemGroupListRequest {
     uint32 limit = 1;
+    string user_id = 2;
 }
 
 message GetProblemGroupListResponse {

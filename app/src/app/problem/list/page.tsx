@@ -17,6 +17,7 @@ import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
+import { getServerSession } from 'next-auth';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
@@ -25,11 +26,13 @@ import * as React from 'react';
 export const dynamic = 'force-dynamic'
 
 async function ProblemSummaries() {
+    const session = await getServerSession();
+
     const problems = (await useServerClient(ProblemService)
-        .getProblemSummaries({})
+        .getProblemSummaries(session && session.user.email ? { userId: session.user.email } : {})
         .catch(err => handleGrpcError(err))) as GetProblemSummariesResponse;
 
-    return problems ? (
+    return problems && problems.problemSummaries.length > 0 ? (
         <Box width="100%" paddingTop="10px">
             <ProblemSummaryAccordion problemSummaries={problems.problemSummaries} deleteProblem={DeleteProblemRequest} nav="" />
         </Box>

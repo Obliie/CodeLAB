@@ -17,6 +17,7 @@ import * as React from 'react';
 import GroupEditForm from './GroupEditForm';
 
 export default function GroupDialog({ group, problems }: { group: ProblemGroup | undefined, problems: ProblemSummary[] }) {
+    const { data: session } = useSession();
     const [open, setOpen] = React.useState(false);
 
     const handleClickOpen = () => {
@@ -27,7 +28,7 @@ export default function GroupDialog({ group, problems }: { group: ProblemGroup |
         setOpen(false);
     };
 
-    return (
+    return session ? (
         <React.Fragment>
             <Box textAlign='end'>
                 <Button variant="outlined" onClick={handleClickOpen}>
@@ -41,5 +42,5 @@ export default function GroupDialog({ group, problems }: { group: ProblemGroup |
                 </DialogContent>
             </Dialog>
         </React.Fragment>
-    );
+    ) : <></>;
 }

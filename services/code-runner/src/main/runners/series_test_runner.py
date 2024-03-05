@@ -28,7 +28,6 @@ class SeriesTestRunner(BaseTestRunner):
         def exec(self, results):
             self.container_controller._copy_bytes_to_container(container, stdin.encode(), DEFAULT_STORAGE_PATH, "/test.in")
             piped_command = f"bash -c 'cat {DEFAULT_STORAGE_PATH}/test.in | {command}'"
-            log_and_flush(logging.INFO, f"cmd: {piped_command}")
             exit_code, output = container.exec_run(piped_command)
 
             results[EXIT_CODE_KEY] = exit_code

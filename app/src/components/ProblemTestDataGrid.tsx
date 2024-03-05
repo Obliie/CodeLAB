@@ -62,7 +62,7 @@ export default function ProblemTestDataGrid({ problem }: { problem: Problem }) {
             id: testData.id,
             arguments: testData.arguments,
             stdin: testData.stdin ? testData.stdin.replace(/\n/g, '\\n').replace(/\r/g, '\\r') : '',
-            expectedStdout: testData.expectedStdout,
+            expectedStdout: testData.expectedStdout ? testData.expectedStdout.replace(/\n/g, '\\n').replace(/\r/g, '\\r') : '',
         };
         rows.push(row);
     }

@@ -172,19 +172,6 @@ export default function TestDataDialog({
                     <TextField
                         autoFocus
                         margin="dense"
-                        id="expected-stdout"
-                        label="Expected Stdout"
-                        type="text"
-                        multiline
-                        fullWidth
-                        variant="standard"
-                        onChange={event => {
-                            setExpectedStdout(event.target.value);
-                        }}
-                    />
-                    <TextField
-                        autoFocus
-                        margin="dense"
                         id="stdin"
                         label="Stdin"
                         type="text"
@@ -193,6 +180,19 @@ export default function TestDataDialog({
                         variant="standard"
                         onChange={event => {
                             setStdin(event.target.value);
+                        }}
+                    />
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id="expected-stdout"
+                        label="Expected Stdout"
+                        type="text"
+                        multiline
+                        fullWidth
+                        variant="standard"
+                        onChange={event => {
+                            setExpectedStdout(event.target.value);
                         }}
                     />
                 </DialogContent>

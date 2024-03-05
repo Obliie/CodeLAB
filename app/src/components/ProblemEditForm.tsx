@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import SuccessSnackbar from './SuccessSnackbar';
 import { getToken } from 'next-auth/jwt';
+import UserSelectionField from './UserSelectionField';
 
 function getLanguageDisplayName(language: ProgrammingLanguage) {
     switch (language) {
@@ -68,6 +69,7 @@ export default function ProblemEditForm({
             errorMessage: 'You must select at least one supported language',
         },
         displayTestData: problem ? problem.displayTestData : true,
+        public: problem ? problem.public : false,
         runTimeout: {
             value: problem ? problem.runTimeout : 30,
             error: false,
@@ -79,6 +81,7 @@ export default function ProblemEditForm({
             errorMessage: 'The run max memory must be a value between 128MB and 1024MB',
         },
     });
+    const [selectedUsers, setSelectedUsers] = useState<string[]>(problem && problem.members.length > 0 ? problem.members : []);
     const [submitLoading, setSubmitLoading] = useState(false);
     const [submitEnabled, setSubmitEnabled] = useState(false);
 
@@ -106,9 +109,20 @@ export default function ProblemEditForm({
         problem.title = problemState.title.value;
         problem.description = problemState.description.value;
         problem.supportedLanguages = problemState.supportedLanguages.value;
-        problem.displayTestData = problemState.displayTestData;
+        problem.displayTestData = problemState.displayTestData ? true : false;
         problem.runTimeout = Number(problemState.runTimeout.value);
         problem.runMaxMemory = Number(problemState.runMaxMemory.value);
+        problem.public = problemState.public ? true : false;
+        if (problem.public) {
+            problem.members = [session.user.email ?? ""]
+        } else {
+            problem.members = selectedUsers;
+
+            if(session.user.email && !selectedUsers.includes(session.user.email)) {
+                problem.members.push(session.user.email ?? "")
+                setSelectedUsers(problem.members);
+            }
+        }
 
         if (update) {
             await fetch("/api/auth/token").then(res => res.json()).then(async res => {
@@ -180,7 +194,7 @@ export default function ProblemEditForm({
         if (!invalidField) {
             setSubmitEnabled(true);
         }
-    }, [problemState, edited]);
+    }, [problemState, selectedUsers, edited]);
 
     return (
         <Box>
@@ -322,7 +336,22 @@ export default function ProblemEditForm({
                     }}
                 />
             </Stack>
+            {problemState.public ? <></> : <UserSelectionField setEdited={setEdited} selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} />}
             <FormGroup sx={{ paddingTop: '10px' }}>
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            key="display-public"
+                            style={{ marginRight: 8 }}
+                            checked={problemState.public}
+                            onChange={event => {
+                                setEdited(true);
+                                setProblemState({ ...problemState, public: event.target.checked });
+                            }}
+                        />
+                    }
+                    label="Display problem to all users"
+                />
                 <FormControlLabel
                     control={
                         <Checkbox
@@ -330,6 +359,7 @@ export default function ProblemEditForm({
                             style={{ marginRight: 8 }}
                             checked={problemState.displayTestData}
                             onChange={event => {
+                                setEdited(true);
                                 setProblemState({ ...problemState, displayTestData: event.target.checked });
                             }}
                         />

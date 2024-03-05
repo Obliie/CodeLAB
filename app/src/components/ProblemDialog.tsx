@@ -16,8 +16,10 @@ import TextField from '@mui/material/TextField';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import ProblemEditForm from './ProblemEditForm';
+import { useSession } from 'next-auth/react';
 
 export default function ProblemDialog({ problem }: { problem: Problem | undefined }) {
+    const { data: session } = useSession();
     const [open, setOpen] = React.useState(false);
 
     const handleClickOpen = () => {
@@ -28,7 +30,7 @@ export default function ProblemDialog({ problem }: { problem: Problem | undefine
         setOpen(false);
     };
 
-    return (
+    return session ? (
         <React.Fragment>
             <Box textAlign="end">
                 <Button variant="outlined" onClick={handleClickOpen}>
@@ -42,5 +44,5 @@ export default function ProblemDialog({ problem }: { problem: Problem | undefine
                 </DialogContent>
             </Dialog>
         </React.Fragment>
-    );
+    ) : <></>;
 }

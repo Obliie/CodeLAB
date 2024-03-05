@@ -20,6 +20,9 @@ import Slide, { SlideProps } from "@mui/material/Slide";
 import SuccessSnackbar from "./SuccessSnackbar";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import UserSelectionField from "./UserSelectionField";
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
 
 export default function GroupEditForm({ group, problems, update, close }: { group: ProblemGroup | undefined, problems: ProblemSummary[], update: boolean, close: any }) {
     const [groupState, setGroupState] = useState({
@@ -33,10 +36,12 @@ export default function GroupEditForm({ group, problems, update, close }: { grou
             error: group ? false : true,
             errorMessage: 'You must provide a description'
         },
+        public: group ? group.public : false,
     });
     const [selectedProblems, setSelectedProblems] = useState<ProblemSummary[]>(
         group ? problems.filter(problem => group?.problemIds.includes(problem.id)) : []
     );
+    const [selectedUsers, setSelectedUsers] = useState<string[]>(group && group.members.length > 0 ? group.members : []);
     const { data: session } = useSession();
     const [submitLoading, setSubmitLoading] = useState(false);
     const [submitEnabled, setSubmitEnabled] = useState(false);
@@ -66,6 +71,17 @@ export default function GroupEditForm({ group, problems, update, close }: { grou
         group.name = groupState.name.value;
         group.description = groupState.description.value;
         group.problemIds = selectedProblems.map(problem => problem.id);
+        group.public = groupState.public ? true : false;
+        if (group.public) {
+            group.members = [session.user.email ?? ""]
+        } else {
+            group.members = selectedUsers;
+
+            if(session.user.email && !selectedUsers.includes(session.user.email)) {
+                group.members.push(session.user.email ?? "")
+                setSelectedUsers(group.members);
+            }
+        }
 
         if (update) {
             const response = (await problemServiceClient
@@ -132,7 +148,7 @@ export default function GroupEditForm({ group, problems, update, close }: { grou
         if (!invalidField) {
             setSubmitEnabled(true);
         }
-    }, [groupState, selectedProblems, edited]);
+    }, [groupState, selectedProblems, selectedUsers, edited]);
 
     return (
       <Box>
@@ -162,6 +178,23 @@ export default function GroupEditForm({ group, problems, update, close }: { grou
               helperText={groupState.description.error && groupState.description.errorMessage}
             />
             <MultiProblemSelect selectedProblems={selectedProblems} setEdited={setEdited} setSelectedProblems={setSelectedProblems} problems={problems} />
+            {groupState.public ? <></> : <UserSelectionField setEdited={setEdited} selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} />}
+            <FormGroup sx={{ paddingTop: '10px' }}>
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            key="display-public"
+                            style={{ marginRight: 8 }}
+                            checked={groupState.public}
+                            onChange={event => {
+                                setEdited(true);
+                                setGroupState({ ...groupState, public: event.target.checked });
+                            }}
+                        />
+                    }
+                    label="Display group to all users"
+                />
+            </FormGroup>
             <Box textAlign="end" paddingTop="20px" sx={{ display: 'flex', justifyContent: 'flex-end', gap: '15px' }}>
                 {close !== undefined ? (
                     <Button type="button" variant="outlined" onClick={close}>

@@ -51,7 +51,7 @@ function ExecutionDetails({ result }: { result: SubmissionTestResult }) {
         <Card variant="outlined" sx={{ mb: 2 }}>
             <CardContent>
                 <Typography variant="body2">Test ID: {result.testId} {result.passed ? <Chip label="pass" color="success" variant="outlined" /> : <Chip label="fail" color="error" variant="outlined" />}</Typography>
-                <Typography variant="body2">Output: {result.output}</Typography>
+                <Typography variant="body2">Output: {result.output ? result.output.replace(/\n/g, '\\n').replace(/\r/g, '\\r') : ''}</Typography>
                 <Typography variant="body2">Runtime: {result.runtime * 1000}ms</Typography>
             </CardContent>
         </Card>

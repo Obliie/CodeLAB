@@ -64,7 +64,7 @@ function TestDataTab({ testData, value, index }: { testData: Problem_TestData; v
                     : <></>}
                     <Box sx={{ marginBottom: '16px' }}>
                         <Typography variant="h6">Expected Output</Typography>
-                        <Typography>{testData.expectedStdout ? testData.expectedStdout : "No output expected."}</Typography>
+                        <Box sx={{ whiteSpace: "pre-wrap" }}>{testData.expectedStdout ? testData.expectedStdout : "No output expected."}</Box>
                     </Box>
                     {testData.expectedFiles.length > 0 ? (
                         <Box>

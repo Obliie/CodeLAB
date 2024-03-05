@@ -106,6 +106,10 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
 
         resp = problem_service_pb2.GetProblemSummariesResponse()
         for problem in problems:
+            if not request.id_filter:
+                if ('public' not in problem or not problem['public']) and ('members' not in problem or request.user_id not in problem['members']):
+                    continue
+
             summary = self._problem_document_to_problem_summary(problem)
             resp.problem_summaries.append(summary)
 
@@ -187,6 +191,15 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
             # Handle invalid token
             pass"""
 
+        if ('displayTestData' not in problem_dict):
+            problem_dict['displayTestData'] = False
+
+        if ('public' not in problem_dict):
+            problem_dict['public'] = False
+
+        if ('members' in problem_dict):
+            problem_dict['members'] = [item for item in problem_dict['members'] if item != ""]
+
         result = (
             self.client[self.DATABASE_NAME]
             .get_collection(PROBLEMS_COLLECTION_NAME)
@@ -249,6 +262,9 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
 
         resp = problem_service_pb2.GetProblemGroupListResponse()
         for group in groups:
+            if ('public' not in group or not group['public']) and ('members' not in group or request.user_id not in group['members']):
+                continue
+
             summary = self._group_document_to_group(group)
             resp.groups.append(summary)
 
@@ -297,6 +313,12 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
 
         # Artificial slowdown for frontend astethics
         time.sleep(1)
+
+        if ('public' not in group_dict):
+            group_dict['public'] = False
+
+        if ('members' in group_dict):
+            group_dict['members'] = [item for item in group_dict['members'] if item != ""]
 
         result = (
             self.client[self.DATABASE_NAME]
@@ -391,7 +413,7 @@ def serve() -> None:
         ProblemServicer(), server
     )
     server.add_insecure_port(f"[::]:{ os.environ['PROBLEM_SERVICE_PORT'] }")
-    log_and_flush(logging.INFO, "Starting Probelm service...")
+    log_and_flush(logging.INFO, "Starting Problem service...")
     server.start()
     server.wait_for_termination()
 

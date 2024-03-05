@@ -15,6 +15,7 @@ message Problem {
     uint32 run_max_memory = 8;
     string owner = 9;
     repeated string members = 10;
+    bool public = 11;
 
     message TestData {
         string id = 1;
@@ -46,4 +47,5 @@ message ProblemGroup {
     repeated string problem_ids = 4;
     string owner = 5;
     repeated string members = 6;
+    bool public = 7;
 }
