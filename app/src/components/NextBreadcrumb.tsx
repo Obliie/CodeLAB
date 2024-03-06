@@ -11,7 +11,7 @@ const NextBreadcrumb = ({mappings}: {mappings: Map<string, string>}) => {
     const pathNames = paths.split('/').filter(path => path);
 
     return (
-        <Card sx={{ padding: '10px', marginBottom: '15px', width: '100%' }}>
+        <Card sx={{ padding: '10px', width: '100%' }}>
             <Breadcrumbs separator={<NavigateNext />} aria-label="breadcrumb">
                 {pathNames.map((link: string, index: number) => {
                     let href = `/${pathNames.slice(0, index + 1).join('/')}`;

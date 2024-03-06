@@ -83,7 +83,16 @@ export default async function GroupEditPage({ params }: { params: { groupId: str
                 }}>
                 {group?.group ? (
                     <Box>
-                        <NextBreadcrumb mappings={new Map<string, string>([[params.groupId, group.group.name]])} />
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                width: '100%',
+                                marginBottom: '15px',
+                                gap: '15px'
+                        }}>
+                            <NextBreadcrumb mappings={new Map<string, string>([[params.groupId, group.group.name]])} />
+                        </Box>
                         <GroupEditDisplay group={group.group} />
                     </Box>
                 ) : (

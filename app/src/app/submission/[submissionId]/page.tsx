@@ -93,7 +93,16 @@ export default async function SubmissionPage({ params }: { params: { submissionI
                 }}>
                 {submission ? (
                         <Box>
-                            <NextBreadcrumb mappings={mappings} />
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    width: '100%',
+                                    marginBottom: '15px',
+                                    gap: '15px'
+                            }}>
+                                <NextBreadcrumb mappings={new Map<string, string>(mappings)} />
+                            </Box>
                             <Submission submission={submission} />
                         </Box>
                     ) : <></>

@@ -96,7 +96,16 @@ export default async function ProblemEditPage({ params }: { params: { problemId:
                 }}>
                 {problem?.problem ? (
                     <Box>
-                        <NextBreadcrumb mappings={new Map<string, string>(mappings)} />
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                width: '100%',
+                                marginBottom: '15px',
+                                gap: '15px'
+                        }}>
+                            <NextBreadcrumb mappings={new Map<string, string>(mappings)} />
+                        </Box>
                         <ProblemEditDisplay problem={problem.problem} />
                     </Box>
                     ) : <></>

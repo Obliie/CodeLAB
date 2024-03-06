@@ -19,6 +19,8 @@ import { SubmissionService } from '@/protobufs/services/v1/submission_service_co
 import { getServerSession } from 'next-auth';
 import { GetSubmissionProgressResponse } from '@/protobufs/services/v1/submission_service_pb';
 import Unauthorized from '@/components/Unauthorized';
+import ProblemActions from '@/components/ProblemActions';
+import { DeleteProblemRequest } from '@/actions/DeleteProblemRequest';
 
 async function ProblemDisplay({ problem }: { problem: Problem }) {
     const session = await getServerSession();
@@ -102,7 +104,7 @@ export default async function ProblemPage({ params }: { params: { problemId: str
             })
             .catch(err => handleGrpcError(err))) as GetProblemGroupResponse;
 
-        mappings.set(params.groupId, group.group?.name)
+        mappings.set(params.groupId, group.group?.name);
     }
 
     return (
@@ -120,7 +122,23 @@ export default async function ProblemPage({ params }: { params: { problemId: str
                 }}>
                 {problem?.problem ? (
                     <Box>
-                        <NextBreadcrumb mappings={mappings} />
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                width: '100%',
+                                marginBottom: '15px',
+                                gap: '15px'
+                            }}>
+                            <NextBreadcrumb mappings={mappings} />
+                            <ProblemActions
+                                hideView={true}
+                                problemId={params.problemId}
+                                deleteAction={DeleteProblemRequest}
+                                nav={''}
+                                isOwner={session ? session?.user.email === problem.problem.owner : false}
+                            />
+                        </Box>
                         <ProblemDisplay problem={problem.problem} />
                     </Box>
                 ) : (

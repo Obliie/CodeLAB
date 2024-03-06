@@ -12,10 +12,12 @@ export default function ProblemGroupActions({
     groupId,
     deleteAction,
     owner,
+    hideView,
 }: {
     groupId: string;
     deleteAction: Function;
     owner: string;
+    hideView: boolean;
 }) {
     const router = useRouter();
     const { data: session } = useSession();
@@ -70,9 +72,11 @@ export default function ProblemGroupActions({
                 <></>
             )}
 
-            <Link href={`/group/${groupId}`}>
-                <Button variant="contained">View</Button>
-            </Link>
+            {!hideView ?
+                <Link href={`/group/${groupId}`}>
+                    <Button variant="contained">View</Button>
+                </Link>
+            : <></> }
         </React.Fragment>
     );
 }

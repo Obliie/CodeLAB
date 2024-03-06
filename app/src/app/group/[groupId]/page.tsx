@@ -1,7 +1,9 @@
+import { DeleteProblemGroupRequest } from '@/actions/DeleteProblemGroupRequest';
 import { DeleteProblemRequest } from '@/actions/DeleteProblemRequest';
 import CircularProgressWithLabel from '@/components/CircularProgressWithLabel';
 import CodeSubmitter from '@/components/CodeSubmitter';
 import NextBreadcrumb from '@/components/NextBreadcrumb';
+import ProblemGroupActions from '@/components/ProblemGroupActions';
 import ProblemSummaryAccordion from '@/components/ProblemSummaryAccordion';
 import ProblemTestData from '@/components/ProblemTestData';
 import TestDataDialog from '@/components/TestDataDialog';
@@ -95,7 +97,17 @@ export default async function GroupPage({ params }: { params: { groupId: string 
                 }}>
                 {group?.group ? (
                         <Box>
-                            <NextBreadcrumb mappings={new Map<string, string>([[params.groupId, group.group.name]])} />
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    width: '100%',
+                                    marginBottom: '15px',
+                                    gap: '15px'
+                            }}>
+                                <NextBreadcrumb mappings={new Map<string, string>([[params.groupId, group.group.name]])} />
+                                <ProblemGroupActions hideView={true} groupId={group.group.id} deleteAction={DeleteProblemGroupRequest} owner={group.group.owner}/>
+                            </Box>
                             <Group group={group.group} />
                         </Box>
                     ) : <></>

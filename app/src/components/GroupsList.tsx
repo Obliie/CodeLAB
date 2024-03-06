@@ -41,7 +41,7 @@ export default function GroupsList({ groups, deleteGroup }: { groups: ProblemGro
                         <Typography>Contains {group.problemIds.length} problems</Typography>
                     </CardContent>
                     <CardActions sx={{justifyContent: 'flex-end', marginBottom: '10px', gap: '5px', marginRight: '10px'}}>
-                        <ProblemGroupActions groupId={group.id} deleteAction={deleteGroup} owner={group.owner}/>
+                        <ProblemGroupActions hideView={false} groupId={group.id} deleteAction={deleteGroup} owner={group.owner}/>
                     </CardActions>
                 </Card>
             ))}

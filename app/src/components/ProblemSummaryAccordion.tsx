@@ -33,7 +33,7 @@ export default function ProblemSummaryAccordion({ problemSummaries, deleteProble
                     <Typography>{problem.summary}</Typography>
                 </AccordionDetails>
                 <AccordionActions sx={{marginBottom: '10px', gap: '5px', marginRight: '10px'}}>
-                    <ProblemActions problemId={problem.id} deleteAction={deleteProblem} nav={nav} isOwner={session ? (session?.user.email === problem.owner) : false}/>
+                    <ProblemActions hideView={false} problemId={problem.id} deleteAction={deleteProblem} nav={nav} isOwner={session ? (session?.user.email === problem.owner) : false}/>
                 </AccordionActions>
             </Accordion>
         ))}</Box>

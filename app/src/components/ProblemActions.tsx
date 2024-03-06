@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 
-export default function ProblemActions({ problemId, deleteAction, nav, isOwner }: { problemId: string; deleteAction: Function, nav: string, isOwner: boolean }) {
+export default function ProblemActions({ problemId, deleteAction, nav, isOwner, hideView }: { problemId: string; deleteAction: Function, nav: string, isOwner: boolean, hideView: boolean }) {
     const router = useRouter();
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -57,11 +57,13 @@ export default function ProblemActions({ problemId, deleteAction, nav, isOwner }
                 </Menu>
             </React.Fragment> : <></>}
             
+            {!hideView ? 
             <Link href={nav ? `${nav}/${problemId}` : `/problem/${problemId}`}>
                 <Button variant="contained">
                     View
                 </Button>
             </Link>
+            : <></>}
         </React.Fragment>
     );
 }

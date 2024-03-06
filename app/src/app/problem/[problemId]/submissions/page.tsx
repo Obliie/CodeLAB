@@ -131,9 +131,16 @@ export default async function ProblemSubmissionsPage({ params }: { params: { gro
                 }}>
                 {problem?.problem ? (
                     <Box>
-                        <NextBreadcrumb
-                            mappings={mappings}
-                        />
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                width: '100%',
+                                marginBottom: '15px',
+                                gap: '15px'
+                        }}>
+                            <NextBreadcrumb mappings={new Map<string, string>(mappings)} />
+                        </Box>
                         <ProblemSubmissionDisplay problem={problem.problem} />
                     </Box>
                 ) : (
