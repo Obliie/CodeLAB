@@ -1,0 +1,329 @@
+version: '3.8'
+name: codelab
+services:
+    ###
+    # Frontend web
+    ###
+    frontend:
+        build:
+            context: ./
+            dockerfile: ./app/Dockerfile
+            args:
+                ENVIRONMENT: prod
+                NEXT_PUBLIC_FRONTEND_URL: 127.0.0.1
+        env_file:
+            - .env
+        depends_on:
+            user-db:
+                condition: service_started
+            proto-builder:
+                condition: service_completed_successfully
+        command: npm run start -- -H 0.0.0.0
+        profiles:
+            - frontend
+        networks:
+            - codelabweb
+        secrets:
+            - userdb-root-username
+            - userdb-root-password
+
+    ###
+    # Service Containers
+    ###
+    code-runner:
+        build:
+            context: ./
+            dockerfile: ./services/code-runner/Dockerfile
+        env_file:
+            - .env
+        depends_on:
+            proto-builder:
+                condition: service_completed_successfully
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        command: python3 /service/service.py
+        profiles:
+            - backend
+            - code-runner
+            - submission
+        configs:
+            - service-config
+        networks:
+            - codelabmesh
+
+    problem:
+        build:
+            context: ./
+            dockerfile: ./services/problem/Dockerfile
+        env_file:
+            - .env
+        depends_on:
+            proto-builder:
+                condition: service_completed_successfully
+            problem-db:
+                condition: service_started
+        command: python3 /service/service.py
+        profiles:
+            - backend
+            - problem
+            - submission
+        networks:
+            - codelabmesh
+        configs:
+            - service-config
+        secrets:
+            - problemdb-root-username
+            - problemdb-root-password
+
+    submission:
+        build:
+            context: ./
+            dockerfile: ./services/submission/Dockerfile
+        env_file:
+            - .env
+        depends_on:
+            proto-builder:
+                condition: service_completed_successfully
+            submission-db:
+                condition: service_started
+            problem:
+                condition: service_started
+            code-runner:
+                condition: service_started
+            status-queue:
+                condition: service_started
+        command: python3 /service/service.py
+        profiles:
+            - backend
+            - submission
+        networks:
+            - codelabmesh
+        configs:
+            - service-config
+        secrets:
+            - submissiondb-root-username
+            - submissiondb-root-password
+
+    status:
+        build:
+            context: ./
+            dockerfile: ./services/status/Dockerfile
+        env_file:
+            - .env
+        depends_on:
+            proto-builder:
+                condition: service_completed_successfully
+            status-queue:
+                condition: service_started
+        command: python3 /service/service.py
+        profiles:
+            - backend
+            - status
+        networks:
+            - codelabmesh
+        configs:
+            - service-config
+
+    status-queue:
+        build:
+            context: ./
+            dockerfile: ./containers/status-queue/Dockerfile
+        environment:
+            STATUS_QUEUE_PORT: 27003
+            STATUS_QUEUE_MANAGEMENT_PLUGIN_PORT: 27004
+        env_file:
+            - .env
+        profiles:
+            - backend
+            - status
+        networks:
+            - codelabmesh
+
+    ###
+    # Databases
+    ###
+    user-db:
+        image: mongo:7.0.2
+        environment:
+            MONGO_INITDB_ROOT_USERNAME_FILE: /run/secrets/userdb-root-username
+            MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/userdb-root-password
+            MONGO_INITDB_DATABASE: admin
+            MONGO_USERNAME_FILE: /run/secrets/userdb-username
+            MONGO_PASSWORD_FILE: /run/secrets/userdb-password
+        command: mongod --port 27005
+        profiles:
+            - frontend
+        networks:
+            - codelabweb
+        secrets:
+            - userdb-root-username
+            - userdb-root-password
+            - userdb-username
+            - userdb-password
+
+    problem-db:
+        image: mongo:7.0.2
+        environment:
+            MONGO_INITDB_ROOT_USERNAME_FILE: /run/secrets/problemdb-root-username
+            MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/problemdb-root-password
+            MONGO_INITDB_DATABASE: admin
+            MONGO_USERNAME_FILE: /run/secrets/problemdb-username
+            MONGO_PASSWORD_FILE: /run/secrets/problemdb-password
+            MONGO_DATABASE: problem
+        command: mongod --port 27001
+        profiles:
+            - backend
+            - problem
+            - submission
+        networks:
+            - codelabmesh
+        secrets:
+            - problemdb-root-username
+            - problemdb-root-password
+            - problemdb-username
+            - problemdb-password
+
+    submission-db:
+        image: mongo:7.0.2
+        environment:
+            MONGO_INITDB_ROOT_USERNAME_FILE: /run/secrets/submissiondb-root-username
+            MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/submissiondb-root-password
+            MONGO_INITDB_DATABASE: admin
+            MONGO_USERNAME_FILE: /run/secrets/submissiondb-username
+            MONGO_PASSWORD_FILE: /run/secrets/submissiondb-password
+            MONGO_DATABASE: submission
+        command: mongod --port 27002
+        profiles:
+            - backend
+            - submission
+        networks:
+            - codelabmesh
+        secrets:
+            - submissiondb-root-username
+            - submissiondb-root-password
+            - submissiondb-username
+            - submissiondb-password
+
+    ###
+    # Build Containers
+    ###
+    proto-builder:
+        build:
+            context: ./
+            dockerfile: ./containers/proto-builder/Dockerfile
+        env_file:
+            - .env
+        volumes:
+            - ./protobufs:/build/protobufs
+        working_dir: /build
+        command: generate --template /etc/buf/buf.gen.yaml
+        profiles:
+            - build
+            - backend
+            - frontend
+            - problem
+            - code-runner
+            - submission
+            - status
+
+    ###
+    # Envoy and API stats
+    ###
+    api-gateway:
+        build:
+            context: ./
+            dockerfile: ./containers/api-gateway/Dockerfile
+            args:
+                FRONTEND_PORT: 3000
+                PROBLEM_SERVICE_PORT: 19990
+                SUBMISSION_SERVICE_PORT: 19992
+                STATUS_SERVICE_PORT: 19993
+        env_file:
+            - .env
+        depends_on:
+            problem:
+                condition: service_started
+            code-runner:
+                condition: service_started
+            statsd-exporter:
+                condition: service_started
+        command: /usr/local/bin/envoy -c /etc/envoy/envoy.json -l debug --log-path /tmp/envoy-info.log
+        profiles:
+            - backend
+            - gateway
+        ports:
+            - 127.0.0.1:443:443
+        networks:
+            codelabmesh:
+            codelabweb:
+                aliases:
+                    - codelab.obliie.dev
+        secrets:
+            - source: api-gateway-cert
+              target: /etc/envoy/certs/cert.pem
+            - source: api-gateway-key
+              target: /etc/envoy/certs/key.pem
+
+    statsd-exporter:
+        image: prom/statsd-exporter:latest
+        profiles:
+            - backend
+        networks:
+            - codelabmesh
+
+    prometheus:
+        build:
+            context: ./
+            dockerfile: ./containers/prometheus/Dockerfile
+        depends_on:
+            statsd-exporter:
+                condition: service_started
+        command: '--config.file=/etc/prometheus/prometheus.yaml'
+        profiles:
+            - backend
+        ports:
+            - 127.0.0.1:9090:9090
+        networks:
+            - codelabmesh
+
+networks:
+    codelabmesh:
+        driver: bridge
+        name: codelabmesh
+    codelabweb:
+        driver: bridge
+        name: codelabweb
+
+configs:
+    service-config:
+        file: ./config.yaml
+
+secrets:
+    api-gateway-cert:
+        file: ./secrets/api_gateway_cert.pem
+    api-gateway-key:
+        file: ./secrets/api_gateway_key.pem
+    userdb-root-username:
+        file: ./secrets/userdb_root_username
+    userdb-root-password:
+        file: ./secrets/userdb_root_password
+    userdb-username:
+        file: ./secrets/userdb_username
+    userdb-password:
+        file: ./secrets/userdb_password
+    problemdb-root-username:
+        file: ./secrets/problemdb_root_username
+    problemdb-root-password:
+        file: ./secrets/problemdb_root_password
+    problemdb-username:
+        file: ./secrets/problemdb_username
+    problemdb-password:
+        file: ./secrets/problemdb_password
+    submissiondb-root-username:
+        file: ./secrets/submissiondb_root_username
+    submissiondb-root-password:
+        file: ./secrets/submissiondb_root_password
+    submissiondb-username:
+        file: ./secrets/submissiondb_username
+    submissiondb-password:
+        file: ./secrets/submissiondb_password
