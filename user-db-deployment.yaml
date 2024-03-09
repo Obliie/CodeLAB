@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose --file test.yaml convert
+    kompose.version: 1.28.0 (c4137012e)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: user-db
+  name: user-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: user-db
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose --file test.yaml convert
+        kompose.version: 1.28.0 (c4137012e)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/codelabweb: "true"
+        io.kompose.service: user-db
+    spec:
+      containers:
+        - args:
+            - mongod
+            - --port
+            - "27005"
+          env:
+            - name: MONGO_INITDB_DATABASE
+              value: admin
+            - name: MONGO_INITDB_ROOT_PASSWORD_FILE
+              value: /run/secrets/userdb-root-password
+            - name: MONGO_INITDB_ROOT_USERNAME_FILE
+              value: /run/secrets/userdb-root-username
+            - name: MONGO_PASSWORD_FILE
+              value: /run/secrets/userdb-password
+            - name: MONGO_USERNAME_FILE
+              value: /run/secrets/userdb-username
+          image: mongo:7.0.2
+          name: user-db
+          resources: {}
+          volumeMounts:
+            - mountPath: /run/secrets/userdb-root-username
+              name: userdb-root-username
+            - mountPath: /run/secrets/userdb-root-password
+              name: userdb-root-password
+            - mountPath: /run/secrets/userdb-username
+              name: userdb-username
+            - mountPath: /run/secrets/userdb-password
+              name: userdb-password
+      restartPolicy: Always
+      volumes:
+        - name: userdb-root-username
+          secret:
+            items:
+              - key: userdb-root-username
+                path: userdb-root-username
+            secretName: userdb-root-username
+        - name: userdb-root-password
+          secret:
+            items:
+              - key: userdb-root-password
+                path: userdb-root-password
+            secretName: userdb-root-password
+        - name: userdb-username
+          secret:
+            items:
+              - key: userdb-username
+                path: userdb-username
+            secretName: userdb-username
+        - name: userdb-password
+          secret:
+            items:
+              - key: userdb-password
+                path: userdb-password
+            secretName: userdb-password
+status: {}

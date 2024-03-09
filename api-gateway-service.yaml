@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose --file test.yaml convert
+    kompose.version: 1.28.0 (c4137012e)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: api-gateway
+  name: api-gateway
+spec:
+  ports:
+    - name: "443"
+      port: 443
+      targetPort: 443
+  selector:
+    io.kompose.service: api-gateway
+status:
+  loadBalancer: {}

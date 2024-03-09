@@ -1,0 +1,173 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose --file test.yaml convert
+    kompose.version: 1.28.0 (c4137012e)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: api-gateway
+  name: api-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: api-gateway
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose --file test.yaml convert
+        kompose.version: 1.28.0 (c4137012e)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/codelabmesh: "true"
+        io.kompose.network/codelabweb: "true"
+        io.kompose.service: api-gateway
+    spec:
+      containers:
+        - args:
+            - /usr/local/bin/envoy
+            - -c
+            - /etc/envoy/envoy.json
+            - -l
+            - debug
+            - --log-path
+            - /tmp/envoy-info.log
+          env:
+            - name: CODE_RUNNER_SERVICE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: CODE_RUNNER_SERVICE_PORT
+                  name: env
+            - name: ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  key: ENVIRONMENT
+                  name: env
+            - name: ENVOY_EDGE_GATEWAY_ADMIN_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: ENVOY_EDGE_GATEWAY_ADMIN_PORT
+                  name: env
+            - name: ENVOY_EDGE_GATEWAY_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: ENVOY_EDGE_GATEWAY_PORT
+                  name: env
+            - name: FRONTEND_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: FRONTEND_PORT
+                  name: env
+            - name: GOOGLE_OAUTH_CLIENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  key: GOOGLE_OAUTH_CLIENT_ID
+                  name: env
+            - name: GOOGLE_OAUTH_CLIENT_SECRET
+              valueFrom:
+                configMapKeyRef:
+                  key: GOOGLE_OAUTH_CLIENT_SECRET
+                  name: env
+            - name: GRAFANA_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: GRAFANA_PORT
+                  name: env
+            - name: HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: HOST
+                  name: env
+            - name: NEXTAUTH_SECRET
+              valueFrom:
+                configMapKeyRef:
+                  key: NEXTAUTH_SECRET
+                  name: env
+            - name: NEXTAUTH_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: NEXTAUTH_URL
+                  name: env
+            - name: NEXT_PUBLIC_FRONTEND_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: NEXT_PUBLIC_FRONTEND_URL
+                  name: env
+            - name: PROBLEM_DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: PROBLEM_DB_PORT
+                  name: env
+            - name: PROBLEM_SERVICE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: PROBLEM_SERVICE_PORT
+                  name: env
+            - name: PROMETHEUS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: PROMETHEUS_PORT
+                  name: env
+            - name: STATUS_QUEUE_MANAGEMENT_PLUGIN_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: STATUS_QUEUE_MANAGEMENT_PLUGIN_PORT
+                  name: env
+            - name: STATUS_QUEUE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: STATUS_QUEUE_PORT
+                  name: env
+            - name: STATUS_SERVICE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: STATUS_SERVICE_PORT
+                  name: env
+            - name: SUBMISSION_DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: SUBMISSION_DB_PORT
+                  name: env
+            - name: SUBMISSION_SERVICE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: SUBMISSION_SERVICE_PORT
+                  name: env
+            - name: TEST_FILTER
+              valueFrom:
+                configMapKeyRef:
+                  key: TEST_FILTER
+                  name: env
+            - name: USER_DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: USER_DB_PORT
+                  name: env
+          image: api-gateway
+          name: api-gateway
+          ports:
+            - containerPort: 443
+              hostIP: 127.0.0.1
+          resources: {}
+          volumeMounts:
+            - mountPath: /etc/envoy/certs
+              name: api-gateway-cert
+            - mountPath: /etc/envoy/certs
+              name: api-gateway-key
+      restartPolicy: Always
+      volumes:
+        - name: api-gateway-cert
+          secret:
+            items:
+              - key: api-gateway-cert
+                path: cert.pem
+            secretName: api-gateway-cert
+        - name: api-gateway-key
+          secret:
+            items:
+              - key: api-gateway-key
+                path: key.pem
+            secretName: api-gateway-key
+status: {}
