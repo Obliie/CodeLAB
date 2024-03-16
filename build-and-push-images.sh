@@ -13,21 +13,21 @@ build_tag_push() {
 
     # Build Docker image
     docker build \
-      -t "codelab/$service_name" \
+      -t "$service_name" \
       -f "$dockerfile_path" \
       ./
 
     # Tag the image for DigitalOcean Container Registry
-    docker tag "codelab/$service_name" "registry.digitalocean.com/codelab/$service_name"
-    docker push "registry.digitalocean.com/codelab/$service_name"
+    docker tag "$service_name" "registry.digitalocean.com/codelab/codelab:$service_name"
+    docker push "registry.digitalocean.com/codelab/codelab:$service_name"
 
     # Delete the local image
-    docker rmi "codelab/$service_name"
+    docker rmi "$service_name"
 
     echo "done $service_name"
 }
 
-build_tag_push "frontend-web" "./app/Dockerfile"
+# Call the build_tag_push function for each service
 build_tag_push "code-runner" "./services/code-runner/Dockerfile"
 build_tag_push "problem" "./services/problem/Dockerfile"
 build_tag_push "submission" "./services/submission/Dockerfile"
@@ -36,3 +36,4 @@ build_tag_push "status-queue" "./services/status-queue/Dockerfile"
 build_tag_push "proto-builder" "./containers/proto-builder/Dockerfile"
 build_tag_push "api-gateway" "./containers/api-gateway/Dockerfile"
 build_tag_push "prometheus" "./containers/prometheus/Dockerfile"
+build_tag_push "frontend-web" "./app/Dockerfile"
