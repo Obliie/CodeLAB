@@ -14,6 +14,7 @@ from protobufs.common.v1 import problem_pb2
 from common.config import Config
 from common.service_logging import init_logging, log_and_flush
 from common.jwt import decrypt_jwt
+from common.interceptors.auth import AuthInterceptor
 from pymongo import MongoClient
 
 DATABASE_USERNAME_FILE = "/run/secrets/problemdb-root-username"
@@ -88,6 +89,11 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
         request: problem_service_pb2.GetProblemSummariesRequest,
         context: grpc.ServicerContext,
     ) -> problem_service_pb2.GetProblemSummariesResponse:
+        # TODO Validate JWT Token
+        metadata = dict(context.invocation_metadata());
+        token = metadata.get('authorization', [b'']);
+        #dtoken = decrypt_jwt(token)
+        log_and_flush(logging.INFO, f"Token: {token}");
         if request.id_filter:
             problem_ids = [self._query_id(id_str) for id_str in request.id_filter]
             problems = (
@@ -173,10 +179,10 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
         time.sleep(1)
 
         # TODO Validate JWT Token
-        #metadata = dict(context.invocation_metadata())
-        #token = metadata.get('authorization', [b''])
+        metadata = dict(context.invocation_metadata());
+        token = metadata.get('authorization', [b'']);
         #dtoken = decrypt_jwt(token)
-        #log_and_flush(logging.INFO, f"Token: {token}")
+        log_and_flush(logging.INFO, f"Token: {token}");
         #log_and_flush(logging.INFO, f"Dec Token: {dtoken}")
         # Validate the token
         """    try:
@@ -408,7 +414,7 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
 
 
 def serve() -> None:
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10), interceptors=(AuthInterceptor(),))
     problem_service_pb2_grpc.add_ProblemServiceServicer_to_server(
         ProblemServicer(), server
     )

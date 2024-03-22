@@ -125,13 +125,11 @@ export default function ProblemEditForm({
         }
 
         if (update) {
-            await fetch("/api/auth/token").then(res => res.json()).then(async res => {
-                const response = (await problemServiceClient
-                    .updateProblem({
-                        problem: problem,
-                    }, { headers: { "Authorization": `Bearer ${res.token}`}})
-                    .catch(err => handleGrpcError(err))) as UpdateProblemResponse;
-            });
+            const response = (await problemServiceClient
+                .updateProblem({
+                    problem: problem,
+                })
+                .catch(err => handleGrpcError(err))) as UpdateProblemResponse;
 
             setSubmitLoading(false);
             setOpen(true);
