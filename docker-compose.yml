@@ -135,8 +135,8 @@ services:
                 condition: service_started
             code-runner:
                 condition: service_started
-#            status-queue:
-#                condition: service_started
+        #            status-queue:
+        #                condition: service_started
         develop:
             watch:
                 - action: sync

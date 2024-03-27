@@ -5,12 +5,10 @@ services:
     # Frontend web
     ###
     frontend:
-        build:
-            context: ./
-            dockerfile: ./app/Dockerfile
-            args:
-                ENVIRONMENT: ${ENVIRONMENT}
-                NEXT_PUBLIC_FRONTEND_URL: ${NEXT_PUBLIC_FRONTEND_URL}
+        image: $DIGITAL_REGISTRY:frontend-web
+        environment:
+            ENVIRONMENT: ${ENVIRONMENT}
+            NEXT_PUBLIC_FRONTEND_URL: ${NEXT_PUBLIC_FRONTEND_URL}
         env_file:
             - .env
         depends_on:
@@ -31,9 +29,7 @@ services:
     # Service Containers
     ###
     code-runner:
-        build:
-            context: ./
-            dockerfile: ./services/code-runner/Dockerfile
+        image: $DIGITAL_REGISTRY:code-runner
         env_file:
             - .env
         depends_on:
@@ -52,9 +48,7 @@ services:
             - codelabmesh
 
     problem:
-        build:
-            context: ./
-            dockerfile: ./services/problem/Dockerfile
+        image: $DIGITAL_REGISTRY:problem
         env_file:
             - .env
         depends_on:
@@ -76,9 +70,7 @@ services:
             - problemdb-root-password
 
     submission:
-        build:
-            context: ./
-            dockerfile: ./services/submission/Dockerfile
+        image: $DIGITAL_REGISTRY:submission
         env_file:
             - .env
         depends_on:
@@ -105,9 +97,7 @@ services:
             - submissiondb-root-password
 
     status:
-        build:
-            context: ./
-            dockerfile: ./services/status/Dockerfile
+        image: $DIGITAL_REGISTRY:status
         env_file:
             - .env
         depends_on:
@@ -125,9 +115,7 @@ services:
             - service-config
 
     status-queue:
-        build:
-            context: ./
-            dockerfile: ./containers/status-queue/Dockerfile
+        image: $DIGITAL_REGISTRY:status-queue
         environment:
             STATUS_QUEUE_PORT: ${STATUS_QUEUE_PORT}
             STATUS_QUEUE_MANAGEMENT_PLUGIN_PORT: ${STATUS_QUEUE_MANAGEMENT_PLUGIN_PORT}
@@ -208,9 +196,7 @@ services:
     # Build Containers
     ###
     proto-builder:
-        build:
-            context: ./
-            dockerfile: ./containers/proto-builder/Dockerfile
+        image: $DIGITAL_REGISTRY:proto-builder
         env_file:
             - .env
         volumes:
@@ -230,14 +216,12 @@ services:
     # Envoy and API stats
     ###
     api-gateway:
-        build:
-            context: ./
-            dockerfile: ./containers/api-gateway/Dockerfile
-            args:
-                FRONTEND_PORT: ${FRONTEND_PORT}
-                PROBLEM_SERVICE_PORT: ${PROBLEM_SERVICE_PORT}
-                SUBMISSION_SERVICE_PORT: ${SUBMISSION_SERVICE_PORT}
-                STATUS_SERVICE_PORT: ${STATUS_SERVICE_PORT}
+        image: $DIGITAL_REGISTRY:api-gateway
+        environment:
+            FRONTEND_PORT: ${FRONTEND_PORT}
+            PROBLEM_SERVICE_PORT: ${PROBLEM_SERVICE_PORT}
+            SUBMISSION_SERVICE_PORT: ${SUBMISSION_SERVICE_PORT}
+            STATUS_SERVICE_PORT: ${STATUS_SERVICE_PORT}
         env_file:
             - .env
         depends_on:
@@ -272,9 +256,7 @@ services:
             - codelabmesh
 
     prometheus:
-        build:
-            context: ./
-            dockerfile: ./containers/prometheus/Dockerfile
+        image: $DIGITAL_REGISTRY:prometheus
         depends_on:
             statsd-exporter:
                 condition: service_started
