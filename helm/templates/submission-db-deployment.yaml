@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert --file docker-test.yml -c -o helm
+    kompose.version: 1.32.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: submission-db
+  name: submission-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: submission-db
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert --file docker-test.yml -c -o helm
+        kompose.version: 1.32.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/codelabmesh: "true"
+        io.kompose.service: submission-db
+    spec:
+      containers:
+        - args:
+            - mongod
+            - --port
+            - "27002"
+          env:
+            - name: MONGO_DATABASE
+              value: submission
+            - name: MONGO_INITDB_DATABASE
+              value: admin
+            - name: MONGO_INITDB_ROOT_PASSWORD_FILE
+              value: /run/secrets/submissiondb-root-password
+            - name: MONGO_INITDB_ROOT_USERNAME_FILE
+              value: /run/secrets/submissiondb-root-username
+            - name: MONGO_PASSWORD_FILE
+              value: /run/secrets/submissiondb-password
+            - name: MONGO_USERNAME_FILE
+              value: /run/secrets/submissiondb-username
+          image: mongo:7.0.2
+          name: submission-db
+          resources: {}
+          volumeMounts:
+            - mountPath: /run/secrets/submissiondb-root-username
+              name: submissiondb-root-username
+            - mountPath: /run/secrets/submissiondb-root-password
+              name: submissiondb-root-password
+            - mountPath: /run/secrets/submissiondb-username
+              name: submissiondb-username
+            - mountPath: /run/secrets/submissiondb-password
+              name: submissiondb-password
+      restartPolicy: Always
+      volumes:
+        - name: submissiondb-root-username
+          secret:
+            items:
+              - key: submissiondb-root-username
+                path: submissiondb-root-username
+            secretName: submissiondb-root-username
+        - name: submissiondb-root-password
+          secret:
+            items:
+              - key: submissiondb-root-password
+                path: submissiondb-root-password
+            secretName: submissiondb-root-password
+        - name: submissiondb-username
+          secret:
+            items:
+              - key: submissiondb-username
+                path: submissiondb-username
+            secretName: submissiondb-username
+        - name: submissiondb-password
+          secret:
+            items:
+              - key: submissiondb-password
+                path: submissiondb-password
+            secretName: submissiondb-password
+status: {}
