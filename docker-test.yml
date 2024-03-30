@@ -1,0 +1,556 @@
+name: codelab
+services:
+  api-gateway:
+    profiles:
+      - backend
+      - gateway
+    command:
+      - /usr/local/bin/envoy
+      - -c
+      - /etc/envoy/envoy.json
+      - -l
+      - debug
+      - --log-path
+      - /tmp/envoy-info.log
+    depends_on:
+      code-runner:
+        condition: service_started
+        required: true
+      problem:
+        condition: service_started
+        required: true
+      statsd-exporter:
+        condition: service_started
+        required: true
+    environment:
+      CODE_RUNNER_SERVICE_PORT: "19991"
+      DIGITAL_REGISTRY: registry.digitalocean.com/codelab/codelab
+      DIGITAL_REGISTRY_ACCESS_TOKEN: dop_v1_918801b9fcf8808784555e55a36af58dd93b574635ce79c64f0952e8671a91c4
+      ENVIRONMENT: dev
+      ENVOY_EDGE_GATEWAY_ADMIN_PORT: "21999"
+      ENVOY_EDGE_GATEWAY_PORT: "443"
+      FRONTEND_PORT: "3000"
+      GOOGLE_OAUTH_CLIENT_ID: ""
+      GOOGLE_OAUTH_CLIENT_SECRET: ""
+      GRAFANA_PORT: "9091"
+      HOST: 127.0.0.1
+      NEXT_PUBLIC_FRONTEND_URL: 127.0.0.1
+      NEXTAUTH_SECRET: ""
+      NEXTAUTH_URL: https://127.0.0.1
+      PROBLEM_DB_PORT: "27001"
+      PROBLEM_SERVICE_PORT: "19990"
+      PROMETHEUS_PORT: "9090"
+      STATUS_QUEUE_MANAGEMENT_PLUGIN_PORT: "27004"
+      STATUS_QUEUE_PORT: "27003"
+      STATUS_SERVICE_PORT: "19993"
+      SUBMISSION_DB_PORT: "27002"
+      SUBMISSION_SERVICE_PORT: "19992"
+      TEST_FILTER: test
+      USER_DB_PORT: "27005"
+    image: registry.digitalocean.com/codelab/codelab:api-gateway
+    networks:
+      codelabmesh: null
+      codelabweb:
+        aliases:
+          - codelab.obliie.dev
+    ports:
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 443
+        published: "443"
+        protocol: tcp
+    secrets:
+      - source: api-gateway-cert
+        target: /etc/envoy/certs/cert.pem
+      - source: api-gateway-key
+        target: /etc/envoy/certs/key.pem
+  code-runner:
+    profiles:
+      - backend
+      - code-runner
+      - submission
+    command:
+      - python3
+      - /service/service.py
+    configs:
+      - source: service-config
+    depends_on:
+      proto-builder:
+        condition: service_completed_successfully
+        required: true
+    environment:
+      CODE_RUNNER_SERVICE_PORT: "19991"
+      DIGITAL_REGISTRY: registry.digitalocean.com/codelab/codelab
+      DIGITAL_REGISTRY_ACCESS_TOKEN: dop_v1_918801b9fcf8808784555e55a36af58dd93b574635ce79c64f0952e8671a91c4
+      ENVIRONMENT: dev
+      ENVOY_EDGE_GATEWAY_ADMIN_PORT: "21999"
+      ENVOY_EDGE_GATEWAY_PORT: "443"
+      FRONTEND_PORT: "3000"
+      GOOGLE_OAUTH_CLIENT_ID: ""
+      GOOGLE_OAUTH_CLIENT_SECRET: ""
+      GRAFANA_PORT: "9091"
+      HOST: 127.0.0.1
+      NEXT_PUBLIC_FRONTEND_URL: 127.0.0.1
+      NEXTAUTH_SECRET: ""
+      NEXTAUTH_URL: https://127.0.0.1
+      PROBLEM_DB_PORT: "27001"
+      PROBLEM_SERVICE_PORT: "19990"
+      PROMETHEUS_PORT: "9090"
+      STATUS_QUEUE_MANAGEMENT_PLUGIN_PORT: "27004"
+      STATUS_QUEUE_PORT: "27003"
+      STATUS_SERVICE_PORT: "19993"
+      SUBMISSION_DB_PORT: "27002"
+      SUBMISSION_SERVICE_PORT: "19992"
+      TEST_FILTER: test
+      USER_DB_PORT: "27005"
+    image: registry.digitalocean.com/codelab/codelab:code-runner
+    networks:
+      codelabmesh: null
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        bind:
+          create_host_path: true
+  frontend:
+    profiles:
+      - frontend
+    command:
+      - npm
+      - run
+      - start
+      - --
+      - -H
+      - 0.0.0.0
+    depends_on:
+      proto-builder:
+        condition: service_completed_successfully
+        required: true
+      user-db:
+        condition: service_started
+        required: true
+    environment:
+      CODE_RUNNER_SERVICE_PORT: "19991"
+      DIGITAL_REGISTRY: registry.digitalocean.com/codelab/codelab
+      DIGITAL_REGISTRY_ACCESS_TOKEN: dop_v1_918801b9fcf8808784555e55a36af58dd93b574635ce79c64f0952e8671a91c4
+      ENVIRONMENT: dev
+      ENVOY_EDGE_GATEWAY_ADMIN_PORT: "21999"
+      ENVOY_EDGE_GATEWAY_PORT: "443"
+      FRONTEND_PORT: "3000"
+      GOOGLE_OAUTH_CLIENT_ID: ""
+      GOOGLE_OAUTH_CLIENT_SECRET: ""
+      GRAFANA_PORT: "9091"
+      HOST: 127.0.0.1
+      NEXT_PUBLIC_FRONTEND_URL: 127.0.0.1
+      NEXTAUTH_SECRET: ""
+      NEXTAUTH_URL: https://127.0.0.1
+      PROBLEM_DB_PORT: "27001"
+      PROBLEM_SERVICE_PORT: "19990"
+      PROMETHEUS_PORT: "9090"
+      STATUS_QUEUE_MANAGEMENT_PLUGIN_PORT: "27004"
+      STATUS_QUEUE_PORT: "27003"
+      STATUS_SERVICE_PORT: "19993"
+      SUBMISSION_DB_PORT: "27002"
+      SUBMISSION_SERVICE_PORT: "19992"
+      TEST_FILTER: test
+      USER_DB_PORT: "27005"
+    image: registry.digitalocean.com/codelab/codelab:frontend-web
+    networks:
+      codelabweb: null
+    secrets:
+      - source: userdb-root-username
+        target: /run/secrets/userdb-root-username
+      - source: userdb-root-password
+        target: /run/secrets/userdb-root-password
+  problem:
+    profiles:
+      - backend
+      - problem
+      - submission
+    command:
+      - python3
+      - /service/service.py
+    configs:
+      - source: service-config
+    depends_on:
+      problem-db:
+        condition: service_started
+        required: true
+      proto-builder:
+        condition: service_completed_successfully
+        required: true
+    environment:
+      CODE_RUNNER_SERVICE_PORT: "19991"
+      DIGITAL_REGISTRY: registry.digitalocean.com/codelab/codelab
+      DIGITAL_REGISTRY_ACCESS_TOKEN: dop_v1_918801b9fcf8808784555e55a36af58dd93b574635ce79c64f0952e8671a91c4
+      ENVIRONMENT: dev
+      ENVOY_EDGE_GATEWAY_ADMIN_PORT: "21999"
+      ENVOY_EDGE_GATEWAY_PORT: "443"
+      FRONTEND_PORT: "3000"
+      GOOGLE_OAUTH_CLIENT_ID: ""
+      GOOGLE_OAUTH_CLIENT_SECRET: ""
+      GRAFANA_PORT: "9091"
+      HOST: 127.0.0.1
+      NEXT_PUBLIC_FRONTEND_URL: 127.0.0.1
+      NEXTAUTH_SECRET: ""
+      NEXTAUTH_URL: https://127.0.0.1
+      PROBLEM_DB_PORT: "27001"
+      PROBLEM_SERVICE_PORT: "19990"
+      PROMETHEUS_PORT: "9090"
+      STATUS_QUEUE_MANAGEMENT_PLUGIN_PORT: "27004"
+      STATUS_QUEUE_PORT: "27003"
+      STATUS_SERVICE_PORT: "19993"
+      SUBMISSION_DB_PORT: "27002"
+      SUBMISSION_SERVICE_PORT: "19992"
+      TEST_FILTER: test
+      USER_DB_PORT: "27005"
+    image: registry.digitalocean.com/codelab/codelab:problem
+    networks:
+      codelabmesh: null
+    secrets:
+      - source: problemdb-root-username
+        target: /run/secrets/problemdb-root-username
+      - source: problemdb-root-password
+        target: /run/secrets/problemdb-root-password
+  problem-db:
+    profiles:
+      - backend
+      - problem
+      - submission
+    command:
+      - mongod
+      - --port
+      - "27001"
+    environment:
+      MONGO_DATABASE: problem
+      MONGO_INITDB_DATABASE: admin
+      MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/problemdb-root-password
+      MONGO_INITDB_ROOT_USERNAME_FILE: /run/secrets/problemdb-root-username
+      MONGO_PASSWORD_FILE: /run/secrets/problemdb-password
+      MONGO_USERNAME_FILE: /run/secrets/problemdb-username
+    image: mongo:7.0.2
+    networks:
+      codelabmesh: null
+    secrets:
+      - source: problemdb-root-username
+        target: /run/secrets/problemdb-root-username
+      - source: problemdb-root-password
+        target: /run/secrets/problemdb-root-password
+      - source: problemdb-username
+        target: /run/secrets/problemdb-username
+      - source: problemdb-password
+        target: /run/secrets/problemdb-password
+  prometheus:
+    profiles:
+      - backend
+    command:
+      - --config.file=/etc/prometheus/prometheus.yaml
+    depends_on:
+      statsd-exporter:
+        condition: service_started
+        required: true
+    image: registry.digitalocean.com/codelab/codelab:prometheus
+    networks:
+      codelabmesh: null
+    ports:
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 9090
+        published: "9090"
+        protocol: tcp
+  proto-builder:
+    profiles:
+      - build
+      - backend
+      - frontend
+      - problem
+      - code-runner
+      - submission
+      - status
+    command:
+      - generate
+      - --template
+      - /etc/buf/buf.gen.yaml
+    environment:
+      CODE_RUNNER_SERVICE_PORT: "19991"
+      DIGITAL_REGISTRY: registry.digitalocean.com/codelab/codelab
+      DIGITAL_REGISTRY_ACCESS_TOKEN: dop_v1_918801b9fcf8808784555e55a36af58dd93b574635ce79c64f0952e8671a91c4
+      ENVIRONMENT: dev
+      ENVOY_EDGE_GATEWAY_ADMIN_PORT: "21999"
+      ENVOY_EDGE_GATEWAY_PORT: "443"
+      FRONTEND_PORT: "3000"
+      GOOGLE_OAUTH_CLIENT_ID: ""
+      GOOGLE_OAUTH_CLIENT_SECRET: ""
+      GRAFANA_PORT: "9091"
+      HOST: 127.0.0.1
+      NEXT_PUBLIC_FRONTEND_URL: 127.0.0.1
+      NEXTAUTH_SECRET: ""
+      NEXTAUTH_URL: https://127.0.0.1
+      PROBLEM_DB_PORT: "27001"
+      PROBLEM_SERVICE_PORT: "19990"
+      PROMETHEUS_PORT: "9090"
+      STATUS_QUEUE_MANAGEMENT_PLUGIN_PORT: "27004"
+      STATUS_QUEUE_PORT: "27003"
+      STATUS_SERVICE_PORT: "19993"
+      SUBMISSION_DB_PORT: "27002"
+      SUBMISSION_SERVICE_PORT: "19992"
+      TEST_FILTER: test
+      USER_DB_PORT: "27005"
+    image: registry.digitalocean.com/codelab/codelab:proto-builder
+    networks:
+      default: null
+    volumes:
+      - type: bind
+        source: /Users/mohsin/Desktop/Coding/CodeLAB/protobufs
+        target: /build/protobufs
+        bind:
+          create_host_path: true
+    working_dir: /build
+  statsd-exporter:
+    profiles:
+      - backend
+    image: prom/statsd-exporter:latest
+    networks:
+      codelabmesh: null
+  status:
+    profiles:
+      - backend
+      - status
+    command:
+      - python3
+      - /service/service.py
+    configs:
+      - source: service-config
+    depends_on:
+      proto-builder:
+        condition: service_completed_successfully
+        required: true
+      status-queue:
+        condition: service_started
+        required: true
+    environment:
+      CODE_RUNNER_SERVICE_PORT: "19991"
+      DIGITAL_REGISTRY: registry.digitalocean.com/codelab/codelab
+      DIGITAL_REGISTRY_ACCESS_TOKEN: dop_v1_918801b9fcf8808784555e55a36af58dd93b574635ce79c64f0952e8671a91c4
+      ENVIRONMENT: dev
+      ENVOY_EDGE_GATEWAY_ADMIN_PORT: "21999"
+      ENVOY_EDGE_GATEWAY_PORT: "443"
+      FRONTEND_PORT: "3000"
+      GOOGLE_OAUTH_CLIENT_ID: ""
+      GOOGLE_OAUTH_CLIENT_SECRET: ""
+      GRAFANA_PORT: "9091"
+      HOST: 127.0.0.1
+      NEXT_PUBLIC_FRONTEND_URL: 127.0.0.1
+      NEXTAUTH_SECRET: ""
+      NEXTAUTH_URL: https://127.0.0.1
+      PROBLEM_DB_PORT: "27001"
+      PROBLEM_SERVICE_PORT: "19990"
+      PROMETHEUS_PORT: "9090"
+      STATUS_QUEUE_MANAGEMENT_PLUGIN_PORT: "27004"
+      STATUS_QUEUE_PORT: "27003"
+      STATUS_SERVICE_PORT: "19993"
+      SUBMISSION_DB_PORT: "27002"
+      SUBMISSION_SERVICE_PORT: "19992"
+      TEST_FILTER: test
+      USER_DB_PORT: "27005"
+    image: registry.digitalocean.com/codelab/codelab:status
+    networks:
+      codelabmesh: null
+  status-queue:
+    profiles:
+      - backend
+      - status
+    environment:
+      CODE_RUNNER_SERVICE_PORT: "19991"
+      DIGITAL_REGISTRY: registry.digitalocean.com/codelab/codelab
+      DIGITAL_REGISTRY_ACCESS_TOKEN: dop_v1_918801b9fcf8808784555e55a36af58dd93b574635ce79c64f0952e8671a91c4
+      ENVIRONMENT: dev
+      ENVOY_EDGE_GATEWAY_ADMIN_PORT: "21999"
+      ENVOY_EDGE_GATEWAY_PORT: "443"
+      FRONTEND_PORT: "3000"
+      GOOGLE_OAUTH_CLIENT_ID: ""
+      GOOGLE_OAUTH_CLIENT_SECRET: ""
+      GRAFANA_PORT: "9091"
+      HOST: 127.0.0.1
+      NEXT_PUBLIC_FRONTEND_URL: 127.0.0.1
+      NEXTAUTH_SECRET: ""
+      NEXTAUTH_URL: https://127.0.0.1
+      PROBLEM_DB_PORT: "27001"
+      PROBLEM_SERVICE_PORT: "19990"
+      PROMETHEUS_PORT: "9090"
+      STATUS_QUEUE_MANAGEMENT_PLUGIN_PORT: "27004"
+      STATUS_QUEUE_PORT: "27003"
+      STATUS_SERVICE_PORT: "19993"
+      SUBMISSION_DB_PORT: "27002"
+      SUBMISSION_SERVICE_PORT: "19992"
+      TEST_FILTER: test
+      USER_DB_PORT: "27005"
+    image: registry.digitalocean.com/codelab/codelab:status-queue
+    networks:
+      codelabmesh: null
+  submission:
+    profiles:
+      - backend
+      - submission
+    command:
+      - python3
+      - /service/service.py
+    configs:
+      - source: service-config
+    depends_on:
+      code-runner:
+        condition: service_started
+        required: true
+      problem:
+        condition: service_started
+        required: true
+      proto-builder:
+        condition: service_completed_successfully
+        required: true
+      status-queue:
+        condition: service_started
+        required: true
+      submission-db:
+        condition: service_started
+        required: true
+    environment:
+      CODE_RUNNER_SERVICE_PORT: "19991"
+      DIGITAL_REGISTRY: registry.digitalocean.com/codelab/codelab
+      DIGITAL_REGISTRY_ACCESS_TOKEN: dop_v1_918801b9fcf8808784555e55a36af58dd93b574635ce79c64f0952e8671a91c4
+      ENVIRONMENT: dev
+      ENVOY_EDGE_GATEWAY_ADMIN_PORT: "21999"
+      ENVOY_EDGE_GATEWAY_PORT: "443"
+      FRONTEND_PORT: "3000"
+      GOOGLE_OAUTH_CLIENT_ID: ""
+      GOOGLE_OAUTH_CLIENT_SECRET: ""
+      GRAFANA_PORT: "9091"
+      HOST: 127.0.0.1
+      NEXT_PUBLIC_FRONTEND_URL: 127.0.0.1
+      NEXTAUTH_SECRET: ""
+      NEXTAUTH_URL: https://127.0.0.1
+      PROBLEM_DB_PORT: "27001"
+      PROBLEM_SERVICE_PORT: "19990"
+      PROMETHEUS_PORT: "9090"
+      STATUS_QUEUE_MANAGEMENT_PLUGIN_PORT: "27004"
+      STATUS_QUEUE_PORT: "27003"
+      STATUS_SERVICE_PORT: "19993"
+      SUBMISSION_DB_PORT: "27002"
+      SUBMISSION_SERVICE_PORT: "19992"
+      TEST_FILTER: test
+      USER_DB_PORT: "27005"
+    image: registry.digitalocean.com/codelab/codelab:submission
+    networks:
+      codelabmesh: null
+    secrets:
+      - source: submissiondb-root-username
+        target: /run/secrets/submissiondb-root-username
+      - source: submissiondb-root-password
+        target: /run/secrets/submissiondb-root-password
+  submission-db:
+    profiles:
+      - backend
+      - submission
+    command:
+      - mongod
+      - --port
+      - "27002"
+    environment:
+      MONGO_DATABASE: submission
+      MONGO_INITDB_DATABASE: admin
+      MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/submissiondb-root-password
+      MONGO_INITDB_ROOT_USERNAME_FILE: /run/secrets/submissiondb-root-username
+      MONGO_PASSWORD_FILE: /run/secrets/submissiondb-password
+      MONGO_USERNAME_FILE: /run/secrets/submissiondb-username
+    image: mongo:7.0.2
+    networks:
+      codelabmesh: null
+    secrets:
+      - source: submissiondb-root-username
+        target: /run/secrets/submissiondb-root-username
+      - source: submissiondb-root-password
+        target: /run/secrets/submissiondb-root-password
+      - source: submissiondb-username
+        target: /run/secrets/submissiondb-username
+      - source: submissiondb-password
+        target: /run/secrets/submissiondb-password
+  user-db:
+    profiles:
+      - frontend
+    command:
+      - mongod
+      - --port
+      - "27005"
+    environment:
+      MONGO_INITDB_DATABASE: admin
+      MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/userdb-root-password
+      MONGO_INITDB_ROOT_USERNAME_FILE: /run/secrets/userdb-root-username
+      MONGO_PASSWORD_FILE: /run/secrets/userdb-password
+      MONGO_USERNAME_FILE: /run/secrets/userdb-username
+    image: mongo:7.0.2
+    networks:
+      codelabweb: null
+    secrets:
+      - source: userdb-root-username
+        target: /run/secrets/userdb-root-username
+      - source: userdb-root-password
+        target: /run/secrets/userdb-root-password
+      - source: userdb-username
+        target: /run/secrets/userdb-username
+      - source: userdb-password
+        target: /run/secrets/userdb-password
+networks:
+  codelabmesh:
+    name: codelabmesh
+    driver: bridge
+  codelabweb:
+    name: codelabweb
+    driver: bridge
+  default:
+    name: codelab_default
+secrets:
+  api-gateway-cert:
+    name: codelab_api-gateway-cert
+    file: /Users/mohsin/Desktop/Coding/CodeLAB/secrets/api_gateway_cert.pem
+  api-gateway-key:
+    name: codelab_api-gateway-key
+    file: /Users/mohsin/Desktop/Coding/CodeLAB/secrets/api_gateway_key.pem
+  problemdb-password:
+    name: codelab_problemdb-password
+    file: /Users/mohsin/Desktop/Coding/CodeLAB/secrets/problemdb_password
+  problemdb-root-password:
+    name: codelab_problemdb-root-password
+    file: /Users/mohsin/Desktop/Coding/CodeLAB/secrets/problemdb_root_password
+  problemdb-root-username:
+    name: codelab_problemdb-root-username
+    file: /Users/mohsin/Desktop/Coding/CodeLAB/secrets/problemdb_root_username
+  problemdb-username:
+    name: codelab_problemdb-username
+    file: /Users/mohsin/Desktop/Coding/CodeLAB/secrets/problemdb_username
+  submissiondb-password:
+    name: codelab_submissiondb-password
+    file: /Users/mohsin/Desktop/Coding/CodeLAB/secrets/submissiondb_password
+  submissiondb-root-password:
+    name: codelab_submissiondb-root-password
+    file: /Users/mohsin/Desktop/Coding/CodeLAB/secrets/submissiondb_root_password
+  submissiondb-root-username:
+    name: codelab_submissiondb-root-username
+    file: /Users/mohsin/Desktop/Coding/CodeLAB/secrets/submissiondb_root_username
+  submissiondb-username:
+    name: codelab_submissiondb-username
+    file: /Users/mohsin/Desktop/Coding/CodeLAB/secrets/submissiondb_username
+  userdb-password:
+    name: codelab_userdb-password
+    file: /Users/mohsin/Desktop/Coding/CodeLAB/secrets/userdb_password
+  userdb-root-password:
+    name: codelab_userdb-root-password
+    file: /Users/mohsin/Desktop/Coding/CodeLAB/secrets/userdb_root_password
+  userdb-root-username:
+    name: codelab_userdb-root-username
+    file: /Users/mohsin/Desktop/Coding/CodeLAB/secrets/userdb_root_username
+  userdb-username:
+    name: codelab_userdb-username
+    file: /Users/mohsin/Desktop/Coding/CodeLAB/secrets/userdb_username
+configs:
+  service-config:
+    name: codelab_service-config
+    file: /Users/mohsin/Desktop/Coding/CodeLAB/config.yaml
