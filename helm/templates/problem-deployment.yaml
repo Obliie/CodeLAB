@@ -157,8 +157,10 @@ spec:
                         name: service-config
                         subPath: service-config
                       - mountPath: /run/secrets/problemdb-root-username
+                        subPath: problemdb-root-username
                         name: problemdb-root-username
                       - mountPath: /run/secrets/problemdb-root-password
+                        subPath: problemdb-root-password
                         name: problemdb-root-password
             restartPolicy: Always
             volumes:

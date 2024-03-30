@@ -27,13 +27,9 @@ spec:
         spec:
             containers:
                 - args:
-                      - /usr/local/bin/envoy
+                      - /bin/sh
                       - -c
-                      - /etc/envoy/envoy.json
-                      - -l
-                      - debug
-                      - --log-path
-                      - /tmp/envoy-info.log
+                      - 'ls -la ./etc/envoy/certs/cert.pem'
                   env:
                       - name: CODE_RUNNER_SERVICE_PORT
                         valueFrom:
@@ -162,10 +158,12 @@ spec:
                         hostIP: 127.0.0.1
                   resources: {}
                   volumeMounts:
-                      - mountPath: /etc/envoy/certs/certs.pem
+                      - mountPath: /etc/envoy/certs/cert.pem
                         name: api-gateway-cert
+                        subPath: api-gateway-cert
                       - mountPath: /etc/envoy/certs/key.pem
                         name: api-gateway-key
+                        subPath: api-gateway-key
             restartPolicy: Always
             volumes:
                 - name: api-gateway-cert
