@@ -1,0 +1,6 @@
+name: codelab
+version: 1.0.0\
+
+# Problem service values.yaml configuration
+problem:
+  name: problem

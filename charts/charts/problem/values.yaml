@@ -1,0 +1,3 @@
+name: problem
+version: 1.0.0
+replicas: 1

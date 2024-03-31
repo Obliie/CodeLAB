@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}-deployment
+  labels:
+    app: {{ .Values.name }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.name }}
+    spec:
+      containers:
+      - name: {{ .Values.name }}
+        image: registry.digitalocean.com/codelab/codelab:problem
+        args:
+          - python3
+          - /service/service.py
+        volumeMounts:
+          - name: secretfiles
+            mountPath: "/run/secrets/problemdb-username"
+            subPath: problemdb-username
+            readOnly: true
+          - name: secretfiles
+            mountPath: "/run/secrets/problemdb-password"
+            subPath: problemdb-password
+            readOnly: true
+          - name: secretfiles
+            mountPath: "/run/secrets/problemdb-root-username"
+            subPath: problemdb-root-username
+            readOnly: true
+          - name: secretfiles
+            mountPath: "/run/secrets/problemdb-root-password"
+            subPath: problemdb-root-password
+            readOnly: true
+      volumes:
+        - name: secretfiles
+          secret:
+            secretName: {{ .Values.name }}-secrets
