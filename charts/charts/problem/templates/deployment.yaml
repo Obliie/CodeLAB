@@ -37,7 +37,14 @@ spec:
             mountPath: "/run/secrets/problemdb-root-password"
             subPath: problemdb-root-password
             readOnly: true
+          - name: configfile
+            mountPath: "/service-config"
+            subPath: config.yaml
+            readOnly: true
       volumes:
         - name: secretfiles
           secret:
             secretName: {{ .Values.name }}-secrets
+        - name: configfile
+          configMap:
+            name: {{ .Values.name }}-{{ .Values.version }}-configmap
