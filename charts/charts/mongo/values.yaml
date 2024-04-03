@@ -1,0 +1,4 @@
+name: mongo
+version: 1.0.0
+replicas: 1
+port: 1

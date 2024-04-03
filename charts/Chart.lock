@@ -1,0 +1,6 @@
+dependencies:
+- name: problem
+  repository: file://charts/problem
+  version: 1.0.0
+digest: sha256:847ec09659b69bbffb2fded4a147ba9812d2a714b68093999cd182aad36dd696
+generated: "2024-04-02T01:11:56.61642+01:00"

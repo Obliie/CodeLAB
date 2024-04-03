@@ -1,6 +1,10 @@
 name: codelab
-version: 1.0.0\
+version: 1.0.0
 
 # Problem service values.yaml configuration
 problem:
   name: problem
+  mongo:
+    name: hello
+    replicas: 1
+    port: 1
