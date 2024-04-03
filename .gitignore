@@ -2,3 +2,4 @@
 env/*
 **/build/*
 secrets/oauth*
+*.tgz
