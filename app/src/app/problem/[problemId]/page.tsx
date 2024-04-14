@@ -21,17 +21,18 @@ import { GetSubmissionProgressResponse } from '@/protobufs/services/v1/submissio
 import Unauthorized from '@/components/Unauthorized';
 import ProblemActions from '@/components/ProblemActions';
 import { DeleteProblemRequest } from '@/actions/DeleteProblemRequest';
+import { PromiseClient } from '@connectrpc/connect';
 
 async function ProblemDisplay({ problem }: { problem: Problem }) {
     const session = await getServerSession();
-    const submissionService = useServerClient(SubmissionService);
+    const submissionServiceClient: PromiseClient<typeof SubmissionService> = useClient(SubmissionService);
 
     let currentCode = undefined;
     if (session) {
-        const resp = (await submissionService
+        const resp = (await submissionServiceClient
             .getSubmissionProgress({
                 problemId: problem.id,
-                userId: session.user.email,
+                userId: session.user.email ?? "",
             })
             .catch(err => handleGrpcError(err))) as GetSubmissionProgressResponse;
 

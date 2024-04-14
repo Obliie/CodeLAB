@@ -45,23 +45,6 @@ async function Group({ group }: { group: ProblemGroup }) {
                         </CardContent>
                     </Card>
                 </Grid>
-                <Grid xs>
-                    <Card>
-                        <CardContent sx={{ height: '90%' }}>
-                            <Typography gutterBottom variant="h5" component="div">
-                                Progress
-                            </Typography>
-
-                            <Box sx={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignContent: 'center',
-                            }}>
-                                <CircularProgressWithLabel label={`X/${group.problemIds.length}`} value={70} sx={{height: '100%'}}/>
-                            </Box>
-                        </CardContent>
-                    </Card>
-                </Grid>
             </Grid>
 
             <Divider sx={{ marginTop: '20px', marginBottom: '12px' }}></Divider>

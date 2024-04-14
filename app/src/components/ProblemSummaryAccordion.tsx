@@ -17,11 +17,12 @@ import { SubmissionService } from "@/protobufs/services/v1/submission_service_co
 import { handleGrpcError } from "@/lib/error";
 import { GetSubmissionStateForUserResponse } from "@/protobufs/services/v1/submission_service_pb";
 import Chip from "@mui/material/Chip";
+import { PromiseClient } from "@connectrpc/connect";
 
 export default function ProblemSummaryAccordion({ problemSummaries, deleteProblem, nav }: { deleteProblem: Function, problemSummaries: ProblemSummary[], nav: string }) {
     const { data: session } = useSession();
     const [filteredSummaries, setFilteredSummaries] = useState(problemSummaries);
-    const submissionServiceClient = useClient(SubmissionService);
+    const submissionServiceClient: PromiseClient<typeof SubmissionService> = useClient(SubmissionService);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setFilteredSummaries([...problemSummaries.filter(summary => summary.title.toLowerCase().includes(event.target.value.toLowerCase()))])
