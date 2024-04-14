@@ -18,10 +18,12 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider';
+import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Unstable_Grid2'
 import { getServerSession } from 'next-auth';
+import React from 'react';
 
 async function Group({ group }: { group: ProblemGroup }) {
     const problemSummaries = (await useServerClient(ProblemService)
@@ -53,7 +55,7 @@ async function Group({ group }: { group: ProblemGroup }) {
             </Typography>
 
             {group.problemIds.length > 0 ? 
-            (<ProblemSummaryAccordion problemSummaries={problemSummaries.problemSummaries} deleteProblem={DeleteProblemRequest} nav={`/group/${group.id}`} />) : <Typography>The group has no assigned problems...</Typography>
+            (<React.Suspense fallback={<Skeleton width="100%" />}><ProblemSummaryAccordion problemSummaries={problemSummaries.problemSummaries} deleteProblem={DeleteProblemRequest} nav={`/group/${group.id}`} /></React.Suspense>) : <Typography>The group has no assigned problems...</Typography>
             }
         </Box>
     );
