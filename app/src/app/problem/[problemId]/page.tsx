@@ -25,7 +25,7 @@ import { PromiseClient } from '@connectrpc/connect';
 
 async function ProblemDisplay({ problem }: { problem: Problem }) {
     const session = await getServerSession();
-    const submissionServiceClient: PromiseClient<typeof SubmissionService> = useClient(SubmissionService);
+    const submissionServiceClient: PromiseClient<typeof SubmissionService> = useServerClient(SubmissionService);
 
     let currentCode = undefined;
     if (session) {
