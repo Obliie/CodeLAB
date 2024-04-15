@@ -41,9 +41,9 @@ async function Group({ group }: { group: ProblemGroup }) {
                             <Typography gutterBottom variant="h5" component="div">
                                 {group.name}
                             </Typography>
-                            <Typography variant="body2" color="text.secondary">
+                            <Box sx={{ whiteSpace: "pre-wrap" }}>
                                 {group.description}
-                            </Typography>
+                            </Box>
                         </CardContent>
                     </Card>
                 </Grid>

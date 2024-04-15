@@ -38,6 +38,12 @@ function getLanguageDisplayName(language: string) {
     switch (language) {
         case 'PROGRAMMING_LANGUAGE_PYTHON':
             return 'Python';
+        case 'PROGRAMMING_LANGUAGE_JAVASCRIPT':
+            return 'JavaScript';
+        case 'PROGRAMMING_LANGUAGE_JAVA':
+            return 'Java';
+        case 'PROGRAMMING_LANGUAGE_C':
+            return 'C';
         case 'PROGRAMMING_LANGUAGE_PROLOG':
             return 'Prolog';
     }
@@ -49,6 +55,12 @@ function getLanguage(language: string) {
     switch (language) {
         case 'PROGRAMMING_LANGUAGE_PYTHON':
             return ProgrammingLanguage.PYTHON;
+        case 'PROGRAMMING_LANGUAGE_JAVASCRIPT':
+            return ProgrammingLanguage.JAVASCRIPT;
+        case 'PROGRAMMING_LANGUAGE_JAVA':
+            return ProgrammingLanguage.JAVA;
+        case 'PROGRAMMING_LANGUAGE_C':
+            return ProgrammingLanguage.C;
         case 'PROGRAMMING_LANGUAGE_PROLOG':
             return ProgrammingLanguage.PROLOG;
     }
@@ -90,6 +102,12 @@ function getMainFileName(language: ProgrammingLanguage) {
             return 'main.py';
         case ProgrammingLanguage.PROLOG:
             return 'main.pl';
+        case ProgrammingLanguage.JAVA:
+            return 'Main.java';
+        case ProgrammingLanguage.JAVASCRIPT:
+            return 'main.js'
+        case ProgrammingLanguage.C:
+            return 'main.c'
     }
 
     return 'main';
@@ -181,7 +199,8 @@ export default function CodeSubmitter({ problem, currentCode }: { problem: Probl
                                 <CodeEditor
                                     code={code}
                                     setCode={setCode}
-                                    language={getLanguage(language)}
+                                    langEnum={undefined}
+                                    language={language}
                                     readOnly={false}
                                 />
                             </Box>

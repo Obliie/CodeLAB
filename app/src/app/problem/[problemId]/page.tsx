@@ -53,9 +53,9 @@ async function ProblemDisplay({ problem }: { problem: Problem }) {
                             <Typography gutterBottom variant="h5" component="div">
                                 {problem.title}
                             </Typography>
-                            <Typography variant="body2" color="text.secondary">
+                            <Box sx={{ whiteSpace: "pre-wrap" }}>
                                 {problem.description}
-                            </Typography>
+                            </Box>
                         </CardContent>
                     </Card>
                 </Grid>

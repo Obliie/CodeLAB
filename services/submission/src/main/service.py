@@ -297,7 +297,6 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
         request: submission_service_pb2.GetSubmissionStateForUserRequest,
         context: grpc.ServicerContext,
     ) -> submission_service_pb2.GetSubmissionStateForUserResponse:
-        log_and_flush(logging.INFO, f"usr: {request.user_id} aand prob {request.problem_id}")
         latest_submission = (
             self.client[self.DATABASE_NAME]
             .get_collection(SUBMISSIONS_COLLECTION_NAME)
@@ -309,7 +308,6 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
             resp.state = 2;
             resp.test_passed = sum(1 for test in latest_submission["tests"] if test['success'] == True)
             resp.test_total = len(latest_submission["tests"])
-            log_and_flush(logging.INFO, f"sub time: {latest_submission['submission_time']}")
         else:
             progress_document = (
                 self.client[self.DATABASE_NAME]
