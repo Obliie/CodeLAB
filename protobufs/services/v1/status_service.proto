@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package protobufs.services.v1;
+option go_package = "protobufs/services/v1";
 
 // A service to handle status subscriptions across the application.
 service StatusService {

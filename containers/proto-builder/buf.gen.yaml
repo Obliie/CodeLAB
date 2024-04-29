@@ -10,3 +10,7 @@ plugins:
       out: ./protobufs/build/ts
     - plugin: buf.build/bufbuild/es
       out: ./protobufs/build/ts
+    - plugin: buf.build/grpc/go
+      out: ./protobufs/build/go
+    - plugin: buf.build/protocolbuffers/go
+      out: ./protobufs/build/go

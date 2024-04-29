@@ -120,6 +120,36 @@ services:
             - problemdb-root-username
             - problemdb-root-password
 
+    problemgo:
+        build:
+            context: ./
+            dockerfile: ./services/problemgo/Dockerfile
+        env_file:
+            - .env
+        depends_on:
+            proto-builder:
+                condition: service_completed_successfully
+            problem-db:
+                condition: service_started
+        develop:
+            watch:
+                - action: sync
+                  path: ./services/problemgo/src/main
+                  target: /service
+                - action: sync
+                  path: ./protobufs/build/go/protobufs
+                  target: /service/protobufs
+        command: air --build.cmd "go build -o /service/problem_service /service/main.go" --build.bin "/service/problem_service"
+        profiles:
+            - problemgo
+        networks:
+            - codelabmesh
+        configs:
+            - service-config
+        secrets:
+            - problemdb-root-username
+            - problemdb-root-password
+
     submission:
         build:
             context: ./
@@ -249,6 +279,7 @@ services:
         profiles:
             - backend
             - problem
+            - problemgo
             - submission
         networks:
             - codelabmesh
@@ -301,6 +332,7 @@ services:
             - backend
             - frontend
             - problem
+            - problemgo
             - code-runner
             - submission
             - status

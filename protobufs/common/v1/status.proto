@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package protobufs.common.v1;
+option go_package = "protobufs/common/v1";
 
 enum SubmissionStatus {
     SUBMISSION_STATUS_UNSPECIFIED = 0;

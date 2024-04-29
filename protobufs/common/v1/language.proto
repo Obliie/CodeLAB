@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package protobufs.common.v1;
+option go_package = "protobufs/common/v1";
 
 enum ProgrammingLanguage {
     PROGRAMMING_LANGUAGE_UNSPECIFIED = 0;
