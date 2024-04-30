@@ -1,3 +1,6 @@
+securityContext:
+  enabled: false
+
 serviceAccounts:
   # Specifies whether service accounts should be created.
   create: true
@@ -37,11 +40,11 @@ frontend:
   nextAuthSecret: CTOqDibU/uVhOl1Ph4q1PjzoyEimfH7zTeq5EY5okiw=
   resources:
     requests:
-      cpu: 100m
-      memory: 64Mi
+      cpu: 500m
+      memory: 512Mi
     limits:
-      cpu: 200m
-      memory: 128Mi
+      cpu: 1000m
+      memory: 1024Mi
 
 userdb:
   enabled: true

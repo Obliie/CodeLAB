@@ -204,15 +204,17 @@ build:
       buildArgs: 
         ENV: dev
     sync:
-      manual:
-        - src: src/frontend/**.ts
-          dest: .
-        - src: src/frontend/**.tsx
-          dest: .
+      infer:
+        - "**/*.ts"
+        - "**/*.tsx"
 profiles:
   - name: dev
     activation:
       - command: dev
+    patches:
+      - op: replace
+        path: /build/artifacts/0/docker/dockerfile
+        value: src/frontend/Dockerfile.dev
     deploy:
       helm:
         releases:

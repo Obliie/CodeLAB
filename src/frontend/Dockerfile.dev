@@ -1,0 +1,10 @@
+FROM node:lts-slim
+
+WORKDIR /app
+
+COPY src/frontend ./
+COPY protobufs/build/ts/protobufs ./src/protobufs/
+RUN npm ci
+
+EXPOSE 3000
+CMD npm run dev -- -H 0.0.0.0

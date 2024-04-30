@@ -39,6 +39,7 @@ spec:
       {{- else }}
       serviceAccountName: default
       {{- end }}
+      {{- if .Values.securityContext.enabled }}
       securityContext:
         fsGroup: 1000
         runAsGroup: 1000
@@ -48,8 +49,10 @@ spec:
         seccompProfile:
           type: {{ .Values.seccompProfile.type }}
         {{- end }}
+      {{- end }}
       containers:
         - name: server
+          {{- if .Values.securityContext.enabled }}
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -57,10 +60,25 @@ spec:
                 - ALL
             privileged: false
             readOnlyRootFilesystem: true
+          {{- end }}
           image: {{ .Values.frontend.image }}
           imagePullPolicy: {{ .Values.frontend.imagePullPolicy }}
           ports:
           - containerPort: {{ .Values.frontend.port }}
+          readinessProbe:
+            initialDelaySeconds: 15
+            timeoutSeconds: 10
+            periodSeconds: 10
+            httpGet:
+              path: "/api/ready"
+              port: 3000
+          livenessProbe:
+            initialDelaySeconds: 15
+            timeoutSeconds: 10
+            periodSeconds: 10
+            httpGet:
+              path: "/api/healthz"
+              port: 3000
           env:
           - name: PORT
             value: "{{ .Values.frontend.port }}"
