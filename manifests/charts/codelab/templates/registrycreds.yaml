@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: registrycreds
+  namespace: {{ .Release.Namespace }}
+data:
+  .dockerconfigjson: ewoJImF1dGhzIjogewoJCSJyZWdpc3RyeS5kaWdpdGFsb2NlYW4uY29tIjogewoJCQkiYXV0aCI6ICJhMmxwY205b2IzUmhjblZBY0hKdmRHOXViV0ZwYkM1amIyMDZaRzl3WDNZeFh6VXhNbUUxT0RaalpXVTFaVFJrWVRZeE1EVm1OVEkxT1RrMVlqa3hPV1UyWW1FellqSXlZMlJrTkdOa1pqSXdaalV3WlRRNVlXSXlOekkxTURobU9HTT0iCgkJfQoJfQp9
+type: kubernetes.io/dockerconfigjson

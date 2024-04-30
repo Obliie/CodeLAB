@@ -69,8 +69,9 @@ build_tag_push() {
 
     # Build Docker image
     docker build \
-      -t "$service_name" \
-      -f "$dockerfile_path" \
+      --tag "$service_name" \
+      --file "$dockerfile_path" \
+      --build-arg ENVIRONMENT=prod \
       ./
 
     # Tag the image for DigitalOcean Container Registry
@@ -84,12 +85,9 @@ build_tag_push() {
 }
 
 # Call the build_tag_push function for each service
-build_tag_push "code-runner" "./services/code-runner/Dockerfile"
-build_tag_push "problem" "./services/problem/Dockerfile"
-build_tag_push "submission" "./services/submission/Dockerfile"
-build_tag_push "status" "./services/status/Dockerfile"
-build_tag_push "status-queue" "./services/status-queue/Dockerfile"
+build_tag_push "code-runner" "./src/code-runner/Dockerfile"
+build_tag_push "problem" "./src/problem/Dockerfile"
+build_tag_push "submission" "./src/submission/Dockerfile"
+build_tag_push "status" "./src/status/Dockerfile"
 build_tag_push "proto-builder" "./containers/proto-builder/Dockerfile"
-build_tag_push "api-gateway" "./containers/api-gateway/Dockerfile"
-build_tag_push "prometheus" "./containers/prometheus/Dockerfile"
-build_tag_push "frontend-web" "./app/Dockerfile"
+build_tag_push "frontend" "./src/frontend/Dockerfile"

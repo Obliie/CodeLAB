@@ -1,0 +1,21 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ .Values.prometheus.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Values.prometheus.name }}
+spec:
+  hosts:
+    - "{{ .Values.prometheus.name }}.{{ .Values.gateway.host }}"
+  gateways:
+    - {{ .Values.gateway.name }}
+  http:
+    - match:
+        - uri:
+            prefix: "/"
+      route:
+        - destination:
+            host: prometheus-server
+            port:
+              number: 80

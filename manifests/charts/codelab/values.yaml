@@ -1,0 +1,113 @@
+serviceAccounts:
+  # Specifies whether service accounts should be created.
+  create: true
+  # Annotations to add to the service accounts.
+  annotations: {}
+
+networkPolicies:
+  # Specifies if the NetworkPolicies are created.
+  create: true
+
+sidecars:
+  # Specifies if the Sidecars are created.
+  create: true
+
+authorizationPolicies:
+  # Specifies if the AuthorizationPolicies are created.
+  create: true
+
+seccompProfile:
+  enable: true
+  type: RuntimeDefault
+
+gateway:
+  name: codelab-ingressgateway
+  host: obliie.localhost
+
+frontend:
+  enable: true
+  name: frontend
+  version: v1
+  image: registry.digitalocean.com/codelab/codelab:frontend
+  imagePullPolicy: Always
+  port: 3000
+  externalService: true
+  googleOAuthClientID: 729756742244-ia2sie3ecsjqjurcb0lthpte22h95env.apps.googleusercontent.com
+  googleOAuthClientSecret: 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
+  nextAuthSecret: CTOqDibU/uVhOl1Ph4q1PjzoyEimfH7zTeq5EY5okiw=
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+
+userdb:
+  enabled: true
+  name: userdb
+  version: "7.0"
+  members: 1
+  port: 27017
+  auth:
+    rootAuthSecretName: userdb-root-password
+    rootUsername: root
+    rootPassword: c0del4br00t
+    userAuthSecretName: userdb-user-password
+    username: codelab
+    password: c0del4b
+  connSecretName: userdb-conn
+  database: users
+  storageSize: 500Mi
+
+problemService:
+  enable: true
+  name: problem
+  port: 19990
+  resources:
+    requests:
+      cpu: 200m
+      memory: 64Mi
+    limits:
+      cpu: 300m
+      memory: 128Mi
+
+codeRunnerService:
+  enable: true
+  name: code-runner
+  port: 19991
+  resources:
+    requests:
+      cpu: 200m
+      memory: 64Mi
+    limits:
+      cpu: 300m
+      memory: 128Mi
+
+submissionService:
+  enable: true
+  name: submission
+  port: 19992
+  resources:
+    requests:
+      cpu: 200m
+      memory: 64Mi
+    limits:
+      cpu: 300m
+      memory: 128Mi
+
+statusService:
+  enable: true
+  name: status
+  port: 19993
+  resources:
+    requests:
+      cpu: 200m
+      memory: 64Mi
+    limits:
+      cpu: 300m
+      memory: 128Mi
+
+loadGenerator:
+  enable: false
+  name: loadGenerator

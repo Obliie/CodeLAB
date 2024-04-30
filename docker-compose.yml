@@ -7,7 +7,7 @@ services:
     frontend:
         build:
             context: ./
-            dockerfile: ./app/Dockerfile
+            dockerfile: ./frontend/Dockerfile
             args:
                 ENVIRONMENT: ${ENVIRONMENT}
                 NEXT_PUBLIC_FRONTEND_URL: ${NEXT_PUBLIC_FRONTEND_URL}
@@ -375,6 +375,7 @@ services:
             - backend
             - gateway
         ports:
+            - 127.0.0.1:19990:19990
             - ${HOST}:${ENVOY_EDGE_GATEWAY_PORT}:443
         networks:
             codelabmesh:

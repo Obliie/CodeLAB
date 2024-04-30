@@ -1,5 +1,6 @@
 {
   "details": {
+    "endpoint": "127.0.0.1:19990",
     "methodFqn": "protobufs.services.v1.ProblemService.AddTestData"
   },
   "requests": [

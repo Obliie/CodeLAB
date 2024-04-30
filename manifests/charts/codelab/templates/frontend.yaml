@@ -1,0 +1,211 @@
+{{- if .Values.frontend.enable }}
+{{- if .Values.serviceAccounts.create }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Values.frontend.name }}
+  namespace: {{.Release.Namespace}}
+  {{- with .Values.serviceAccounts.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+---
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.frontend.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Values.frontend.name }}
+    version: {{ .Values.frontend.version }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.frontend.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.frontend.name }}
+        version: {{ .Values.frontend.version }}
+      annotations:
+        sidecar.istio.io/rewriteAppHTTPProbers: "true"
+        {{- if .Values.sidecars.create }}
+        sidecar.istio.io/inject: "true"
+        {{- end }}
+    spec:
+      {{- if .Values.serviceAccounts.create }}
+      serviceAccountName: {{ .Values.frontend.name }}
+      {{- else }}
+      serviceAccountName: default
+      {{- end }}
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+        {{- if .Values.seccompProfile.enable }}
+        seccompProfile:
+          type: {{ .Values.seccompProfile.type }}
+        {{- end }}
+      containers:
+        - name: server
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+          image: {{ .Values.frontend.image }}
+          imagePullPolicy: {{ .Values.frontend.imagePullPolicy }}
+          ports:
+          - containerPort: {{ .Values.frontend.port }}
+          env:
+          - name: PORT
+            value: "{{ .Values.frontend.port }}"
+          - name: PROBLEM_SERVICE_ADDR
+            value: "{{ .Values.problemService.name }}:{{ .Values.problemService.port }}"
+          - name: SUBMISSION_SERVICE_ADDR
+            value: "{{ .Values.submissionService.name }}:{{ .Values.submissionService.port }}"
+          - name: STATUS_SERVICE_ADDR
+            value: "{{ .Values.statusService.name }}:{{ .Values.statusService.port }}"
+          - name: GOOGLE_OAUTH_CLIENT_ID
+            value: "{{ .Values.frontend.googleOAuthClientID }}"
+          - name: GOOGLE_OAUTH_CLIENT_SECRET
+            value: "{{ .Values.frontend.googleOAuthClientSecret }}"
+          - name: NEXT_PUBLIC_FRONTEND_URL
+            value: "{{ .Values.frontend.url }}"
+          - name: NEXTAUTH_URL
+            value: "http://{{ .Values.gateway.host }}"
+          - name: NEXTAUTH_SECRET
+            value: "{{ .Values.frontend.nextAuthSecret }}"
+          - name: USERDB_CONN
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.userdb.connSecretName }}
+                key: uri
+          resources:
+            {{- toYaml .Values.frontend.resources | nindent 12 }}
+      imagePullSecrets:
+      - name: registrycreds
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.frontend.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Values.frontend.name }}
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Values.frontend.name }}
+  ports:
+  - name: http
+    port: 80
+    targetPort: {{ .Values.frontend.port }}
+{{- if .Values.networkPolicies.create }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Values.frontend.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ .Values.frontend.name }}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  {{- if .Values.frontend.externalService }}
+  - {}
+  {{- else }}
+  - from:
+    - podSelector:
+        matchLabels:
+          app: {{ .Values.loadGenerator.name }}
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: {{ .Release.Namespace }}
+      podSelector:
+        matchLabels:
+          istio: ingressgateway
+    ports:
+     - port: {{ .Values.frontend.port }}
+       protocol: TCP
+  {{- end }}
+  egress:
+  - {}
+{{- end }}
+{{- if .Values.sidecars.create }}
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: {{ .Values.frontend.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  workloadSelector:
+    labels:
+      app: {{ .Values.frontend.name }}
+  egress:
+  - hosts:
+    - istio-system/*
+    - ./{{ .Values.problemService.name }}.{{ .Release.Namespace }}.svc.cluster.local
+    - ./{{ .Values.submissionService.name }}.{{ .Release.Namespace }}.svc.cluster.local
+    - ./{{ .Values.statusService.name }}.{{ .Release.Namespace }}.svc.cluster.local
+{{- end }}
+{{- if .Values.authorizationPolicies.create }}
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ .Values.frontend.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.frontend.name }}
+  rules:
+  {{- if .Values.frontend.externalService }}
+  - to:
+  {{- else }}
+  - from:
+    - source:
+        principals:
+        {{- if .Values.serviceAccounts.create }}
+        - cluster.local/ns/{{ .Release.Namespace }}/sa/{{ .Values.loadGenerator.name }}
+        {{- else }}
+        - cluster.local/ns/{{ .Release.Namespace }}/sa/default
+        {{- end }}
+        - cluster.local/ns/{{ .Release.Namespace }}/sa/{{ .Values.gateway.name }}
+    to:
+  {{- end }}
+    - operation:
+        methods:
+        - GET
+        - POST
+        ports:
+        - "{{ .Values.frontend.port }}"
+{{- end }}
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ .Values.frontend.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  hosts:
+    - "{{ .Values.gateway.host }}"
+  gateways:
+  - {{ .Values.gateway.name }}
+  http:
+  - route:
+    - destination:
+        host: {{ .Values.frontend.name }}
+        port:
+          number: 80
+{{- end }}

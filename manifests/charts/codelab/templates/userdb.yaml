@@ -1,0 +1,66 @@
+apiVersion: mongodbcommunity.mongodb.com/v1
+kind: MongoDBCommunity
+metadata:
+  name: {{ .Values.userdb.name }}
+spec:
+  members: {{ .Values.userdb.members }}
+  type: ReplicaSet
+  version: "{{ .Values.userdb.version }}"
+  featureCompatibilityVersion: "{{ .Values.userdb.version }}"
+  security:
+    authentication:
+      modes: 
+        - SCRAM
+  users:
+    - name: {{ .Values.userdb.auth.rootUsername }}
+      db: admin
+      passwordSecretRef:
+        name: {{ .Values.userdb.auth.rootAuthSecretName }}
+      roles:
+        - name: clusterAdmin
+          db: admin
+        - name: userAdminAnyDatabase
+          db: admin
+      scramCredentialsSecretName: {{ .Values.userdb.auth.rootAuthSecretName }}
+    - name: {{ .Values.userdb.auth.username }}
+      db: admin
+      passwordSecretRef:
+        name: {{ .Values.userdb.auth.userAuthSecretName }}
+      roles:
+        - name: readWrite
+          db: {{ .Values.userdb.database }}
+      scramCredentialsSecretName: {{ .Values.userdb.auth.userAuthSecretName }}
+  statefulSet:
+    spec:
+      volumeClaimTemplates:
+        - metadata:
+            name: data-volume
+          spec:
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: {{ .Values.userdb.storageSize }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.userdb.auth.rootAuthSecretName }}
+type: Opaque
+data:
+  password: {{ .Values.userdb.auth.rootPassword | b64enc }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.userdb.auth.userAuthSecretName }}
+type: Opaque
+data:
+  password: {{ .Values.userdb.auth.password | b64enc }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.userdb.connSecretName }}
+type: Opaque
+data:
+  uri: {{ printf "mongodb://%s:%s@%s:%d/%s?authSource=admin" .Values.userdb.auth.username .Values.userdb.auth.password .Values.userdb.name (int .Values.userdb.port) .Values.userdb.database | b64enc }}

@@ -1,0 +1,225 @@
+##
+# ISTIO - Core
+##
+apiVersion: skaffold/v2beta22
+kind: Config
+metadata:
+  name: istio-base
+profiles:
+  - name: dev
+    activation:
+      - command: dev
+    deploy:
+      helm:
+        releases:
+          - name: istio-base
+            remoteChart: base
+            repo: https://istio-release.storage.googleapis.com/charts
+            version: "1.21.2"
+            namespace: istio-system
+            createNamespace: true
+---
+apiVersion: skaffold/v2beta22
+kind: Config
+metadata:
+  name: istiod
+requires:
+  - configs: [istio-base]
+profiles:
+  - name: dev
+    activation:
+      - command: dev
+    deploy:
+      helm:
+        releases:
+          - name: istiod
+            remoteChart: istiod
+            repo: https://istio-release.storage.googleapis.com/charts
+            version: "1.21.2"
+            namespace: istio-system
+---
+apiVersion: skaffold/v2beta22
+kind: Config
+metadata:
+  name: ingress
+requires:
+  - configs: [istiod]
+profiles:
+  - name: dev
+    activation:
+      - command: dev
+    deploy:
+      helm:
+        releases:
+          - name: istio-ingressgateway
+            remoteChart: gateway
+            repo: https://istio-release.storage.googleapis.com/charts
+            version: "1.21.2"
+            namespace: istio-system
+---
+##
+# ISTIO - Observability
+##
+apiVersion: skaffold/v2beta22
+kind: Config
+metadata:
+  name: prometheus
+requires:
+  - configs: [istiod]
+profiles:
+  - name: dev
+    activation:
+      - command: dev
+    deploy:
+      helm:
+        releases:
+          - name: prometheus
+            remoteChart: prometheus
+            repo: https://prometheus-community.github.io/helm-charts
+            version: "25.20.1"
+            namespace: istio-system
+---
+apiVersion: skaffold/v2beta22
+kind: Config
+metadata:
+  name: grafana
+requires:
+  - configs: [prometheus]
+profiles:
+  - name: dev
+    activation:
+      - command: dev
+    deploy:
+      helm:
+        releases:
+          - name: grafana
+            remoteChart: grafana
+            repo: https://grafana.github.io/helm-charts
+            version: "7.3.9"
+            namespace: istio-system
+            valuesFiles: ["manifests/istio-observability/values-grafana.yaml"]
+---
+apiVersion: skaffold/v2beta22
+kind: Config
+metadata:
+  name: jaeger
+requires:
+  - configs: [prometheus]
+profiles:
+  - name: dev
+    activation:
+      - command: dev
+    deploy:
+      helm:
+        releases:
+          - name: jaeger
+            remoteChart: jaeger
+            repo: https://jaegertracing.github.io/helm-charts
+            version: "3.0.4"
+            namespace: istio-system
+            valuesFiles: ["manifests/istio-observability/values-jaeger.yaml"]
+---
+apiVersion: skaffold/v2beta22
+kind: Config
+metadata:
+  name: kiali
+requires:
+  - configs:
+    - prometheus
+    - grafana
+    - jaeger
+profiles:
+  - name: dev
+    activation:
+      - command: dev
+    deploy:
+      helm:
+        releases:
+          - name: kiali
+            remoteChart: kiali-server
+            repo: https://kiali.org/helm-charts
+            version: "1.83.0"
+            namespace: istio-system
+            valuesFiles: ["manifests/istio-observability/values-kiali.yaml"]
+---
+apiVersion: skaffold/v2beta22
+kind: Config
+metadata:
+  name: istio-codelab-configs
+requires:
+  - configs:
+    - istiod
+    - prometheus
+    - grafana
+    - jaeger
+    - kiali
+profiles:
+  - name: dev
+    activation:
+      - command: dev
+    deploy:
+      helm:
+        releases:
+          - name: istio-codelab-configs
+            chartPath: manifests/charts/istio-codelab-configs
+            namespace: istio-system
+---
+##
+# CodeLAB
+##
+apiVersion: skaffold/v2beta22
+kind: Config
+metadata:
+  name: mongodb-community-operator
+requires:
+  - configs: [istiod]
+profiles:
+  - name: dev
+    activation:
+      - command: dev
+    deploy:
+      helm:
+        releases:
+          - name: mongodb-community-operator
+            remoteChart: community-operator
+            repo: https://mongodb.github.io/helm-charts
+            version: "0.9.0"
+            namespace: codelab
+            createNamespace: true
+---
+apiVersion: skaffold/v2beta22
+kind: Config
+metadata:
+  name: codelab
+requires:
+  - configs: [mongodb-community-operator]
+build:
+  local:
+    push: false
+  artifacts:
+  - image: frontend
+    context: ./
+    docker:
+      dockerfile: src/frontend/Dockerfile
+      buildArgs: 
+        ENV: dev
+    sync:
+      manual:
+        - src: src/frontend/**.ts
+          dest: .
+        - src: src/frontend/**.tsx
+          dest: .
+profiles:
+  - name: dev
+    activation:
+      - command: dev
+    deploy:
+      helm:
+        releases:
+          - name: codelab
+            chartPath: manifests/charts/codelab
+            namespace: codelab
+            createNamespace: true
+            setValueTemplates:
+              frontend.image: "{{.IMAGE_FULLY_QUALIFIED_frontend}}"
+              frontend.imagePullPolicy: IfNotPresent

@@ -1,0 +1,8 @@
+provisionDataStore:
+  cassandra: false
+  elasticsearch: false
+storage:
+  type: "memory"  # For demo purposes, use memory
+  options:
+    memory:
+      maxTraces: 10000

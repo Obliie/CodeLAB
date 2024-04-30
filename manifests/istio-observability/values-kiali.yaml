@@ -1,0 +1,27 @@
+dashboard:
+  viewOnlyMode: false
+createDemoSecret: true  # Automatically create a demo secret, change in production
+auth:
+  strategy: "anonymous"  # For demo purposes. Use "login" in production for better security.
+external_services:
+  prometheus:
+    url: "http://prometheus-server.istio-system.svc.cluster.local:80"
+  grafana:
+    enabled: true
+    auth:
+      username: "admin"
+      password: "admin"
+    url: "http://grafana.obliie.localhost/"
+    in_cluster_url: "http://grafana.istio-system"
+  tracing:
+    enabled: true
+    url: "http://jaeger.obliie.localhost/"
+    in_cluster_url: "http://jaeger-query.istio-system:16685"
+    use_grpc: true
+resources:
+  requests:
+    cpu: "50m"
+    memory: "128Mi"
+  limits:
+    cpu: "100m"
+    memory: "256Mi"

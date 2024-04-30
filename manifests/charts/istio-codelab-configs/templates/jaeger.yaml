@@ -1,0 +1,21 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ .Values.jaeger.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Values.jaeger.name }}
+spec:
+  hosts:
+    - "{{ .Values.jaeger.name }}.{{ .Values.gateway.host }}"
+  gateways:
+    - {{ .Values.gateway.name }}
+  http:
+    - match:
+        - uri:
+            prefix: "/"
+      route:
+        - destination:
+            host: jaeger-query
+            port:
+              number: 80

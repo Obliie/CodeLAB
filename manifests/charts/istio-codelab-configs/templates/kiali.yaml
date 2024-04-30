@@ -1,0 +1,21 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ .Values.kiali.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Values.kiali.name }}
+spec:
+  hosts:
+    - "{{ .Values.kiali.name }}.{{ .Values.gateway.host }}"
+  gateways:
+    - {{ .Values.gateway.name }}
+  http:
+    - match:
+        - uri:
+            prefix: "/"
+      route:
+        - destination:
+            host: kiali
+            port:
+              number: 20001

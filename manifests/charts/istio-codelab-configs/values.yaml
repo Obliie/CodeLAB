@@ -1,0 +1,15 @@
+gateway:
+  name: codelab-ingressgateway
+  host: obliie.localhost
+
+grafana:
+  name: grafana
+
+kiali:
+  name: kiali
+
+jaeger:
+  name: jaeger
+
+prometheus:
+  name: prometheus

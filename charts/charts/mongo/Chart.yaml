@@ -1,6 +1,0 @@
-apiVersion: v2
-name: mongo
-description: CodeLAB Mongo Service
-type: application
-version: 1.0.0
-appVersion: "1.0.0"

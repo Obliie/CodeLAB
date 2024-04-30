@@ -1,0 +1,48 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: {{ .Values.gateway.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Values.gateway.name }}
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*.{{ .Values.gateway.host }}"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: external-obliie-localhost
+spec:
+  hosts:
+  - "{{ .Values.gateway.host }}"
+  location: MESH_EXTERNAL
+  ports:
+  - number: 80
+    name: http
+    protocol: HTTP
+  resolution: DNS
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: redirect-to-ingressgateway
+spec:
+  hosts:
+  - "{{ .Values.gateway.host }}"
+  http:
+  - match:
+    - uri:
+        prefix: "/"
+    route:
+    - destination:
+        host: istio-ingressgateway.istio-system.svc.cluster.local
+        port:
+          number: 80
