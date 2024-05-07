@@ -7,4 +7,6 @@ COPY protobufs/build/go/protobufs ./protobufs/
 
 RUN go install github.com/cosmtrek/air@latest
 
+RUN go get
+
 EXPOSE 19990

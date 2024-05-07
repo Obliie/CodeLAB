@@ -1,0 +1,10 @@
+name: mongo-db
+version: 1.0.0
+replicas: 1
+port: 27001
+db_name: mongo-db
+secret:
+  user: Y29kZWxhYg==
+  pass: Y29kZWxhYg==
+  root_user: cm9vdA==
+  root_pass: cGFzc3dvcmQ=

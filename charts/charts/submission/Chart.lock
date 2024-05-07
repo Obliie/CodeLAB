@@ -1,0 +1,6 @@
+dependencies:
+- name: mongo
+  repository: file://../../subcharts/mongo
+  version: 1.0.0
+digest: sha256:a53ca0d1e16bdf5fee2a7773d42230a6dba3716854a5c39bd889bca7a1d2c849
+generated: "2024-04-05T12:12:46.246624+01:00"

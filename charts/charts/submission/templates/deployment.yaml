@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}-deployment
+  labels:
+    app: {{ .Values.name }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.name }}
+    spec:
+      containers:
+      - name: {{ .Values.name }}
+        image: registry.digitalocean.com/codelab/codelab:submission
+        args:
+          - python3
+          - /service/service.py
+        volumeMounts:
+          - name: secretfiles
+            mountPath: "/run/secrets/{{ .Values.name }}db-username"
+            subPath: "{{ .Values.name }}db-username"
+            readOnly: true
+          - name: secretfiles
+            mountPath: "/run/secrets/{{ .Values.name }}db-password"
+            subPath: "{{ .Values.name }}db-password"
+            readOnly: true
+          - name: secretfiles
+            mountPath: "/run/secrets/{{ .Values.name }}db-root-username"
+            subPath: "{{ .Values.name }}db-root-username"
+            readOnly: true
+          - name: secretfiles
+            mountPath: "/run/secrets/{{ .Values.name }}db-root-password"
+            subPath: "{{ .Values.name }}db-root-password"
+            readOnly: true
+          - name: configfile
+            mountPath: "/service-config"
+            subPath: config.yaml
+            readOnly: true
+      volumes:
+        - name: secretfiles
+          secret:
+            secretName: {{ .Values.name }}-secrets
+        - name: configfile
+          configMap:
+            name: {{ .Values.name }}-{{ .Values.version }}-configmap
