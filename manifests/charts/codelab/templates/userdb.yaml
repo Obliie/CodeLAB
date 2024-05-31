@@ -2,15 +2,20 @@ apiVersion: mongodbcommunity.mongodb.com/v1
 kind: MongoDBCommunity
 metadata:
   name: {{ .Values.userdb.name }}
+  namespace: {{ .Release.Namespace }}
 spec:
   members: {{ .Values.userdb.members }}
   type: ReplicaSet
   version: "{{ .Values.userdb.version }}"
-  featureCompatibilityVersion: "{{ .Values.userdb.version }}"
+  featureCompatibilityVersion: "{{ .Values.userdb.compatibilityVersion }}"
   security:
     authentication:
-      modes: 
-        - SCRAM
+      ignoreUnknownUsers: true
+      modes: ["SCRAM"]
+    tls:
+      certificateKeySecretRef: {}
+      enabled: false
+      optional: false
   users:
     - name: {{ .Values.userdb.auth.rootUsername }}
       db: admin
@@ -22,6 +27,7 @@ spec:
         - name: userAdminAnyDatabase
           db: admin
       scramCredentialsSecretName: {{ .Values.userdb.auth.rootAuthSecretName }}
+      connectionStringSecretName: {{ .Values.userdb.auth.rootConnectionStringSecretName }}
     - name: {{ .Values.userdb.auth.username }}
       db: admin
       passwordSecretRef:
@@ -30,6 +36,7 @@ spec:
         - name: readWrite
           db: {{ .Values.userdb.database }}
       scramCredentialsSecretName: {{ .Values.userdb.auth.userAuthSecretName }}
+      connectionStringSecretName: {{ .Values.userdb.auth.userConnectionStringSecretName }}
   statefulSet:
     spec:
       volumeClaimTemplates:
@@ -45,6 +52,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: {{ .Values.userdb.auth.rootAuthSecretName }}
+  namespace: {{ .Release.Namespace }}
 type: Opaque
 data:
   password: {{ .Values.userdb.auth.rootPassword | b64enc }}
@@ -53,14 +61,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: {{ .Values.userdb.auth.userAuthSecretName }}
+  namespace: {{ .Release.Namespace }}
 type: Opaque
 data:
   password: {{ .Values.userdb.auth.password | b64enc }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: {{ .Values.userdb.connSecretName }}
-type: Opaque
-data:
-  uri: {{ printf "mongodb://%s:%s@%s:%d/%s?authSource=admin" .Values.userdb.auth.username .Values.userdb.auth.password .Values.userdb.name (int .Values.userdb.port) .Values.userdb.database | b64enc }}

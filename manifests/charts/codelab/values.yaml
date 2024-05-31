@@ -35,6 +35,7 @@ frontend:
   imagePullPolicy: Always
   port: 3000
   externalService: true
+  url: obliie.localhost
   googleOAuthClientID: 729756742244-ia2sie3ecsjqjurcb0lthpte22h95env.apps.googleusercontent.com
   googleOAuthClientSecret: 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
   nextAuthSecret: CTOqDibU/uVhOl1Ph4q1PjzoyEimfH7zTeq5EY5okiw=
@@ -49,17 +50,20 @@ frontend:
 userdb:
   enabled: true
   name: userdb
-  version: "7.0"
+  version: "7.0.11"
+  compatibilityVersion: "7.0"
   members: 1
+  host: userdb-svc.codelab.svc.cluster.local
   port: 27017
   auth:
     rootAuthSecretName: userdb-root-password
+    rootConnectionStringSecretName: userdb-root-conn
     rootUsername: root
     rootPassword: c0del4br00t
     userAuthSecretName: userdb-user-password
+    userConnectionStringSecretName: userdb-codelab-conn
     username: codelab
     password: c0del4b
-  connSecretName: userdb-conn
   database: users
   storageSize: 500Mi
 

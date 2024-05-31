@@ -101,8 +101,8 @@ spec:
           - name: USERDB_CONN
             valueFrom:
               secretKeyRef:
-                name: {{ .Values.userdb.connSecretName }}
-                key: uri
+                name: {{ .Values.userdb.auth.userConnectionStringSecretName }}
+                key: connectionString.standard
           resources:
             {{- toYaml .Values.frontend.resources | nindent 12 }}
       imagePullSecrets:

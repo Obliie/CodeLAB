@@ -3,16 +3,8 @@ import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import NextAuth from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 
-// Dynamic import of the MongoDB adapter
-async function getMongoDBAdapter() {
-    const { default: userDbClientPromise } = await import("@/lib/auth-db");
-    const { MongoDBAdapter } = await import("@auth/mongodb-adapter");
-    return MongoDBAdapter(userDbClientPromise);
-}
-
-const handler = async (req, res) => {
-    return await NextAuth({
-    adapter: await getMongoDBAdapter(),
+const handler = NextAuth({
+    adapter: MongoDBAdapter(userDbClientPromise),
     providers: [
         GoogleProvider({
         clientId: process.env.GOOGLE_OAUTH_CLIENT_ID ?? "",
@@ -47,6 +39,6 @@ const handler = async (req, res) => {
     session: {
         strategy: 'jwt'
     },
-})}
+})
 
 export { handler as GET, handler as POST };
