@@ -207,6 +207,15 @@ build:
       infer:
         - "**/*.ts"
         - "**/*.tsx"
+  - image: problem
+    context: ./
+    docker:
+      dockerfile: src/problem/Dockerfile
+      buildArgs: 
+        ENV: dev
+    sync:
+      infer:
+        - "**/*.py"
 profiles:
   - name: dev
     activation:
@@ -225,3 +234,5 @@ profiles:
             setValueTemplates:
               frontend.image: "{{.IMAGE_FULLY_QUALIFIED_frontend}}"
               frontend.imagePullPolicy: IfNotPresent
+              problemService.image: "{{.IMAGE_FULLY_QUALIFIED_problem}}"
+              problemService.imagePullPolicy: IfNotPresent

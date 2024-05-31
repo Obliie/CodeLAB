@@ -11,13 +11,11 @@ from bson.objectid import ObjectId
 from protobufs.services.v1 import problem_service_pb2, problem_service_pb2_grpc
 from protobufs.common.v1 import problem_pb2
 
-from common.config import Config
 from common.service_logging import init_logging, log_and_flush
 from common.jwt import decrypt_jwt
 from pymongo import MongoClient
 
-DATABASE_USERNAME_FILE = "/run/secrets/problemdb-root-username"
-DATABASE_PASSWORD_FILE = "/run/secrets/problemdb-root-password"
+DATABASE_NAME = "problems"
 
 PROTOBUF_PROBLEM_ID_FIELD = "id"
 PROTOBUF_GROUP_ID_FIELD = "id"
@@ -41,18 +39,11 @@ PROBLEM_SUMMARY_LENGTH = 250
 
 
 class ProblemServicer(problem_service_pb2_grpc.ProblemService):
-    DATABASE_HOST = Config.CONFIG["services"]["problem"]["database"]["host"]
-    DATABASE_PORT = Config.CONFIG["services"]["problem"]["database"]["port"]
-    DATABASE_NAME = Config.CONFIG["services"]["problem"]["database"]["name"]
-
     def __init__(self):
-        with open(DATABASE_USERNAME_FILE) as database_username_file, open(
-            DATABASE_PASSWORD_FILE
-        ) as database_password_file:
-            self.client = MongoClient(
-                f"mongodb://{database_username_file.read()}:{database_password_file.read()}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}?authSource=admin"
-            )
-            log_and_flush(logging.INFO, f"MongoDB client created...")
+        self.client = MongoClient(
+            os.environ['PROBLEMDB_CONN']
+        )
+        log_and_flush(logging.INFO, f"MongoDB client created...")
 
     def _problem_document_to_problem_summary(
         self, problem: Dict[Any, Any]
@@ -91,14 +82,14 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
         if request.id_filter:
             problem_ids = [self._query_id(id_str) for id_str in request.id_filter]
             problems = (
-                self.client[self.DATABASE_NAME]
+                self.client[DATABASE_NAME]
                 .get_collection(PROBLEMS_COLLECTION_NAME)
                 .find({"_id": {"$in": problem_ids}})
                 .limit(request.limit)
             )
         else:
             problems = (
-                self.client[self.DATABASE_NAME]
+                self.client[DATABASE_NAME]
                 .get_collection(PROBLEMS_COLLECTION_NAME)
                 .find({})
                 .limit(request.limit)
@@ -133,7 +124,7 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
         context: grpc.ServicerContext,
     ) -> problem_service_pb2.GetProblemResponse:
         problem_document = (
-            self.client[self.DATABASE_NAME]
+            self.client[DATABASE_NAME]
             .get_collection(PROBLEMS_COLLECTION_NAME)
             .find_one({PROBLEM_ID_FIELD: self._query_id(request.problem_id)})
         )
@@ -150,7 +141,7 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
         context: grpc.ServicerContext,
     ) -> problem_service_pb2.CreateProblemResponse:
         result = (
-            self.client[self.DATABASE_NAME]
+            self.client[DATABASE_NAME]
             .get_collection(PROBLEMS_COLLECTION_NAME)
             .insert_one(json_format.MessageToDict(request.problem))
         )
@@ -201,7 +192,7 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
             problem_dict['members'] = [item for item in problem_dict['members'] if item != ""]
 
         result = (
-            self.client[self.DATABASE_NAME]
+            self.client[DATABASE_NAME]
             .get_collection(PROBLEMS_COLLECTION_NAME)
             .update_one(
                 {
@@ -224,7 +215,7 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
         context: grpc.ServicerContext,
     ) -> problem_service_pb2.DeleteProblemResponse:
         result = (
-            self.client[self.DATABASE_NAME]
+            self.client[DATABASE_NAME]
             .get_collection(PROBLEMS_COLLECTION_NAME)
             .delete_one(
                 {PROBLEM_ID_FIELD: self._query_id(request.problem_id)},
@@ -254,7 +245,7 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
         context: grpc.ServicerContext,
     ) -> problem_service_pb2.GetProblemGroupListResponse:
         groups = (
-            self.client[self.DATABASE_NAME]
+            self.client[DATABASE_NAME]
             .get_collection(PROBLEM_GROUPS_COLLECTION_NAME)
             .find({})
             .limit(request.limit)
@@ -276,7 +267,7 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
         context: grpc.ServicerContext,
     ) -> problem_service_pb2.GetProblemGroupResponse:
         problem_document = (
-            self.client[self.DATABASE_NAME]
+            self.client[DATABASE_NAME]
             .get_collection(PROBLEM_GROUPS_COLLECTION_NAME)
             .find_one({GROUP_ID_FIELD: self._query_id(request.group_id)})
         )
@@ -292,7 +283,7 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
         context: grpc.ServicerContext,
     ) -> problem_service_pb2.CreateProblemGroupResponse:
         result = (
-            self.client[self.DATABASE_NAME]
+            self.client[DATABASE_NAME]
             .get_collection(PROBLEM_GROUPS_COLLECTION_NAME)
             .insert_one(json_format.MessageToDict(request.group))
         )
@@ -321,7 +312,7 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
             group_dict['members'] = [item for item in group_dict['members'] if item != ""]
 
         result = (
-            self.client[self.DATABASE_NAME]
+            self.client[DATABASE_NAME]
             .get_collection(PROBLEM_GROUPS_COLLECTION_NAME)
             .update_one(
                 {
@@ -344,7 +335,7 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
         context: grpc.ServicerContext,
     ) -> problem_service_pb2.DeleteProblemGroupResponse:
         result = (
-            self.client[self.DATABASE_NAME]
+            self.client[DATABASE_NAME]
             .get_collection(PROBLEM_GROUPS_COLLECTION_NAME)
             .delete_one(
                 {GROUP_ID_FIELD: self._query_id(request.group_id)},
@@ -364,7 +355,7 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
         tests = json_format.MessageToDict(request)[PROBLEM_TESTS_FIELD]
 
         result = (
-            self.client[self.DATABASE_NAME]
+            self.client[DATABASE_NAME]
             .get_collection(PROBLEMS_COLLECTION_NAME)
             .update_one(
                 {PROBLEM_ID_FIELD: self._query_id(request.problem_id)},
@@ -387,7 +378,7 @@ class ProblemServicer(problem_service_pb2_grpc.ProblemService):
             return resp
         
         result = (
-            self.client[self.DATABASE_NAME]
+            self.client[DATABASE_NAME]
             .get_collection(PROBLEMS_COLLECTION_NAME)
             .update_one(
                 {PROBLEM_ID_FIELD: self._query_id(request.problem_id)},
@@ -412,7 +403,7 @@ def serve() -> None:
     problem_service_pb2_grpc.add_ProblemServiceServicer_to_server(
         ProblemServicer(), server
     )
-    server.add_insecure_port(f"[::]:{ os.environ['PROBLEM_SERVICE_PORT'] }")
+    server.add_insecure_port(f"[::]:{ os.environ['PORT'] }")
     log_and_flush(logging.INFO, "Starting Problem service...")
     server.start()
     server.wait_for_termination()

@@ -9,7 +9,7 @@ serviceAccounts:
 
 networkPolicies:
   # Specifies if the NetworkPolicies are created.
-  create: true
+  create: false
 
 sidecars:
   # Specifies if the Sidecars are created.
@@ -17,7 +17,7 @@ sidecars:
 
 authorizationPolicies:
   # Specifies if the AuthorizationPolicies are created.
-  create: true
+  create: false
 
 seccompProfile:
   enable: true
@@ -25,7 +25,7 @@ seccompProfile:
 
 gateway:
   name: codelab-ingressgateway
-  host: obliie.localhost
+  host: localhost.obliie.com
 
 frontend:
   enable: true
@@ -35,7 +35,7 @@ frontend:
   imagePullPolicy: Always
   port: 3000
   externalService: true
-  url: obliie.localhost
+  url: localhost.obliie.com
   googleOAuthClientID: 729756742244-ia2sie3ecsjqjurcb0lthpte22h95env.apps.googleusercontent.com
   googleOAuthClientSecret: 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
   nextAuthSecret: CTOqDibU/uVhOl1Ph4q1PjzoyEimfH7zTeq5EY5okiw=
@@ -53,7 +53,6 @@ userdb:
   version: "7.0.11"
   compatibilityVersion: "7.0"
   members: 1
-  host: userdb-svc.codelab.svc.cluster.local
   port: 27017
   auth:
     rootAuthSecretName: userdb-root-password
@@ -70,6 +69,9 @@ userdb:
 problemService:
   enable: true
   name: problem
+  version: v1
+  image: registry.digitalocean.com/codelab/codelab:problem
+  imagePullPolicy: Always  
   port: 19990
   resources:
     requests:
@@ -78,6 +80,25 @@ problemService:
     limits:
       cpu: 300m
       memory: 128Mi
+
+problemdb:
+  enabled: true
+  name: problemdb
+  version: "7.0.11"
+  compatibilityVersion: "7.0"
+  members: 1
+  port: 27017
+  auth:
+    rootAuthSecretName: problemdb-root-password
+    rootConnectionStringSecretName: problemdb-root-conn
+    rootUsername: root
+    rootPassword: c0del4br00t
+    userAuthSecretName: problemdb-user-password
+    userConnectionStringSecretName: problemdb-codelab-conn
+    username: codelab
+    password: c0del4b
+  database: problems
+  storageSize: 500Mi
 
 codeRunnerService:
   enable: true

@@ -1,0 +1,67 @@
+apiVersion: mongodbcommunity.mongodb.com/v1
+kind: MongoDBCommunity
+metadata:
+  name: {{ .Values.problemdb.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  members: {{ .Values.problemdb.members }}
+  type: ReplicaSet
+  version: "{{ .Values.problemdb.version }}"
+  featureCompatibilityVersion: "{{ .Values.problemdb.compatibilityVersion }}"
+  security:
+    authentication:
+      ignoreUnknownUsers: true
+      modes: ["SCRAM"]
+    tls:
+      certificateKeySecretRef: {}
+      enabled: false
+      optional: false
+  users:
+    - name: {{ .Values.problemdb.auth.rootUsername }}
+      db: admin
+      passwordSecretRef:
+        name: {{ .Values.problemdb.auth.rootAuthSecretName }}
+      roles:
+        - name: clusterAdmin
+          db: admin
+        - name: userAdminAnyDatabase
+          db: admin
+      scramCredentialsSecretName: {{ .Values.problemdb.auth.rootAuthSecretName }}
+      connectionStringSecretName: {{ .Values.problemdb.auth.rootConnectionStringSecretName }}
+    - name: {{ .Values.problemdb.auth.username }}
+      db: admin
+      passwordSecretRef:
+        name: {{ .Values.problemdb.auth.userAuthSecretName }}
+      roles:
+        - name: readWrite
+          db: {{ .Values.problemdb.database }}
+      scramCredentialsSecretName: {{ .Values.problemdb.auth.userAuthSecretName }}
+      connectionStringSecretName: {{ .Values.problemdb.auth.userConnectionStringSecretName }}
+  statefulSet:
+    spec:
+      volumeClaimTemplates:
+        - metadata:
+            name: data-volume
+          spec:
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: {{ .Values.problemdb.storageSize }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.problemdb.auth.rootAuthSecretName }}
+  namespace: {{ .Release.Namespace }}
+type: Opaque
+data:
+  password: {{ .Values.problemdb.auth.rootPassword | b64enc }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.problemdb.auth.userAuthSecretName }}
+  namespace: {{ .Release.Namespace }}
+type: Opaque
+data:
+  password: {{ .Values.problemdb.auth.password | b64enc }}

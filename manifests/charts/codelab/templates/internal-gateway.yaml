@@ -1,0 +1,19 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: codelab-internal-vs
+  namespace: {{ .Release.Namespace }}
+spec:
+  hosts:
+    - "{{ .Values.problemService.name }}.{{ .Release.Namespace }}.svc.cluster.local"
+  gateways:
+  - mesh
+  http:
+  - match:
+    - uri:
+        prefix: "/protobufs.services.v1.ProblemService"
+    route:
+    - destination:
+        host: {{ .Values.problemService.name }}
+        port:
+          number: {{ .Values.problemService.port }}
