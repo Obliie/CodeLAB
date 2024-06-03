@@ -1,0 +1,176 @@
+{{- if .Values.submissionService.enable }}
+{{- if .Values.serviceAccounts.create }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Values.submissionService.name }}
+  namespace: {{.Release.Namespace}}
+  {{- with .Values.serviceAccounts.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+---
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.submissionService.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Values.submissionService.name }}
+    version: {{ .Values.submissionService.version }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.submissionService.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.submissionService.name }}
+        version: {{ .Values.submissionService.version }}
+      annotations:
+        sidecar.istio.io/rewriteAppHTTPProbers: "true"
+        {{- if .Values.sidecars.create }}
+        sidecar.istio.io/inject: "true"
+        {{- end }}
+    spec:
+      {{- if .Values.serviceAccounts.create }}
+      serviceAccountName: {{ .Values.submissionService.name }}
+      {{- else }}
+      serviceAccountName: default
+      {{- end }}
+      {{- if .Values.securityContext.enabled }}
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+        {{- if .Values.seccompProfile.enable }}
+        seccompProfile:
+          type: {{ .Values.seccompProfile.type }}
+        {{- end }}
+      {{- end }}
+      containers:
+        - name: {{ .Values.submissionService.name }}
+          {{- if .Values.securityContext.enabled }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+          {{- end }}
+          image: {{ .Values.submissionService.image }}
+          imagePullPolicy: {{ .Values.submissionService.imagePullPolicy }}
+          ports:
+          - containerPort: {{ .Values.submissionService.port }}
+          readinessProbe:
+            initialDelaySeconds: 15
+            timeoutSeconds: 10
+            periodSeconds: 10
+            tcpSocket:
+              port: {{ .Values.submissionService.port }}
+          livenessProbe:
+            initialDelaySeconds: 15
+            timeoutSeconds: 10
+            periodSeconds: 10
+            tcpSocket:
+              port: {{ .Values.submissionService.port }}
+          env:
+          - name: PORT
+            value: "{{ .Values.submissionService.port }}"
+          - name: SUBMISSIONDB_CONN
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.submissiondb.auth.userConnectionStringSecretName }}
+                key: connectionString.standard
+          resources:
+            {{- toYaml .Values.submissionService.resources | nindent 12 }}
+      imagePullSecrets:
+      - name: registrycreds
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.submissionService.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Values.submissionService.name }}
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Values.submissionService.name }}
+  ports:
+  - name: grpc-web
+    port: {{ .Values.submissionService.port }}
+    targetPort: {{ .Values.submissionService.port }}
+{{- if .Values.networkPolicies.create }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Values.submissionService.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ .Values.submissionService.name }}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: {{ .Values.frontend.name }}
+    ports:
+     - port: {{ .Values.submissionService.port }}
+       protocol: TCP
+  egress:
+  - {}
+{{- end }}
+{{- if .Values.sidecars.create }}
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: {{ .Values.submissionService.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  workloadSelector:
+    labels:
+      app: {{ .Values.submissionService.name }}
+  egress:
+  - hosts:
+    - istio-system/*
+{{- end }}
+{{- if .Values.authorizationPolicies.create }}
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ .Values.submissionService.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.submissionService.name }}
+  rules:
+  - from:
+    - source:
+        principals:
+        {{- if .Values.serviceAccounts.create }}
+        - cluster.local/ns/{{ .Release.Namespace }}/sa/{{ .Values.frontend.name }}
+        {{- else }}
+        - cluster.local/ns/{{ .Release.Namespace }}/sa/default
+        {{- end }}
+    to:
+    - operation:
+        methods:
+        - GET
+        - POST
+        ports:
+        - "{{ .Values.submissionService.port }}"
+{{- end }}
+{{- end }}

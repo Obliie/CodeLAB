@@ -1,0 +1,67 @@
+apiVersion: mongodbcommunity.mongodb.com/v1
+kind: MongoDBCommunity
+metadata:
+  name: {{ .Values.submissiondb.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  members: {{ .Values.submissiondb.members }}
+  type: ReplicaSet
+  version: "{{ .Values.submissiondb.version }}"
+  featureCompatibilityVersion: "{{ .Values.submissiondb.compatibilityVersion }}"
+  security:
+    authentication:
+      ignoreUnknownUsers: true
+      modes: ["SCRAM"]
+    tls:
+      certificateKeySecretRef: {}
+      enabled: false
+      optional: false
+  users:
+    - name: {{ .Values.submissiondb.auth.rootUsername }}
+      db: admin
+      passwordSecretRef:
+        name: {{ .Values.submissiondb.auth.rootAuthSecretName }}
+      roles:
+        - name: clusterAdmin
+          db: admin
+        - name: userAdminAnyDatabase
+          db: admin
+      scramCredentialsSecretName: {{ .Values.submissiondb.auth.rootAuthSecretName }}
+      connectionStringSecretName: {{ .Values.submissiondb.auth.rootConnectionStringSecretName }}
+    - name: {{ .Values.submissiondb.auth.username }}
+      db: admin
+      passwordSecretRef:
+        name: {{ .Values.submissiondb.auth.userAuthSecretName }}
+      roles:
+        - name: readWrite
+          db: {{ .Values.submissiondb.database }}
+      scramCredentialsSecretName: {{ .Values.submissiondb.auth.userAuthSecretName }}
+      connectionStringSecretName: {{ .Values.submissiondb.auth.userConnectionStringSecretName }}
+  statefulSet:
+    spec:
+      volumeClaimTemplates:
+        - metadata:
+            name: data-volume
+          spec:
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: {{ .Values.submissiondb.storageSize }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.submissiondb.auth.rootAuthSecretName }}
+  namespace: {{ .Release.Namespace }}
+type: Opaque
+data:
+  password: {{ .Values.submissiondb.auth.rootPassword | b64enc }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.submissiondb.auth.userAuthSecretName }}
+  namespace: {{ .Release.Namespace }}
+type: Opaque
+data:
+  password: {{ .Values.submissiondb.auth.password | b64enc }}

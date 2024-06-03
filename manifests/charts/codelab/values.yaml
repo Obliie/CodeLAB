@@ -115,7 +115,10 @@ codeRunnerService:
 submissionService:
   enable: true
   name: submission
-  port: 19992
+  version: v1
+  image: registry.digitalocean.com/codelab/codelab:submission
+  imagePullPolicy: Always  
+  port: 19990
   resources:
     requests:
       cpu: 200m
@@ -123,6 +126,25 @@ submissionService:
     limits:
       cpu: 300m
       memory: 128Mi
+
+submissiondb:
+  enabled: true
+  name: submissiondb
+  version: "7.0.11"
+  compatibilityVersion: "7.0"
+  members: 1
+  port: 27017
+  auth:
+    rootAuthSecretName: submissiondb-root-password
+    rootConnectionStringSecretName: submissiondb-root-conn
+    rootUsername: root
+    rootPassword: c0del4br00t
+    userAuthSecretName: submissiondb-user-password
+    userConnectionStringSecretName: submissiondb-codelab-conn
+    username: codelab
+    password: c0del4b
+  database: submissions
+  storageSize: 500Mi
 
 statusService:
   enable: true

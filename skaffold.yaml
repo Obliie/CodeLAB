@@ -216,6 +216,15 @@ build:
     sync:
       infer:
         - "**/*.py"
+  - image: submission
+    context: ./
+    docker:
+      dockerfile: src/submission/Dockerfile
+      buildArgs: 
+        ENV: dev
+    sync:
+      infer:
+        - "**/*.py"
 profiles:
   - name: dev
     activation:
@@ -236,3 +245,5 @@ profiles:
               frontend.imagePullPolicy: IfNotPresent
               problemService.image: "{{.IMAGE_FULLY_QUALIFIED_problem}}"
               problemService.imagePullPolicy: IfNotPresent
+              submissionService.image: "{{.IMAGE_FULLY_QUALIFIED_submission}}"
+              submissionService.imagePullPolicy: IfNotPresent

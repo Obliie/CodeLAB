@@ -23,32 +23,26 @@ from common.service_logging import init_logging, log_and_flush
 from pymongo import MongoClient
 from google.protobuf import json_format
 
-DATABASE_USERNAME_FILE = "/run/secrets/submissiondb-root-username"
-DATABASE_PASSWORD_FILE = "/run/secrets/submissiondb-root-password"
+DATABASE_NAME = "submissions"
 
 SUBMISSIONS_COLLECTION_NAME = "submissions"
 SUBMISSION_PROGRESS_COLLECTION_NAME = "progress"
 
-class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
-    DATABASE_HOST = Config.CONFIG["services"]["submission"]["database"]["host"]
-    DATABASE_PORT = Config.CONFIG["services"]["submission"]["database"]["port"]
-    DATABASE_NAME = Config.CONFIG["services"]["submission"]["database"]["name"]
 
+
+class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
     def __init__(self):
-        with open(DATABASE_USERNAME_FILE) as database_username_file, open(
-            DATABASE_PASSWORD_FILE
-        ) as database_password_file:
-            self.client = MongoClient(
-                f"mongodb://{database_username_file.read()}:{database_password_file.read()}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}?authSource=admin"
-            )
-            log_and_flush(logging.INFO, f"MongoDB client created...")
+        self.client = MongoClient(
+            os.environ["SUBMISSIONDB_CONN"]
+        )
+        log_and_flush(logging.INFO, f"MongoDB client created...")
 
     def _query_id(self, problem_id: str) -> ObjectId:
         return ObjectId(problem_id)
 
     def _create_submission(self, user_id: str, problem_id: str, submission_files: List[solution_pb2.SolutionFile], language: language_pb2.ProgrammingLanguage):
         result = (
-            self.client[self.DATABASE_NAME]
+            self.client[DATABASE_NAME]
             .get_collection(SUBMISSIONS_COLLECTION_NAME)
             .insert_one({
                 "user_id": user_id,
@@ -72,7 +66,7 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
     def _save_test_result(self, submission_id: str, test_result_response: code_runner_service_pb2.RunCodeTestsResponse):
         log_and_flush(logging.INFO, f"Saving result for test {str(test_result_response.test_id)}")
         result = (
-            self.client[self.DATABASE_NAME]
+            self.client[DATABASE_NAME]
             .get_collection(SUBMISSIONS_COLLECTION_NAME)
             .update_one(
                 {"_id": self._query_id(submission_id)},
@@ -176,7 +170,7 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
     ) -> submission_service_pb2.GetSubmissionResponse:
         log_and_flush(logging.INFO, f"Trying to get submission {str(request.submission_id)}")
         submission_document = (
-            self.client[self.DATABASE_NAME]
+            self.client[DATABASE_NAME]
             .get_collection(SUBMISSIONS_COLLECTION_NAME)
             .find_one({"_id": self._query_id(request.submission_id)})
         )
@@ -223,7 +217,7 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
         context: grpc.ServicerContext,
     ) -> submission_service_pb2.GetUserSubmissionsResponse:
         submissions = (
-            self.client[self.DATABASE_NAME]
+            self.client[DATABASE_NAME]
             .get_collection(SUBMISSIONS_COLLECTION_NAME)
             .find({"user_id": request.user_id})
         )
@@ -239,7 +233,7 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
         context: grpc.ServicerContext,
     ) -> submission_service_pb2.GetProblemSubmissionsResponse:
         submissions = (
-            self.client[self.DATABASE_NAME]
+            self.client[DATABASE_NAME]
             .get_collection(SUBMISSIONS_COLLECTION_NAME)
             .find({"problem_id": request.problem_id})
         )
@@ -255,7 +249,7 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
         context: grpc.ServicerContext,
     ) -> submission_service_pb2.GetSubmissionProgressResponse:
         progress_document = (
-            self.client[self.DATABASE_NAME]
+            self.client[DATABASE_NAME]
             .get_collection(SUBMISSION_PROGRESS_COLLECTION_NAME)
             .find_one({"problem_id": request.problem_id, "user_id": request.user_id})
         )
@@ -275,7 +269,7 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
         context: grpc.ServicerContext,
     ) -> submission_service_pb2.UpdateSubmissionProgressResponse:
         response = (
-            self.client[self.DATABASE_NAME]
+            self.client[DATABASE_NAME]
             .get_collection(SUBMISSION_PROGRESS_COLLECTION_NAME)
             .update_one({"problem_id": request.problem_id, "user_id": request.user_id},
                         {'$setOnInsert': {
