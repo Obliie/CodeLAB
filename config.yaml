@@ -24,8 +24,18 @@ services:
             PROGRAMMING_LANGUAGE_JAVA:
                 display-name: 'Java 21'
                 docker-image: 'amazoncorretto:21.0.1'
-                main-file: 'solution.java'
-                run-command: java -jar {FILE} {ARGS}
+                main-file: 'Main.java'
+                run-command: java /tmp/code-runner/Main.java
+            PROGRAMMING_LANGUAGE_JAVASCRIPT:
+                display-name: 'JavaScript'
+                docker-image: 'node:lts-slim'
+                main-file: 'main.js'
+                run-command: node /tmp/code-runner/main.js
+            PROGRAMMING_LANGUAGE_C:
+                display-name: 'C'
+                docker-image: 'gcc:13.2.0'
+                main-file: 'main.c'
+                run-command: gcc -o main /tmp/code-runner/main.c && ./main
             PROGRAMMING_LANGUAGE_PROLOG:
                 display-name: 'Prolog 9.2.1'
                 docker-image: 'swipl:9.2.1'

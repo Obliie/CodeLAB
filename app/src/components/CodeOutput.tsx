@@ -71,7 +71,7 @@ function ExecutionDetails({ result, testNo }: { result: SubmissionTestResult; te
                     )}
                 </Typography>
                 <Typography variant="body2">
-                    Output: {result.output ? result.output.replace(/\n/g, '\\n').replace(/\r/g, '\\r') : ''}
+                    Output: <Box sx={{ whiteSpace: "pre-wrap" }}>{result.output}</Box>
                 </Typography>
                 <Typography variant="body2">Runtime: {result.runtime * 1000}ms</Typography>
             </CardContent>

@@ -21,6 +21,8 @@ service SubmissionService {
     rpc GetSubmissionProgress(GetSubmissionProgressRequest) returns (GetSubmissionProgressResponse) { }
     // Update progress of a submission
     rpc UpdateSubmissionProgress(UpdateSubmissionProgressRequest) returns (UpdateSubmissionProgressResponse) { }
+
+    rpc GetSubmissionStateForUser(GetSubmissionStateForUserRequest) returns (GetSubmissionStateForUserResponse) { }
 }
 
 message SubmitCodeRequest {
@@ -94,4 +96,15 @@ message SubmissionTestResult {
     bool passed = 2;
     string output = 3;
     float runtime = 4;
+}
+
+message GetSubmissionStateForUserRequest {
+    string problem_id = 1;
+    string user_id = 2;
+}
+
+message GetSubmissionStateForUserResponse {
+    uint32 state = 1;
+    uint32 test_passed = 3;
+    uint32 test_total = 4;
 }

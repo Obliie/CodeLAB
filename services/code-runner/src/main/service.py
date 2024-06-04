@@ -68,7 +68,7 @@ class CodeRunnerServicer(code_runner_service_pb2_grpc.CodeRunnerService):
 
         language_config = self.languages_config[language_pb2.ProgrammingLanguage.Name(request.language)]
         with SeriesTestRunner(self.container_controller, request.files, request.tests, request.language, request.run_timeout, request.run_max_memory, language_config) as runner:
-            runner.setup()
+            runner.setup() 
             log_and_flush(logging.INFO, f"Got {len(request.tests)} to run")
             for test_id, result, success, run_time, timeout in runner.run_tests():
                 log_and_flush(logging.INFO, f"Run for test {test_id} complete")

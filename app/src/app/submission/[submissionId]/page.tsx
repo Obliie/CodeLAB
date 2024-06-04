@@ -37,7 +37,7 @@ async function Submission({ submission }: { submission: GetSubmissionResponse })
                         <Typography gutterBottom variant="h5" component="div">
                             Submission Code
                         </Typography>
-                        <CodeEditor code={solution} setCode={undefined} language={submission.language} readOnly={true} />
+                        <CodeEditor code={solution} setCode={undefined} langEnum={submission.language} readOnly={true} />
                     </CardContent>
                 </Card>
                 <Card sx={{ width: '50%' }}>

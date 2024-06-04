@@ -26,6 +26,12 @@ function getLanguageDisplayName(language: ProgrammingLanguage) {
             return 'Python';
         case ProgrammingLanguage.PROLOG:
             return 'Prolog';
+        case ProgrammingLanguage.JAVA:
+            return 'Java';
+        case ProgrammingLanguage.JAVASCRIPT:
+            return 'JavaScript'
+        case ProgrammingLanguage.C:
+            return 'C'
     }
 
     return '';
@@ -56,13 +62,19 @@ export default function ProblemEditForm({
         supportedLanguages: {
             value: problem
                 ? problem.supportedLanguages.map(language => {
-                      if (language === 'PROGRAMMING_LANGUAGE_PYTHON') {
-                          return ProgrammingLanguage.PYTHON;
-                      } else if (language === 'PROGRAMMING_LANGUAGE_PROLOG') {
+                        if (language === 'PROGRAMMING_LANGUAGE_PYTHON') {
+                            return ProgrammingLanguage.PYTHON;
+                        } else if (language === 'PROGRAMMING_LANGUAGE_PROLOG') {
                           return ProgrammingLanguage.PROLOG;
-                      } else {
-                          return language;
-                      }
+                        } else if (language === 'PROGRAMMING_LANGUAGE_JAVASCRIPT') {
+                            return ProgrammingLanguage.JAVASCRIPT;
+                        } else if (language === 'PROGRAMMING_LANGUAGE_JAVA') {
+                            return ProgrammingLanguage.JAVA;
+                        } else if (language === 'PROGRAMMING_LANGUAGE_C') {
+                            return ProgrammingLanguage.C;
+                        } else {
+                            return language;
+                        }
                   })
                 : [],
             error: problem ? false : true,
@@ -143,12 +155,12 @@ export default function ProblemEditForm({
 
             setSubmitLoading(false);
             if (response.problem) {
-                router.push(`/problem/${response.problem.id}`);
+                router.push(`/problem/${response.problem.id}/edit`);
             }
         }
     };
 
-    const allProgrammingLanguages = [ProgrammingLanguage.PYTHON, ProgrammingLanguage.PROLOG];
+    const allProgrammingLanguages = [ProgrammingLanguage.PYTHON, ProgrammingLanguage.PROLOG, ProgrammingLanguage.JAVA, ProgrammingLanguage.JAVASCRIPT, ProgrammingLanguage.C];
 
     const [edited, setEdited] = useState(false);
     const handleChange = (e: { target: { name: string; value: any } }) => {
@@ -267,6 +279,12 @@ export default function ProblemEditForm({
                                         return ProgrammingLanguage.PYTHON;
                                     } else if (language === 'PROGRAMMING_LANGUAGE_PROLOG') {
                                         return ProgrammingLanguage.PROLOG;
+                                    } else if (language === 'PROGRAMMING_LANGUAGE_JAVASCRIPT') {
+                                        return ProgrammingLanguage.JAVASCRIPT;
+                                    } else if (language === 'PROGRAMMING_LANGUAGE_JAVA') {
+                                        return ProgrammingLanguage.JAVA;
+                                    } else if (language === 'PROGRAMMING_LANGUAGE_C') {
+                                        return ProgrammingLanguage.C;
                                     } else {
                                         return language;
                                     }
@@ -284,6 +302,12 @@ export default function ProblemEditForm({
                                         return ProgrammingLanguage.PYTHON;
                                     } else if (language === 'PROGRAMMING_LANGUAGE_PROLOG') {
                                         return ProgrammingLanguage.PROLOG;
+                                    } else if (language === 'PROGRAMMING_LANGUAGE_JAVASCRIPT') {
+                                        return ProgrammingLanguage.JAVASCRIPT;
+                                    } else if (language === 'PROGRAMMING_LANGUAGE_JAVA') {
+                                        return ProgrammingLanguage.JAVA;
+                                    } else if (language === 'PROGRAMMING_LANGUAGE_C') {
+                                        return ProgrammingLanguage.C;
                                     } else {
                                         return language;
                                     }

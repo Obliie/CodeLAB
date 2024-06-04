@@ -20,7 +20,7 @@ from protobufs.services.v1 import status_service_pb2, status_service_pb2_grpc
 
 from common.config import Config
 from common.service_logging import init_logging, log_and_flush
-from pymongo import MongoClient
+from pymongo import MongoClient, DESCENDING
 from google.protobuf import json_format
 
 DATABASE_USERNAME_FILE = "/run/secrets/submissiondb-root-username"
@@ -290,6 +290,32 @@ class SubmissionServicer(submission_service_pb2_grpc.SubmissionService):
 
         resp = submission_service_pb2.UpdateSubmissionProgressResponse()
         resp.success = response.acknowledged
+
+        return resp
+
+    def GetSubmissionStateForUser(self,
+        request: submission_service_pb2.GetSubmissionStateForUserRequest,
+        context: grpc.ServicerContext,
+    ) -> submission_service_pb2.GetSubmissionStateForUserResponse:
+        latest_submission = (
+            self.client[self.DATABASE_NAME]
+            .get_collection(SUBMISSIONS_COLLECTION_NAME)
+            .find_one({"user_id": request.user_id, "problem_id": request.problem_id}, sort=[( 'submission_time', DESCENDING )])
+        )
+
+        resp = submission_service_pb2.GetSubmissionStateForUserResponse()
+        if latest_submission:
+            resp.state = 2;
+            resp.test_passed = sum(1 for test in latest_submission["tests"] if test['success'] == True)
+            resp.test_total = len(latest_submission["tests"])
+        else:
+            progress_document = (
+                self.client[self.DATABASE_NAME]
+                .get_collection(SUBMISSION_PROGRESS_COLLECTION_NAME)
+                .find_one({"problem_id": request.problem_id, "user_id": request.user_id})
+            )
+            if progress_document:
+                resp.state = 1
 
         return resp
 
